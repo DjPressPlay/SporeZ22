@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState("Home");
+
   return (
     <div
       style={{
@@ -54,7 +56,6 @@ export default function App() {
           SporeZ // E.I.G.
         </h1>
 
-        {/* Placeholder for right-side icon if needed */}
         <div style={{ width: "40px" }}></div>
       </header>
 
@@ -72,10 +73,11 @@ export default function App() {
         {["Home", "Saved Sporez", "Spore Fusion"].map((tab) => (
           <button
             key={tab}
+            onClick={() => setActiveTab(tab)}
             style={{
               background: "none",
               border: "none",
-              color: "#00f0ff",
+              color: activeTab === tab ? "#00ff88" : "#00f0ff",
               fontSize: "1rem",
               fontWeight: "bold",
               cursor: "pointer",
@@ -87,16 +89,65 @@ export default function App() {
         ))}
       </nav>
 
-      {/* 🔘 Main Body Placeholder */}
+      {/* 🔘 Main Content Panel */}
       <main
         style={{
           flexGrow: 1,
           padding: "2rem",
-          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
-        <p style={{ opacity: 0.3 }}>Select a tab or begin generating a new identity...</p>
+        {activeTab === "Home" && (
+          <>
+            <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
+            <p style={{ opacity: 0.3 }}>Paste a link below to generate a compact Spore link.</p>
+
+            {/* 🧪 URL Input Field */}
+            <div style={{ marginTop: "2rem", width: "100%", maxWidth: 500 }}>
+              <input
+                type="text"
+                placeholder="Paste a long link..."
+                style={{
+                  width: "100%",
+                  padding: "1rem",
+                  fontSize: "1rem",
+                  borderRadius: "10px",
+                  border: "1px solid #00f0ff88",
+                  background: "#001a26",
+                  color: "#00f0ff",
+                  outline: "none",
+                }}
+              />
+              <button
+                style={{
+                  marginTop: "1rem",
+                  width: "100%",
+                  padding: "1rem",
+                  fontSize: "1rem",
+                  fontWeight: "bold",
+                  background: "#00f0ff",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  boxShadow: "0 0 10px #00f0ff88",
+                }}
+              >
+                Shorten & Drop
+              </button>
+            </div>
+          </>
+        )}
+
+        {activeTab === "Saved Sporez" && (
+          <p style={{ opacity: 0.5 }}>🧬 Your previously dropped Sporez will show here.</p>
+        )}
+
+        {activeTab === "Spore Fusion" && (
+          <p style={{ opacity: 0.5 }}>🔬 Fusion lab coming soon. Mix identity + payloads.</p>
+        )}
       </main>
     </div>
   );
