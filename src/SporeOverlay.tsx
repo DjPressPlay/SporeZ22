@@ -32,9 +32,15 @@ export default function SporeOverlay() {
             <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
           ))}
         </div>
+
+        {/* ✨ Sparkle Trail */}
+        <div className="spore-sparkle-field">
+          {[...Array(20)].map((_, i) => (
+            <div key={i} className="spore-sparkle" style={{ "--s": i } as React.CSSProperties} />
+          ))}
+        </div>
       </div>
 
-      {/* 🔮 Animation Styles */}
       <style>{`
         .spore-core {
           width: 300px;
@@ -51,9 +57,10 @@ export default function SporeOverlay() {
           color: #00f0ff;
           font-weight: bold;
           text-align: center;
-          animation: floatAcrossThenIn 2s ease-in-out forwards;
+          animation: floatAcrossThenIn 2s cubic-bezier(0.25, 0.8, 0.4, 1) forwards;
           position: relative;
           opacity: 0;
+          overflow: visible;
         }
 
         .spore-gif {
@@ -97,6 +104,45 @@ export default function SporeOverlay() {
           transform: rotate(calc(var(--i) * 45deg)) translate(100px);
         }
 
+        /* ✨ Sparkles */
+        .spore-sparkle-field {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          overflow: visible;
+          pointer-events: none;
+        }
+
+        .spore-sparkle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: #00f0ffcc;
+          box-shadow: 0 0 6px #00f0ffcc;
+          animation: sparkleTrail 1.2s ease-out forwards;
+          animation-delay: calc(var(--s) * 0.1s);
+          top: calc(50% + (Math.random() * 40 - 20)px);
+          left: calc(50% + (Math.random() * 40 - 20)px);
+          opacity: 0;
+        }
+
+        @keyframes sparkleTrail {
+          0% {
+            transform: scale(0.3) translateY(0px);
+            opacity: 0;
+          }
+          30% {
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1.1) translateY(20px);
+            opacity: 0;
+          }
+        }
+
         @keyframes rotateRing {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -112,25 +158,25 @@ export default function SporeOverlay() {
             opacity: 1;
           }
         }
-@keyframes floatAcrossThenIn {
-  0% {
-    transform: translateX(-100vw) scale(0.3);
-    opacity: 0;
-  }
-  45% {
-    transform: translateX(25vw) scale(1.08);
-    opacity: 0.85;
-  }
-  75% {
-    transform: translateX(5vw) scale(1.02);
-    opacity: 0.95;
-  }
-  100% {
-    transform: translateX(0) scale(1);
-    opacity: 1;
-  }
-}
 
+        @keyframes floatAcrossThenIn {
+          0% {
+            transform: translateX(-100vw) scale(0.3);
+            opacity: 0;
+          }
+          45% {
+            transform: translateX(25vw) scale(1.08);
+            opacity: 0.85;
+          }
+          75% {
+            transform: translateX(5vw) scale(1.02);
+            opacity: 0.95;
+          }
+          100% {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
+        }
       `}</style>
     </div>
   );
