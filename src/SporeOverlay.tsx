@@ -112,25 +112,25 @@ export default function SporeOverlay() {
             opacity: 1;
           }
         }
+@keyframes floatAcrossThenIn {
+  0% {
+    transform: translateX(-100vw) scale(0.3);
+    opacity: 0;
+  }
+  45% {
+    transform: translateX(25vw) scale(1.08);
+    opacity: 0.85;
+  }
+  75% {
+    transform: translateX(5vw) scale(1.02);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
 
-        @keyframes floatAcrossThenIn {
-          0% {
-            transform: translateX(-100vw) scale(0.3);
-            opacity: 0;
-          }
-          40% {
-            transform: translateX(30vw) scale(1.1);
-            opacity: 0.8;
-          }
-          70% {
-            transform: translateX(10vw) scale(1.05);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateX(0) scale(1);
-            opacity: 1;
-          }
-        }
       `}</style>
     </div>
   );
