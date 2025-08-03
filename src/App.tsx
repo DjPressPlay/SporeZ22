@@ -1,7 +1,19 @@
 import React, { useState } from "react";
+import SporeOverlay from "./SporeOverlay";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
+  const [inputValue, setInputValue] = useState("");
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const handleShorten = () => {
+    if (inputValue.trim() === "") return;
+    setShowOverlay(true);
+    setTimeout(() => {
+      setShowOverlay(false);
+      // TODO: Add backend shortening logic here
+    }, 2000);
+  };
 
   return (
     <div
@@ -27,7 +39,6 @@ export default function App() {
       >
         {/* 👤 Profile Section + Info */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {/* Avatar */}
           <div
             style={{
               width: "70px",
@@ -46,8 +57,6 @@ export default function App() {
           >
             🧬
           </div>
-
-          {/* 🧾 Info Container */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>Z-Entity: EGG-91XZ</span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
@@ -56,7 +65,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* 🧠 Title */}
         <h1
           style={{
             fontSize: "1.5rem",
@@ -69,7 +77,6 @@ export default function App() {
           SporeZ // E.I.G.
         </h1>
 
-        {/* Empty right block for symmetry */}
         <div style={{ width: "40px" }}></div>
       </header>
 
@@ -103,7 +110,7 @@ export default function App() {
         ))}
       </nav>
 
-      {/* 🔘 Main Content Panel */}
+      {/* 🔘 Main Panel */}
       <main
         style={{
           flexGrow: 1,
@@ -118,10 +125,11 @@ export default function App() {
             <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
             <p style={{ opacity: 0.3 }}>Paste a link below to generate a compact Spore link.</p>
 
-            {/* 🧪 URL Input Field */}
             <div style={{ marginTop: "2rem", width: "100%", maxWidth: 500 }}>
               <input
                 type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Paste a long link..."
                 style={{
                   width: "100%",
@@ -135,6 +143,7 @@ export default function App() {
                 }}
               />
               <button
+                onClick={handleShorten}
                 style={{
                   marginTop: "1rem",
                   width: "100%",
@@ -163,6 +172,9 @@ export default function App() {
           <p style={{ opacity: 0.5 }}>🔬 Fusion lab coming soon. Mix identity + payloads.</p>
         )}
       </main>
+
+      {showOverlay && <SporeOverlay />}
     </div>
   );
 }
+
