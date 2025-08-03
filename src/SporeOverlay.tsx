@@ -25,12 +25,14 @@ export default function SporeOverlay() {
           <span>[GIF Slot]</span>
         </div>
         Generating Spore...
-      </div>
 
-      {/* 🎇 Particle Trails */}
-      {[...Array(20)].map((_, i) => (
-        <div key={i} className="spore-particle" />
-      ))}
+        {/* 🧬 Rotating Orbiting Spores */}
+        <div className="spore-ring">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
+          ))}
+        </div>
+      </div>
 
       {/* 🔮 Animation Styles */}
       <style>{`
@@ -68,50 +70,65 @@ export default function SporeOverlay() {
           opacity: 0.5;
         }
 
-        @keyframes floatAcrossThenIn {
-          0% {
-            transform: translateX(-100vw) translateY(0px) scale(0.3);
-            opacity: 0;
-          }
-          40% {
-            transform: translateX(30vw) translateY(-40px) scale(1.1);
+        .spore-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 200px;
+          height: 200px;
+          margin-top: -100px;
+          margin-left: -100px;
+          animation: rotateRing 10s linear infinite;
+          pointer-events: none;
+        }
+
+        .spore-spore {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #00f0ff;
+          box-shadow: 0 0 10px #00f0ffaa;
+          transform-origin: 100px 100px;
+          animation: pulseSpore 2s ease-in-out infinite;
+        }
+
+        .spore-spore {
+          transform: rotate(calc(var(--i) * 45deg)) translate(100px);
+        }
+
+        @keyframes rotateRing {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseSpore {
+          0%, 100% {
+            transform: scale(1);
             opacity: 0.8;
           }
-          70% {
-            transform: translateX(10vw) translateY(20px) scale(1.05);
-            opacity: 0.9;
-          }
-          100% {
-            transform: translateX(0) translateY(0) scale(1);
+          50% {
+            transform: scale(1.4);
             opacity: 1;
           }
         }
 
-        .spore-particle {
-          position: absolute;
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #00f0ff;
-          opacity: 0.2;
-          animation: trailFloat 3s infinite ease-in-out;
-          animation-delay: calc(0.1s * var(--i));
-          top: calc(50% + (Math.random() * 100 - 50)px);
-          left: calc(50% + (Math.random() * 100 - 50)px);
-        }
-
-        @keyframes trailFloat {
+        @keyframes floatAcrossThenIn {
           0% {
-            transform: scale(0.2) translateY(0);
-            opacity: 0.1;
+            transform: translateX(-100vw) scale(0.3);
+            opacity: 0;
           }
-          50% {
-            transform: scale(0.6) translateY(-20px);
-            opacity: 0.4;
+          40% {
+            transform: translateX(30vw) scale(1.1);
+            opacity: 0.8;
+          }
+          70% {
+            transform: translateX(10vw) scale(1.05);
+            opacity: 0.9;
           }
           100% {
-            transform: scale(1) translateY(0);
-            opacity: 0.1;
+            transform: translateX(0) scale(1);
+            opacity: 1;
           }
         }
       `}</style>
