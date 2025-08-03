@@ -52,54 +52,77 @@ export default function SporeOverlay() {
         {/* ✨ Sparkle Trail */}
         <div className="spore-sparkle-field">{sparkles}</div>
       </div>
+<style>{`
+  .spore-core {
+    width: 300px;
+    height: 300px;
+    background: #001a26;
+    border-radius: 20px;
+    border: 2px solid #00f0ff88;
+    box-shadow: 0 0 40px #00f0ff88, 0 0 100px #00f0ff22 inset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #00f0ff;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    opacity: 0;
+    animation: floatAcrossThenBurst 2s ease-in-out forwards;
+  }
 
-      <style>{`
-        .spore-core {
-          width: 300px;
-          height: 300px;
-          background: #001a26;
-          border-radius: 20px;
-          border: 2px solid #00f0ff88;
-          box-shadow: 0 0 40px #00f0ff88, 0 0 100px #00f0ff22 inset;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          color: #00f0ff;
-          font-weight: bold;
-          text-align: center;
-          animation: floatAcrossThenIn 2s cubic-bezier(0.25, 0.8, 0.4, 1) forwards;
-          position: relative;
-          opacity: 0;
-          overflow: visible;
-        }
+  .spore-gif {
+    width: 100%;
+    height: 150px;
+    background: #00232e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.75rem;
+    opacity: 0.5;
+  }
 
-        .spore-gif {
-          width: 100%;
-          height: 150px;
-          background: #00232e;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 1rem;
-          border-radius: 12px;
-          overflow: hidden;
-          font-size: 0.75rem;
-          opacity: 0.5;
-        }
+  .spore-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    margin-top: -100px;
+    margin-left: -100px;
+    animation: rotateRing 10s linear infinite;
+    pointer-events: none;
+  }
 
-        .spore-ring {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 200px;
-          height: 200px;
-          margin-top: -100px;
-          margin-left: -100px;
-          animation: rotateRing 10s linear infinite;
-          pointer-events: none;
-        }
+  @keyframes floatAcrossThenBurst {
+    0% {
+      transform: translateX(-100vw) scale(0.3);
+      opacity: 0;
+    }
+    45% {
+      transform: translateX(25vw) scale(1.05) translateY(-5px);
+      opacity: 0.85;
+    }
+    75% {
+      transform: translateX(5vw) scale(1.02) translateY(-10px);
+      opacity: 0.95;
+    }
+    100% {
+      transform: translateX(0) scale(1) translateY(-20px);
+      opacity: 1;
+    }
+  }
+
+  @keyframes rotateRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
         .spore-spore {
           position: absolute;
