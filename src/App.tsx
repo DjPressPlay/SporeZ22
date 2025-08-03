@@ -14,7 +14,7 @@ export default function App() {
         flexDirection: "column",
       }}
     >
-        {/* 🔹 Header Bar */}
+      {/* 🔹 Header Bar */}
 <header
   style={{
     display: "flex",
@@ -69,6 +69,7 @@ export default function App() {
 
   <div style={{ width: "40px" }}></div>
 </header>
+
 
       >
         {/* 👤 Profile Icon */}
