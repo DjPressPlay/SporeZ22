@@ -38,30 +38,32 @@ export default function App() {
         }}
       >
         {/* 👤 Profile Section + Info */}
-       <div
-  style={{
-    width: "70px",
-    height: "70px",
-    borderRadius: "50%",
-    overflow: "hidden",
-    border: "2px solid #00f0ff88",
-    boxShadow: "0 0 12px #00f0ff55",
-    background: "#001a26",
-  }}
->
-  <img
-    src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
-    alt="Spore Avatar"
-    style={{
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-    }}
-  />
-</div>
-
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div
+            style={{
+              width: "70px",
+              height: "70px",
+              borderRadius: "50%",
+              overflow: "hidden",
+              border: "2px solid #00f0ff88",
+              boxShadow: "0 0 12px #00f0ff55",
+              background: "#001a26",
+            }}
+          >
+            <img
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+              alt="Spore Avatar"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontWeight: "bold", color: "#00ffcc" }}>Z-Entity: EGG-91XZ</span>
+            <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
+              Z-Entity: EGG-91XZ
+            </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
               XP: 240 • Drops: 3 • Fused: 1
             </span>
@@ -126,7 +128,9 @@ export default function App() {
         {activeTab === "Home" && (
           <>
             <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
-            <p style={{ opacity: 0.3 }}>Paste a link below to generate a compact Spore link.</p>
+            <p style={{ opacity: 0.3 }}>
+              Paste a link below to generate a compact Spore link.
+            </p>
 
             <div style={{ marginTop: "2rem", width: "100%", maxWidth: 500 }}>
               <input
@@ -168,11 +172,15 @@ export default function App() {
         )}
 
         {activeTab === "Saved Sporez" && (
-          <p style={{ opacity: 0.5 }}>🧬 Your previously dropped Sporez will show here.</p>
+          <p style={{ opacity: 0.5 }}>
+            🧬 Your previously dropped Sporez will show here.
+          </p>
         )}
 
         {activeTab === "Spore Fusion" && (
-          <p style={{ opacity: 0.5 }}>🔬 Fusion lab coming soon. Mix identity + payloads.</p>
+          <p style={{ opacity: 0.5 }}>
+            🔬 Fusion lab coming soon. Mix identity + payloads.
+          </p>
         )}
       </main>
 
@@ -180,4 +188,3 @@ export default function App() {
     </div>
   );
 }
-
