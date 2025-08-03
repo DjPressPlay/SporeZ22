@@ -1,6 +1,24 @@
 import React from "react";
 
 export default function SporeOverlay() {
+  const sparkles = [...Array(20)].map((_, i) => {
+    const top = 50 + Math.random() * 60 - 30; // % from center
+    const left = 50 + Math.random() * 60 - 30; // % from center
+    const delay = i * 0.1;
+
+    return (
+      <div
+        key={i}
+        className="spore-sparkle"
+        style={{
+          top: `${top}%`,
+          left: `${left}%`,
+          animationDelay: `${delay}s`,
+        }}
+      />
+    );
+  });
+
   return (
     <div
       style={{
@@ -20,13 +38,11 @@ export default function SporeOverlay() {
     >
       {/* 🌬️ Floating Spore Container */}
       <div className="spore-core">
-        {/* 🌐 GIF Placeholder */}
         <div className="spore-gif">
           <span>[GIF Slot]</span>
         </div>
         Generating Spore...
 
-        {/* 🧬 Rotating Orbiting Spores */}
         <div className="spore-ring">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
@@ -34,11 +50,7 @@ export default function SporeOverlay() {
         </div>
 
         {/* ✨ Sparkle Trail */}
-        <div className="spore-sparkle-field">
-          {[...Array(20)].map((_, i) => (
-            <div key={i} className="spore-sparkle" style={{ "--s": i } as React.CSSProperties} />
-          ))}
-        </div>
+        <div className="spore-sparkle-field">{sparkles}</div>
       </div>
 
       <style>{`
@@ -98,20 +110,15 @@ export default function SporeOverlay() {
           box-shadow: 0 0 10px #00f0ffaa;
           transform-origin: 100px 100px;
           animation: pulseSpore 2s ease-in-out infinite;
-        }
-
-        .spore-spore {
           transform: rotate(calc(var(--i) * 45deg)) translate(100px);
         }
 
-        /* ✨ Sparkles */
         .spore-sparkle-field {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          overflow: visible;
           pointer-events: none;
         }
 
@@ -122,10 +129,7 @@ export default function SporeOverlay() {
           border-radius: 50%;
           background: #00f0ffcc;
           box-shadow: 0 0 6px #00f0ffcc;
-          animation: sparkleTrail 1.2s ease-out forwards;
-          animation-delay: calc(var(--s) * 0.1s);
-          top: calc(50% + (Math.random() * 40 - 20)px);
-          left: calc(50% + (Math.random() * 40 - 20)px);
+          animation: sparkleTrail 1.5s ease-out forwards;
           opacity: 0;
         }
 
