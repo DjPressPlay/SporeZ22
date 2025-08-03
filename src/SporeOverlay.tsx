@@ -36,115 +36,83 @@ export default function SporeOverlay() {
         overflow: "hidden",
       }}
     >
-<div className="spore-core">
-  {/* 🎞️ Full Container Video/GIF Background */}
-  <img
-    src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
-    alt="Generating..."
-    className="spore-bg"
-  />
+      <div className="spore-core">
+        {/* 🎞️ Full Container Video/GIF Background */}
+        <img
+          src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+          alt="Generating..."
+          className="spore-bg"
+        />
 
-  {/* 🧬 Text and Effects on Top */}
-  <div className="spore-content">
-    Generating Spore...
+        {/* 🧬 Text and Effects on Top */}
+        <div className="spore-content">
+          Generating Spore...
 
-    <div className="spore-ring">
-      {[...Array(8)].map((_, i) => (
-        <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
-      ))}
-    </div>
+          <div className="spore-ring">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="spore-spore"
+                style={{ "--i": i } as React.CSSProperties}
+              />
+            ))}
+          </div>
 
-    <div className="spore-sparkle-field">{sparkles}</div>
-  </div>
-<style>{`
- .spore-core {
-  width: 300px;
-  height: 300px;
-  position: relative;
-  border-radius: 20px;
-  border: 2px solid #00f0ff88;
-  box-shadow: 0 0 40px #00f0ff88, 0 0 100px #00f0ff22 inset;
-  overflow: hidden;
-  opacity: 0;
-  animation: floatAcrossThenBurst 2s ease-in-out forwards;
-}
+          <div className="spore-sparkle-field">{sparkles}</div>
+        </div>
+      </div>
 
-.spore-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-}
+      <style>{`
+        .spore-core {
+          width: 300px;
+          height: 300px;
+          position: relative;
+          border-radius: 20px;
+          border: 2px solid #00f0ff88;
+          box-shadow: 0 0 40px #00f0ff88, 0 0 100px #00f0ff22 inset;
+          overflow: hidden;
+          opacity: 0;
+          animation: floatAcrossThenBurst 2s ease-in-out forwards;
+        }
 
-.spore-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: #00f0ff;
-  font-weight: bold;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-  padding-top: 1.5rem;
-}
+        .spore-bg {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: 0;
+          pointer-events: none;
+        }
 
-  .spore-gif {
-    width: 100%;
-    height: 150px;
-    background: #00232e;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    border-radius: 12px;
-    overflow: hidden;
-    font-size: 0.75rem;
-    opacity: 0.5;
-  }
+        .spore-content {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          color: #00f0ff;
+          font-weight: bold;
+          text-align: center;
+          width: 100%;
+          height: 100%;
+          padding-top: 1.5rem;
+        }
 
-  .spore-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200px;
-    height: 200px;
-    margin-top: -100px;
-    margin-left: -100px;
-    animation: rotateRing 10s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes floatAcrossThenBurst {
-    0% {
-      transform: translateX(-100vw) scale(0.3);
-      opacity: 0;
-    }
-    45% {
-      transform: translateX(25vw) scale(1.05) translateY(-5px);
-      opacity: 0.85;
-    }
-    75% {
-      transform: translateX(5vw) scale(1.02) translateY(-10px);
-      opacity: 0.95;
-    }
-    100% {
-      transform: translateX(0) scale(1) translateY(-20px);
-      opacity: 1;
-    }
-  }
-
-  @keyframes rotateRing {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+        .spore-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 200px;
+          height: 200px;
+          margin-top: -100px;
+          margin-left: -100px;
+          animation: rotateRing 10s linear infinite;
+          pointer-events: none;
+        }
 
         .spore-spore {
           position: absolute;
@@ -208,21 +176,21 @@ export default function SporeOverlay() {
           }
         }
 
-        @keyframes floatAcrossThenIn {
+        @keyframes floatAcrossThenBurst {
           0% {
             transform: translateX(-100vw) scale(0.3);
             opacity: 0;
           }
           45% {
-            transform: translateX(25vw) scale(1.08);
+            transform: translateX(25vw) scale(1.05) translateY(-5px);
             opacity: 0.85;
           }
           75% {
-            transform: translateX(5vw) scale(1.02);
+            transform: translateX(5vw) scale(1.02) translateY(-10px);
             opacity: 0.95;
           }
           100% {
-            transform: translateX(0) scale(1);
+            transform: translateX(0) scale(1) translateY(-20px);
             opacity: 1;
           }
         }
