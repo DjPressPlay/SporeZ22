@@ -37,18 +37,25 @@ export default function SporeOverlay() {
       }}
     >
       {/* 🌬️ Floating Spore Container */}
-      <div className="spore-core">
-        <div className="spore-gif">
-          <span>[GIF Slot]</span>
-        </div>
-        Generating Spore...
+<div className="spore-core">
+  {/* 🌐 GIF Placeholder */}
+  <div className="spore-gif">
+    <img
+      src="https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/giphy.gif"
+      alt="Generating..."
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  </div>
 
-        <div className="spore-ring">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
-          ))}
-        </div>
+  Generating Spore...
 
+  <div className="spore-ring">
+    {[...Array(8)].map((_, i) => (
+      <div key={i} className="spore-spore" style={{ "--i": i } as React.CSSProperties} />
+    ))}
+  </div>
+
+ 
         {/* ✨ Sparkle Trail */}
         <div className="spore-sparkle-field">{sparkles}</div>
       </div>
