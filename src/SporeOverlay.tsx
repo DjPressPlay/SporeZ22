@@ -41,7 +41,7 @@ export default function SporeOverlay() {
   {/* 🌐 GIF Placeholder */}
   <div className="spore-gif">
     <img
-      src="https://s8.ezgif.com/tmp/ezgif-8664fe953290d.mp4"
+      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
       alt="Generating..."
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
     />
