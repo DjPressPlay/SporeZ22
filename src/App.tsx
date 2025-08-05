@@ -124,6 +124,7 @@ export default function App() {
     >
       <header
         style={{
+          flexShrink: 0,
           display: "grid",
           gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
@@ -155,8 +156,8 @@ export default function App() {
               {profile ? `Z-Entity: ${profile.sessionId}` : "Guest Session"}
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: {profile?.stats?.xp ?? 0} • Drops:{" "}
-              {profile?.stats?.drops ?? 0} • Fused: {profile?.fusionPages?.length ?? 0}
+              XP: {profile?.stats?.xp ?? 0} • Drops: {profile?.stats?.drops ?? 0} •
+              Fused: {profile?.fusionPages?.length ?? 0}
             </span>
           </div>
         </div>
@@ -174,11 +175,12 @@ export default function App() {
           SporeZ // E.I.G.
         </h1>
 
-        <div></div>
+        <div /> {/* intentionally empty */}
       </header>
 
       <nav
         style={{
+          flexShrink: 0,
           display: "flex",
           justifyContent: "center",
           gap: "2rem",
@@ -209,6 +211,8 @@ export default function App() {
       <main
         style={{
           flexGrow: 1,
+          width: "100%",
+          minHeight: "100vh",
           padding: "2rem",
           display: "flex",
           flexDirection: "column",
