@@ -1,27 +1,41 @@
+// netlify/functions/redirect.js
+const fs = require('fs');
+const path = require('path');
+
+const dataPath = path.resolve(__dirname, 'data.json');
+
 exports.handler = async (event) => {
-  const slug = event.path.replace('/.netlify/functions/redirect/', '');
-  const fs = require('fs');
-  const path = require('path');
-  const dbPath = path.resolve(__dirname, 'db.json');
+  try {
+    // Extract slug from path, e.g. "/abc123"
+    const slug = event.path.replace(/^\/?/, ''); // remove leading slash
 
-  if (!fs.existsSync(dbPath)) {
-    return { statusCode: 404, body: 'DB not found' };
-  }
+    if (!fs.existsSync(dataPath)) {
+      return {
+        statusCode: 404,
+        body: 'Database not found',
+      };
+    }
 
-  const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-  const target = db[slug];
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    const targetUrl = data[slug];
 
-  if (target) {
+    if (targetUrl) {
+      return {
+        statusCode: 301,
+        headers: {
+          Location: targetUrl,
+        },
+      };
+    } else {
+      return {
+        statusCode: 404,
+        body: 'Short link not found',
+      };
+    }
+  } catch (err) {
     return {
-      statusCode: 302,
-      headers: {
-        Location: target,
-      },
+      statusCode: 500,
+      body: `Server error: ${err.message}`,
     };
   }
-
-  return {
-    statusCode: 404,
-    body: 'Not found',
-  };
 };
