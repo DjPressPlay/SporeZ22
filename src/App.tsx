@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import { supabase } from "../supabaseClient"; // make sure this is your client file
 
 function SavedSporez() {
   const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
@@ -43,7 +42,7 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-                href={`${window.location.origin}/${slug}`}
+                href={${window.location.origin}/${slug}}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00ffcc" }}
@@ -62,30 +61,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
-
-  // New: profile state
-  const [profile, setProfile] = useState<{ spore_name: string } | null>(null);
-
-  useEffect(() => {
-    // Get current user session from Supabase
-    const sessionUser = supabase.auth.session()?.user;
-
-    if (sessionUser) {
-      // Fetch profile info from "profiles" table by user id
-      supabase
-        .from("profiles")
-        .select("spore_name")
-        .eq("id", sessionUser.id)
-        .single()
-        .then(({ data, error }) => {
-          if (!error && data) {
-            setProfile(data);
-          } else {
-            setProfile(null);
-          }
-        });
-    }
-  }, []);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -114,7 +89,7 @@ export default function App() {
         localStorage.setItem("spores", JSON.stringify(spores));
 
         navigator.clipboard.writeText(data.shortenedUrl);
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        alert(Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl});
         setInputValue(""); // Reset input after drop
       } else {
         alert("Error: Could not generate Spore link.");
@@ -167,9 +142,8 @@ export default function App() {
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* Replace with dynamic spore_name */}
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              {profile ? `SPORE= ${profile.spore_name}` : "SPORE= UNKNOWN"}
+              Z-Entity: EGG-91XZ
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
               XP: 240 • Drops: 3 • Fused: 1
