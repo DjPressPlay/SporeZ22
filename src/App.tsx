@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import { getProfile, ProfileData } from "./profile";
 
 function SavedSporez() {
   const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
@@ -43,7 +42,8 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-                href={`${window.location.origin}/${slug}`}
+               href={${window.location.origin}/${slug}}
+
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00ffcc" }}
@@ -62,9 +62,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
-  const [sessionId, setSessionId] = useState("");
-  const [password, setPassword] = useState("");
-  const [profile, setProfile] = useState<ProfileData | null>(null);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -74,7 +71,9 @@ export default function App() {
     try {
       const res = await fetch("/.netlify/functions/shorten", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ url: inputValue }),
       });
 
@@ -82,6 +81,7 @@ export default function App() {
       setShowOverlay(false);
 
       if (data.shortenedUrl) {
+        // Save locally
         const stored = localStorage.getItem("spores");
         let spores = stored ? JSON.parse(stored) : [];
         const slug = data.shortenedUrl.split("/").pop() || "";
@@ -90,24 +90,14 @@ export default function App() {
         localStorage.setItem("spores", JSON.stringify(spores));
 
         navigator.clipboard.writeText(data.shortenedUrl);
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
-        setInputValue("");
+alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
+        setInputValue(""); // Reset input after drop
       } else {
         alert("Error: Could not generate Spore link.");
       }
     } catch (err) {
       setShowOverlay(false);
       alert("Failed to contact the Spore shortening service.");
-    }
-  };
-
-  const handleLogin = async () => {
-    const data = await getProfile(sessionId.trim(), password.trim());
-    if (data) {
-      setProfile(data);
-      alert("✅ Profile loaded.");
-    } else {
-      alert("❌ Invalid session ID or password.");
     }
   };
 
@@ -122,9 +112,9 @@ export default function App() {
         flexDirection: "column",
       }}
     >
+      {/* 🔹 Header Bar */}
       <header
         style={{
-          flexShrink: 0,
           display: "grid",
           gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
@@ -133,6 +123,7 @@ export default function App() {
           background: "#000a12",
         }}
       >
+        {/* 👤 Profile */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div
             style={{
@@ -153,15 +144,15 @@ export default function App() {
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              {profile ? `Z-Entity: ${profile.sessionId}` : "Guest Session"}
+              Z-Entity: EGG-91XZ
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: {profile?.stats?.xp ?? 0} • Drops: {profile?.stats?.drops ?? 0} •
-              Fused: {profile?.fusionPages?.length ?? 0}
+              XP: 240 • Drops: 3 • Fused: 1
             </span>
           </div>
         </div>
 
+        {/* 🧠 Title */}
         <h1
           style={{
             fontSize: "1.5rem",
@@ -175,12 +166,12 @@ export default function App() {
           SporeZ // E.I.G.
         </h1>
 
-        <div /> {/* intentionally empty */}
+        <div></div>
       </header>
 
+      {/* 🔸 Nav Tabs */}
       <nav
         style={{
-          flexShrink: 0,
           display: "flex",
           justifyContent: "center",
           gap: "2rem",
@@ -208,73 +199,16 @@ export default function App() {
         ))}
       </nav>
 
+      {/* 🔘 Main Panel */}
       <main
         style={{
           flexGrow: 1,
-          width: "100%",
-          minHeight: "100vh",
           padding: "2rem",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}
       >
-        {/* 🧬 Profile Panel */}
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-            marginBottom: "2rem",
-            width: "100%",
-            maxWidth: 500,
-          }}
-        >
-          <input
-            value={sessionId}
-            onChange={(e) => setSessionId(e.target.value)}
-            placeholder="Session ID"
-            style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "8px",
-              background: "#001a26",
-              color: "#00f0ff",
-              border: "1px solid #00f0ff44",
-              outline: "none",
-            }}
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            style={{
-              flex: 1,
-              padding: "0.75rem",
-              borderRadius: "8px",
-              background: "#001a26",
-              color: "#00f0ff",
-              border: "1px solid #00f0ff44",
-              outline: "none",
-            }}
-          />
-          <button
-            onClick={handleLogin}
-            style={{
-              padding: "0.75rem 1rem",
-              background: "#00f0ff",
-              color: "#000",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Login
-          </button>
-        </div>
-
-        {/* 🔘 Main Tabs */}
         {activeTab === "Home" && (
           <>
             <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
@@ -334,3 +268,5 @@ export default function App() {
     </div>
   );
 }
+
+
