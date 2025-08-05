@@ -90,7 +90,7 @@ export default function App() {
         localStorage.setItem("spores", JSON.stringify(spores));
 
         navigator.clipboard.writeText(data.shortenedUrl);
-        alert(Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl});
+alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
         setInputValue(""); // Reset input after drop
       } else {
         alert("Error: Could not generate Spore link.");
