@@ -1,35 +1,33 @@
-const fs = require("fs");
-const path = require("path");
-
-const dbPath = path.resolve(__dirname, "../../sporez.json");
-
-function generateSlug(length = 6) {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-}
-
+// netlify/functions/shorten.js
 exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
+  const body = JSON.parse(event.body || '{}');
+  const { originalUrl } = body;
+
+  if (!originalUrl) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Missing originalUrl' }),
+    };
   }
 
-  const { url } = JSON.parse(event.body || "{}");
-  if (!url || !url.startsWith("http")) {
-    return { statusCode: 400, body: "Invalid URL" };
-  }
+  // Generate short slug
+  const slug = Math.random().toString(36).substring(2, 8);
 
-  const slug = generateSlug();
+  // Save slug & URL in a flat JSON file
+  const fs = require('fs');
+  const path = require('path');
+  const dbPath = path.resolve(__dirname, 'db.json');
+
   let db = {};
-
   if (fs.existsSync(dbPath)) {
-    db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
+    db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
   }
 
-  db[slug] = url;
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+  db[slug] = originalUrl;
+  fs.writeFileSync(dbPath, JSON.stringify(db));
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ shortUrl: `https://sporez.netlify.app/${slug}`, slug }),
+    body: JSON.stringify({ slug }),
   };
 };
