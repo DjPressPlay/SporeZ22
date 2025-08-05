@@ -391,8 +391,7 @@ export default function App() {
           </p>
         )}
       </main>
-
-      {showOverlay && <SporeOverlay />}
+{/* {showOverlay && <SporeOverlay />} */}
     </div>
   );
 }
