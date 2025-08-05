@@ -14,15 +14,18 @@ export default function App() {
     try {
       const res = await fetch("/.netlify/functions/shorten", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ url: inputValue }),
       });
 
       const data = await res.json();
       setShowOverlay(false);
 
-      if (data.shortUrl) {
-        navigator.clipboard.writeText(data.shortUrl);
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortUrl}`);
+      if (data.shortenedUrl) {
+        navigator.clipboard.writeText(data.shortenedUrl);
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue(""); // Reset input after drop
       } else {
         alert("Error: Could not generate Spore link.");
