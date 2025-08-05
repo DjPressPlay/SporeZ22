@@ -1,25 +1,27 @@
-const fs = require("fs");
-const path = require("path");
-
-const dbPath = path.resolve(__dirname, "../../sporez.json");
-
 exports.handler = async (event) => {
-  const slug = event.path.replace("/", "");
-  if (!slug) return { statusCode: 400, body: "No slug provided" };
+  const slug = event.path.replace('/.netlify/functions/redirect/', '');
+  const fs = require('fs');
+  const path = require('path');
+  const dbPath = path.resolve(__dirname, 'db.json');
 
   if (!fs.existsSync(dbPath)) {
-    return { statusCode: 404, body: "DB not found" };
+    return { statusCode: 404, body: 'DB not found' };
   }
 
-  const db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
-  const targetUrl = db[slug];
+  const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+  const target = db[slug];
 
-  if (targetUrl) {
+  if (target) {
     return {
       statusCode: 302,
-      headers: { Location: targetUrl },
+      headers: {
+        Location: target,
+      },
     };
-  } else {
-    return { statusCode: 404, body: "Spore not found." };
   }
+
+  return {
+    statusCode: 404,
+    body: 'Not found',
+  };
 };
