@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"; // Make sure path is correct
 import SporeOverlay from "./SporeOverlay";
 
-// Component: 🧬 Saved Sporez
+// 🔹 Saved Spores List
 function SavedSporez() {
   const [spores, setSpores] = useState<
     { slug: string; url: string; sessionId?: string; stats?: any }[]
@@ -55,7 +56,13 @@ function SavedSporez() {
             </small>
 
             {sessionId && (
-              <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#00f0ffcc" }}>
+              <div
+                style={{
+                  marginTop: "0.5rem",
+                  fontSize: "0.8rem",
+                  color: "#00f0ffcc",
+                }}
+              >
                 Session: <strong>{sessionId}</strong>
               </div>
             )}
@@ -78,7 +85,7 @@ function SavedSporez() {
   );
 }
 
-// Component: 🧠 Main App
+// 🔘 MAIN APP
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
@@ -87,6 +94,29 @@ export default function App() {
     sessionId?: string;
     stats?: { xp: number; drops: number; fused: number };
   } | null>(null);
+
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState("");
+
+  const handleCreateProfile = async () => {
+    if (!name || !password) {
+      setStatus("Name and password required.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ name, password }]);
+
+    if (error) {
+      setStatus(`❌ Error: ${error.message}`);
+    } else {
+      setStatus("✅ Profile created!");
+      setName("");
+      setPassword("");
+    }
+  };
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -107,9 +137,12 @@ export default function App() {
         const slug = data.shortenedUrl.split("/").pop() || "";
         const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        // Dummy session/profile values – replace with real session logic later
         const sessionId = "EGG-91XZ";
-        const stats = { xp: 240 + spores.length * 10, drops: spores.length + 1, fused: 1 };
+        const stats = {
+          xp: 240 + spores.length * 10,
+          drops: spores.length + 1,
+          fused: 1,
+        };
 
         const newSpore = { slug, url: inputValue, sessionId, stats };
         spores.push(newSpore);
@@ -129,7 +162,6 @@ export default function App() {
     }
   };
 
-  // Load profile from last stored spore on startup
   useEffect(() => {
     const stored = localStorage.getItem("spores");
     if (stored) {
@@ -152,7 +184,7 @@ export default function App() {
         flexDirection: "column",
       }}
     >
-      {/* 🔹 Header Bar */}
+      {/* Header */}
       <header
         style={{
           display: "grid",
@@ -163,7 +195,7 @@ export default function App() {
           background: "#000a12",
         }}
       >
-        {/* 👤 Profile */}
+        {/* Profile Info */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div
             style={{
@@ -194,7 +226,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* 🧠 Title */}
+        {/* Title */}
         <h1
           style={{
             fontSize: "1.5rem",
@@ -211,11 +243,7 @@ export default function App() {
         <div></div>
       </header>
 
-
-
-
-      
-      {/* 🔸 Nav Tabs */}
+      {/* Nav Tabs */}
       <nav
         style={{
           display: "flex",
@@ -245,7 +273,7 @@ export default function App() {
         ))}
       </nav>
 
-      {/* 🔘 Main Panel */}
+      {/* Main Panel */}
       <main
         style={{
           flexGrow: 1,
@@ -257,6 +285,61 @@ export default function App() {
       >
         {activeTab === "Home" && (
           <>
+            {/* 🧪 Profile Creator */}
+            <div style={{ marginBottom: "3rem", width: "100%", maxWidth: 500 }}>
+              <h3 style={{ marginBottom: "0.5rem", color: "#00ffcc" }}>Create Z-Profile</h3>
+              <input
+                type="text"
+                placeholder="Z-Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  marginBottom: "0.5rem",
+                  borderRadius: "10px",
+                  background: "#001a26",
+                  border: "1px solid #00f0ff55",
+                  color: "#00f0ff",
+                }}
+              />
+              <input
+                type="password"
+                placeholder="Z-Pass"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  marginBottom: "0.5rem",
+                  borderRadius: "10px",
+                  background: "#001a26",
+                  border: "1px solid #00f0ff55",
+                  color: "#00f0ff",
+                }}
+              />
+              <button
+                onClick={handleCreateProfile}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  fontWeight: "bold",
+                  background: "#00f0ff",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  boxShadow: "0 0 8px #00f0ff88",
+                }}
+              >
+                Create Profile
+              </button>
+              {status && (
+                <p style={{ marginTop: "0.5rem", color: "#00ff88" }}>{status}</p>
+              )}
+            </div>
+
+            {/* Spore Shortener */}
             <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
             <p style={{ opacity: 0.3 }}>
               Paste a link below to generate a compact Spore link.
@@ -302,7 +385,6 @@ export default function App() {
         )}
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
-
         {activeTab === "Spore Fusion" && (
           <p style={{ opacity: 0.5 }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
