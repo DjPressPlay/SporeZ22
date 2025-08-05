@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import { supabase } from "../supabaseClient";
-
+// Adjust this import according to the actual location of supabaseClient.js in your project
+import { supabase } from "./supabaseClient";
 
 function SavedSporez() {
   const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
@@ -64,15 +64,13 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
 
-  // New: profile state
+  // Profile state to fetch spore_name from Supabase
   const [profile, setProfile] = useState<{ spore_name: string } | null>(null);
 
   useEffect(() => {
-    // Get current user session from Supabase
     const sessionUser = supabase.auth.session()?.user;
 
     if (sessionUser) {
-      // Fetch profile info from "profiles" table by user id
       supabase
         .from("profiles")
         .select("spore_name")
@@ -106,7 +104,6 @@ export default function App() {
       setShowOverlay(false);
 
       if (data.shortenedUrl) {
-        // Save locally
         const stored = localStorage.getItem("spores");
         let spores = stored ? JSON.parse(stored) : [];
         const slug = data.shortenedUrl.split("/").pop() || "";
@@ -116,7 +113,7 @@ export default function App() {
 
         navigator.clipboard.writeText(data.shortenedUrl);
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
-        setInputValue(""); // Reset input after drop
+        setInputValue("");
       } else {
         alert("Error: Could not generate Spore link.");
       }
@@ -168,7 +165,6 @@ export default function App() {
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* Replace with dynamic spore_name */}
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
               {profile ? `SPORE= ${profile.spore_name}` : "SPORE= UNKNOWN"}
             </span>
