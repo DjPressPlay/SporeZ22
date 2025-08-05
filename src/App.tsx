@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import { supabase } from "./supabaseClient"; // make sure this is your client file
+import { supabase } from "../supabaseClient"; // make sure this is your client file
 
 function SavedSporez() {
   const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
