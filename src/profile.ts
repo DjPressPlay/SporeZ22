@@ -1,40 +1,48 @@
-// src/profile.ts
+// src/CreateProfile.tsx
+import React, { useState } from 'react'
+import { supabase } from '../supabaseClient'
 
-import { supabase } from "../supabaseClient";
+export default function CreateProfile() {
+  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [status, setStatus] = useState('')
 
-// Structure definition for a remote session profile
-export interface RemoteSessionData {
-  sessionId: string;
-  password?: string;
-  spores?: any[];
-  fusionPages?: any[];
-  stats?: Record<string, any>;
-  [key: string]: any;
-}
-
-// Main profile fetcher by session ID and optional password
-export async function getProfile(sessionId: string, password?: string): Promise<RemoteSessionData | null> {
-  try {
-    let query = supabase
-      .from("spore_profiles")
-      .select("*")
-      .eq("sessionId", sessionId);
-
-    if (password) {
-      query = query.eq("password", password);
+  const handleCreateProfile = async () => {
+    if (!name || !password) {
+      setStatus('Name and password are required.')
+      return
     }
 
-    const { data, error } = await query.single();
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ name, password }]) // plaintext for now
 
-    if (error || !data) {
-      console.warn("Profile fetch failed:", error?.message || "No data");
-      return null;
+    if (error) {
+      setStatus(`Error: ${error.message}`)
+    } else {
+      setStatus('Profile created successfully!')
+      setName('')
+      setPassword('')
     }
-
-    return data as RemoteSessionData;
-
-  } catch (err) {
-    console.error("Unexpected error in getProfile:", err);
-    return null;
   }
+
+  return (
+    <div>
+      <h2>Create Profile</h2>
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleCreateProfile}>Create Profile</button>
+      {status && <p>{status}</p>}
+    </div>
+  )
 }
