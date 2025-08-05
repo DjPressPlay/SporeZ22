@@ -6,13 +6,31 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
 
-  const handleShorten = () => {
+  const handleShorten = async () => {
     if (inputValue.trim() === "") return;
+
     setShowOverlay(true);
-    setTimeout(() => {
+
+    try {
+      const res = await fetch("/.netlify/functions/shorten", {
+        method: "POST",
+        body: JSON.stringify({ url: inputValue }),
+      });
+
+      const data = await res.json();
       setShowOverlay(false);
-      // TODO: Add backend shortening logic here
-    }, 2000);
+
+      if (data.shortUrl) {
+        navigator.clipboard.writeText(data.shortUrl);
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortUrl}`);
+        setInputValue(""); // Reset input after drop
+      } else {
+        alert("Error: Could not generate Spore link.");
+      }
+    } catch (err) {
+      setShowOverlay(false);
+      alert("Failed to contact the Spore shortening service.");
+    }
   };
 
   return (
@@ -27,63 +45,61 @@ export default function App() {
       }}
     >
       {/* 🔹 Header Bar */}
-    <header
-  style={{
-    display: "grid",
-    gridTemplateColumns: "1fr auto 1fr",
-    alignItems: "center",
-    padding: "1rem 2rem",
-    borderBottom: "1px solid #00f0ff33",
-    background: "#000a12",
-  }}
->
-  {/* 👤 Profile Section */}
-  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-    <div
-      style={{
-        width: "70px",
-        height: "70px",
-        borderRadius: "50%",
-        overflow: "hidden",
-        border: "2px solid #00f0ff88",
-        boxShadow: "0 0 12px #00f0ff55",
-        background: "#001a26",
-      }}
-    >
-      <img
-        src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
-        alt="Spore Avatar"
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    </div>
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-        Z-Entity: EGG-91XZ
-      </span>
-      <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-        XP: 240 • Drops: 3 • Fused: 1
-      </span>
-    </div>
-  </div>
+      <header
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
+          alignItems: "center",
+          padding: "1rem 2rem",
+          borderBottom: "1px solid #00f0ff33",
+          background: "#000a12",
+        }}
+      >
+        {/* 👤 Profile */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div
+            style={{
+              width: "70px",
+              height: "70px",
+              borderRadius: "50%",
+              overflow: "hidden",
+              border: "2px solid #00f0ff88",
+              boxShadow: "0 0 12px #00f0ff55",
+              background: "#001a26",
+            }}
+          >
+            <img
+              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+              alt="Spore Avatar"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
+              Z-Entity: EGG-91XZ
+            </span>
+            <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
+              XP: 240 • Drops: 3 • Fused: 1
+            </span>
+          </div>
+        </div>
 
-  {/* 🔹 Centered Title */}
-  <h1
-    style={{
-      fontSize: "1.5rem",
-      background: "linear-gradient(to right, #00f0ff, #00ff88)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      margin: 0,
-      textAlign: "center",
-    }}
-  >
-    SporeZ // E.I.G.
-  </h1>
+        {/* 🧠 Title */}
+        <h1
+          style={{
+            fontSize: "1.5rem",
+            background: "linear-gradient(to right, #00f0ff, #00ff88)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            margin: 0,
+            textAlign: "center",
+          }}
+        >
+          SporeZ // E.I.G.
+        </h1>
 
-  {/* Spacer */}
-  <div></div>
-</header>
-
+        <div></div>
+      </header>
 
       {/* 🔸 Nav Tabs */}
       <nav
