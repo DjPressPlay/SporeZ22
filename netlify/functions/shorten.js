@@ -1,6 +1,24 @@
 // netlify/functions/shorten.js
 // netlify/functions/shorten.js
 
+const fs = require('fs');
+const path = require('path');
+
+const dataPath = path.join(__dirname, 'data.json');
+
+function readData() {
+  try {
+    const raw = fs.readFileSync(dataPath);
+    return JSON.parse(raw);
+  } catch (e) {
+    return {};
+  }
+}
+
+function writeData(data) {
+  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
@@ -20,17 +38,30 @@ exports.handler = async (event) => {
       };
     }
 
-    // Simple hash or slug generation (replace this with your logic)
-    const slug = Math.random().toString(36).substring(2, 8);
+    // Load existing data
+    const data = readData();
 
-    // Store logic goes here (in-memory example)
-    const shortenedUrl = `https://sporez.netlify.app/${slug}`;
+    // Check if URL already exists
+    const existingSlug = Object.keys(data).find(slug => data[slug] === originalUrl);
+    if (existingSlug) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ shortenedUrl: `https://sporez.netlify.app/${existingSlug}` }),
+      };
+    }
 
-    // Ideally you'd save the slug→originalUrl map in a flat file or database
+    // Generate a unique slug
+    let slug;
+    do {
+      slug = Math.random().toString(36).substring(2, 8);
+    } while (data[slug]);
+
+    data[slug] = originalUrl;
+    writeData(data);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ shortenedUrl }),
+      body: JSON.stringify({ shortenedUrl: `https://sporez.netlify.app/${slug}` }),
     };
   } catch (err) {
     return {
