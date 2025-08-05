@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
+import { getProfile, ProfileData } from "./profile";
 
 function SavedSporez() {
   const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
@@ -42,8 +43,7 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-               href={`${window.location.origin}/${slug}`}
-
+                href={`${window.location.origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00ffcc" }}
@@ -62,6 +62,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
+  const [sessionId, setSessionId] = useState("");
+  const [password, setPassword] = useState("");
+  const [profile, setProfile] = useState<ProfileData | null>(null);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -71,9 +74,7 @@ export default function App() {
     try {
       const res = await fetch("/.netlify/functions/shorten", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: inputValue }),
       });
 
@@ -81,7 +82,6 @@ export default function App() {
       setShowOverlay(false);
 
       if (data.shortenedUrl) {
-        // Save locally
         const stored = localStorage.getItem("spores");
         let spores = stored ? JSON.parse(stored) : [];
         const slug = data.shortenedUrl.split("/").pop() || "";
@@ -90,14 +90,24 @@ export default function App() {
         localStorage.setItem("spores", JSON.stringify(spores));
 
         navigator.clipboard.writeText(data.shortenedUrl);
-alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
-        setInputValue(""); // Reset input after drop
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        setInputValue("");
       } else {
         alert("Error: Could not generate Spore link.");
       }
     } catch (err) {
       setShowOverlay(false);
       alert("Failed to contact the Spore shortening service.");
+    }
+  };
+
+  const handleLogin = async () => {
+    const data = await getProfile(sessionId.trim(), password.trim());
+    if (data) {
+      setProfile(data);
+      alert("✅ Profile loaded.");
+    } else {
+      alert("❌ Invalid session ID or password.");
     }
   };
 
@@ -112,7 +122,6 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
         flexDirection: "column",
       }}
     >
-      {/* 🔹 Header Bar */}
       <header
         style={{
           display: "grid",
@@ -123,7 +132,6 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
           background: "#000a12",
         }}
       >
-        {/* 👤 Profile */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div
             style={{
@@ -144,15 +152,15 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              Z-Entity: EGG-91XZ
+              {profile ? `Z-Entity: ${profile.sessionId}` : "Guest Session"}
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: 240 • Drops: 3 • Fused: 1
+              XP: {profile?.stats?.xp ?? 0} • Drops:{" "}
+              {profile?.stats?.drops ?? 0} • Fused: {profile?.fusionPages?.length ?? 0}
             </span>
           </div>
         </div>
 
-        {/* 🧠 Title */}
         <h1
           style={{
             fontSize: "1.5rem",
@@ -169,7 +177,6 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
         <div></div>
       </header>
 
-      {/* 🔸 Nav Tabs */}
       <nav
         style={{
           display: "flex",
@@ -199,7 +206,6 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
         ))}
       </nav>
 
-      {/* 🔘 Main Panel */}
       <main
         style={{
           flexGrow: 1,
@@ -209,6 +215,62 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
           alignItems: "center",
         }}
       >
+        {/* 🧬 Profile Panel */}
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            marginBottom: "2rem",
+            width: "100%",
+            maxWidth: 500,
+          }}
+        >
+          <input
+            value={sessionId}
+            onChange={(e) => setSessionId(e.target.value)}
+            placeholder="Session ID"
+            style={{
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "8px",
+              background: "#001a26",
+              color: "#00f0ff",
+              border: "1px solid #00f0ff44",
+              outline: "none",
+            }}
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            style={{
+              flex: 1,
+              padding: "0.75rem",
+              borderRadius: "8px",
+              background: "#001a26",
+              color: "#00f0ff",
+              border: "1px solid #00f0ff44",
+              outline: "none",
+            }}
+          />
+          <button
+            onClick={handleLogin}
+            style={{
+              padding: "0.75rem 1rem",
+              background: "#00f0ff",
+              color: "#000",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Login
+          </button>
+        </div>
+
+        {/* 🔘 Main Tabs */}
         {activeTab === "Home" && (
           <>
             <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
