@@ -1,7 +1,8 @@
 // src/profile.ts
+
 import { supabase } from "../supabaseClient";
 
-// Define the structure of a remote session profile
+// Structure definition for a remote session profile
 export interface RemoteSessionData {
   sessionId: string;
   password?: string;
@@ -11,24 +12,29 @@ export interface RemoteSessionData {
   [key: string]: any;
 }
 
-// Fetch a profile by sessionId (and optional password)
-export async function fetchRemoteSession(sessionId: string, password?: string): Promise<RemoteSessionData | null> {
-  const query = supabase
-    .from("spore_profiles")
-    .select("*")
-    .eq("sessionId", sessionId);
+// Main profile fetcher by session ID and optional password
+export async function getProfile(sessionId: string, password?: string): Promise<RemoteSessionData | null> {
+  try {
+    let query = supabase
+      .from("spore_profiles")
+      .select("*")
+      .eq("sessionId", sessionId);
 
-  // Only include password check if one is provided
-  if (password) {
-    query.eq("password", password);
-  }
+    if (password) {
+      query = query.eq("password", password);
+    }
 
-  const { data, error } = await query.single();
+    const { data, error } = await query.single();
 
-  if (error || !data) {
-    console.warn("No matching profile found");
+    if (error || !data) {
+      console.warn("Profile fetch failed:", error?.message || "No data");
+      return null;
+    }
+
+    return data as RemoteSessionData;
+
+  } catch (err) {
+    console.error("Unexpected error in getProfile:", err);
     return null;
   }
-
-  return data as RemoteSessionData;
 }
