@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
 
+// Component: 🧬 Saved Sporez
 function SavedSporez() {
-  const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
+  const [spores, setSpores] = useState<
+    { slug: string; url: string; sessionId?: string; stats?: any }[]
+  >([]);
 
   useEffect(() => {
     const stored = localStorage.getItem("spores");
@@ -19,7 +22,7 @@ function SavedSporez() {
     <div style={{ width: "100%", maxWidth: 600 }}>
       <h2>Saved Sporez</h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {spores.map(({ slug, url }) => (
+        {spores.map(({ slug, url, sessionId, stats }) => (
           <li
             key={slug}
             style={{
@@ -42,7 +45,7 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-              href={`${window.location.origin}/${slug}`}
+                href={`${window.location.origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00ffcc" }}
@@ -50,6 +53,24 @@ function SavedSporez() {
                 {window.location.origin}/{slug}
               </a>
             </small>
+
+            {sessionId && (
+              <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#00f0ffcc" }}>
+                Session: <strong>{sessionId}</strong>
+              </div>
+            )}
+            {stats && (
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  marginTop: "0.2rem",
+                  color: "#00f0ff99",
+                }}
+              >
+                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused:{" "}
+                {stats?.fused ?? 0}
+              </div>
+            )}
           </li>
         ))}
       </ul>
@@ -57,10 +78,15 @@ function SavedSporez() {
   );
 }
 
+// Component: 🧠 Main App
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
+  const [lastProfile, setLastProfile] = useState<{
+    sessionId?: string;
+    stats?: { xp: number; drops: number; fused: number };
+  } | null>(null);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -70,9 +96,7 @@ export default function App() {
     try {
       const res = await fetch("/.netlify/functions/shorten", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: inputValue }),
       });
 
@@ -80,17 +104,22 @@ export default function App() {
       setShowOverlay(false);
 
       if (data.shortenedUrl) {
-        // Save locally
-        const stored = localStorage.getItem("spores");
-        let spores = stored ? JSON.parse(stored) : [];
         const slug = data.shortenedUrl.split("/").pop() || "";
+        const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        spores.push({ slug, url: inputValue });
+        // Dummy session/profile values – replace with real session logic later
+        const sessionId = "EGG-91XZ";
+        const stats = { xp: 240 + spores.length * 10, drops: spores.length + 1, fused: 1 };
+
+        const newSpore = { slug, url: inputValue, sessionId, stats };
+        spores.push(newSpore);
+
         localStorage.setItem("spores", JSON.stringify(spores));
+        setLastProfile({ sessionId, stats });
 
         navigator.clipboard.writeText(data.shortenedUrl);
-alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
-        setInputValue(""); // Reset input after drop
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        setInputValue("");
       } else {
         alert("Error: Could not generate Spore link.");
       }
@@ -99,6 +128,18 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
       alert("Failed to contact the Spore shortening service.");
     }
   };
+
+  // Load profile from last stored spore on startup
+  useEffect(() => {
+    const stored = localStorage.getItem("spores");
+    if (stored) {
+      const all = JSON.parse(stored);
+      if (all.length > 0) {
+        const last = all[all.length - 1];
+        setLastProfile({ sessionId: last.sessionId, stats: last.stats });
+      }
+    }
+  }, []);
 
   return (
     <div
@@ -143,10 +184,12 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              Z-Entity: EGG-91XZ
+              Z-Entity: {lastProfile?.sessionId || "Unknown"}
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: 240 • Drops: 3 • Fused: 1
+              XP: {lastProfile?.stats?.xp ?? 0} • Drops:{" "}
+              {lastProfile?.stats?.drops ?? 0} • Fused:{" "}
+              {lastProfile?.stats?.fused ?? 0}
             </span>
           </div>
         </div>
@@ -267,5 +310,3 @@ alert("Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}");
     </div>
   );
 }
-
-
