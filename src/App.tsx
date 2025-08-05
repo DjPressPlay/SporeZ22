@@ -42,7 +42,8 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-                href={${window.location.origin}/${slug}}
+                href={`${window.location.origin}/${slug}`}
+
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#00ffcc" }}
