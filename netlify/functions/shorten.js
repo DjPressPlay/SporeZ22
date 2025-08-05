@@ -1,22 +1,26 @@
 // netlify/functions/shorten.js
-// netlify/functions/shorten.js
-
 const fs = require('fs');
 const path = require('path');
 
-const dataPath = path.join(__dirname, 'data.json');
+const dataPath = path.join('/tmp', 'data.json'); // Use /tmp folder for writable storage
 
 function readData() {
   try {
-    const raw = fs.readFileSync(dataPath);
+    if (!fs.existsSync(dataPath)) return {};
+    const raw = fs.readFileSync(dataPath, 'utf-8');
     return JSON.parse(raw);
   } catch (e) {
+    console.error('Read error:', e);
     return {};
   }
 }
 
 function writeData(data) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.error('Write error:', e);
+  }
 }
 
 exports.handler = async (event) => {
@@ -38,10 +42,9 @@ exports.handler = async (event) => {
       };
     }
 
-    // Load existing data
     const data = readData();
 
-    // Check if URL already exists
+    // Check if URL already shortened
     const existingSlug = Object.keys(data).find(slug => data[slug] === originalUrl);
     if (existingSlug) {
       return {
@@ -50,7 +53,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // Generate a unique slug
+    // Generate unique slug
     let slug;
     do {
       slug = Math.random().toString(36).substring(2, 8);
@@ -64,6 +67,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ shortenedUrl: `https://sporez.netlify.app/${slug}` }),
     };
   } catch (err) {
+    console.error('Error:', err);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Server error', details: err.message }),
