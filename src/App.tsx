@@ -1,5 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
+
+function SavedSporez() {
+  const [spores, setSpores] = useState<{ slug: string; url: string }[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("spores");
+    if (stored) {
+      setSpores(JSON.parse(stored));
+    }
+  }, []);
+
+  if (spores.length === 0) {
+    return <p style={{ opacity: 0.5 }}>🧬 No saved Sporez yet.</p>;
+  }
+
+  return (
+    <div style={{ width: "100%", maxWidth: 600 }}>
+      <h2>Saved Sporez</h2>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {spores.map(({ slug, url }) => (
+          <li
+            key={slug}
+            style={{
+              marginBottom: "1rem",
+              background: "#001a26",
+              padding: "1rem",
+              borderRadius: "10px",
+              border: "1px solid #00f0ff88",
+            }}
+          >
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#00ff88", wordBreak: "break-all" }}
+            >
+              {url}
+            </a>
+            <br />
+            <small style={{ color: "#00f0ff" }}>
+              Short Link:{" "}
+              <a
+                href={`${window.location.origin}/${slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00ffcc" }}
+              >
+                {window.location.origin}/{slug}
+              </a>
+            </small>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
@@ -24,6 +80,14 @@ export default function App() {
       setShowOverlay(false);
 
       if (data.shortenedUrl) {
+        // Save locally
+        const stored = localStorage.getItem("spores");
+        let spores = stored ? JSON.parse(stored) : [];
+        const slug = data.shortenedUrl.split("/").pop() || "";
+
+        spores.push({ slug, url: inputValue });
+        localStorage.setItem("spores", JSON.stringify(spores));
+
         navigator.clipboard.writeText(data.shortenedUrl);
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue(""); // Reset input after drop
@@ -190,11 +254,7 @@ export default function App() {
           </>
         )}
 
-        {activeTab === "Saved Sporez" && (
-          <p style={{ opacity: 0.5 }}>
-            🧬 Your previously dropped Sporez will show here.
-          </p>
-        )}
+        {activeTab === "Saved Sporez" && <SavedSporez />}
 
         {activeTab === "Spore Fusion" && (
           <p style={{ opacity: 0.5 }}>
