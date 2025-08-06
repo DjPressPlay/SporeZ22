@@ -1,48 +1,34 @@
 // src/CreateProfile.tsx
-import React, { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import React from 'react'
 
-export default function CreateProfile() {
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('')
-  const [status, setStatus] = useState('')
-
-  const handleCreateProfile = async () => {
-    if (!name || !password) {
-      setStatus('Name and password are required.')
-      return
-    }
-
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{ name, password }]) // plaintext for now
-
-    if (error) {
-      setStatus(`Error: ${error.message}`)
-    } else {
-      setStatus('Profile created successfully!')
-      setName('')
-      setPassword('')
-    }
-  }
-
+export default function CreateProfileOverlay() {
   return (
-    <div>
-      <h2>Create Profile</h2>
-      <input
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleCreateProfile}>Create Profile</button>
-      {status && <p>{status}</p>}
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        zIndex: 9999,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: '#fff',
+      }}
+    >
+      <div
+        style={{
+          padding: '2rem',
+          backgroundColor: '#111',
+          borderRadius: '12px',
+          border: '1px solid #00ffcc',
+        }}
+      >
+        <h2>Create Profile Overlay</h2>
+        <p>This is a placeholder. Add your form components here later.</p>
+      </div>
     </div>
   )
 }
