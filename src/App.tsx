@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react"
-import SporeOverlay from "./SporeOverlay"
-import createProfileOverlay from "./createProfile"
+import React, { useState, useEffect } from "react";
+import SporeOverlay from "./SporeOverlay";
+import CreateProfileOverlay from "./createProfile";
 
 function SavedSporez() {
   const [spores, setSpores] = useState<
     { slug: string; url: string; sessionId?: string; stats?: any }[]
-  >([])
+  >([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("spores")
+    const stored = localStorage.getItem("spores");
     if (stored) {
-      setSpores(JSON.parse(stored))
+      setSpores(JSON.parse(stored));
     }
-  }, [])
+  }, []);
 
   if (spores.length === 0) {
-    return <p style={{ opacity: 0.5 }}>🧬 No saved Sporez yet.</p>
+    return <p style={{ opacity: 0.5 }}>🧬 No saved Sporez yet.</p>;
   }
 
   return (
@@ -55,7 +55,9 @@ function SavedSporez() {
             </small>
 
             {sessionId && (
-              <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#00f0ffcc" }}>
+              <div
+                style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#00f0ffcc" }}
+              >
                 Session: <strong>{sessionId}</strong>
               </div>
             )}
@@ -75,73 +77,73 @@ function SavedSporez() {
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("Home")
-  const [inputValue, setInputValue] = useState("")
-  const [showSporeOverlay, setShowSporeOverlay] = useState(false)
-  const [showProfileOverlay, setShowProfileOverlay] = useState(false)
+  const [activeTab, setActiveTab] = useState("Home");
+  const [inputValue, setInputValue] = useState("");
+  const [showSporeOverlay, setShowSporeOverlay] = useState(false);
+  const [showProfileOverlay, setShowProfileOverlay] = useState(false);
   const [lastProfile, setLastProfile] = useState<{
-    sessionId?: string
-    stats?: { xp: number; drops: number; fused: number }
-  } | null>(null)
+    sessionId?: string;
+    stats?: { xp: number; drops: number; fused: number };
+  } | null>(null);
 
   const handleShorten = async () => {
-    if (inputValue.trim() === "") return
+    if (inputValue.trim() === "") return;
 
-    setShowSporeOverlay(true)
+    setShowSporeOverlay(true);
 
     try {
       const res = await fetch("/.netlify/functions/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: inputValue }),
-      })
+      });
 
-      const data = await res.json()
-      setShowSporeOverlay(false)
+      const data = await res.json();
+      setShowSporeOverlay(false);
 
       if (data.shortenedUrl) {
-        const slug = data.shortenedUrl.split("/").pop() || ""
-        const spores = JSON.parse(localStorage.getItem("spores") || "[]")
+        const slug = data.shortenedUrl.split("/").pop() || "";
+        const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        const sessionId = "EGG-91XZ"
+        const sessionId = "EGG-91XZ";
         const stats = {
           xp: 240 + spores.length * 10,
           drops: spores.length + 1,
           fused: 1,
-        }
+        };
 
-        const newSpore = { slug, url: inputValue, sessionId, stats }
-        spores.push(newSpore)
+        const newSpore = { slug, url: inputValue, sessionId, stats };
+        spores.push(newSpore);
 
-        localStorage.setItem("spores", JSON.stringify(spores))
-        setLastProfile({ sessionId, stats })
+        localStorage.setItem("spores", JSON.stringify(spores));
+        setLastProfile({ sessionId, stats });
 
-        navigator.clipboard.writeText(data.shortenedUrl)
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`)
-        setInputValue("")
+        navigator.clipboard.writeText(data.shortenedUrl);
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        setInputValue("");
       } else {
-        alert("Error: Could not generate Spore link.")
+        alert("Error: Could not generate Spore link.");
       }
     } catch (err) {
-      setShowSporeOverlay(false)
-      alert("Failed to contact the Spore shortening service.")
+      setShowSporeOverlay(false);
+      alert("Failed to contact the Spore shortening service.");
     }
-  }
+  };
 
   useEffect(() => {
-    const stored = localStorage.getItem("spores")
+    const stored = localStorage.getItem("spores");
     if (stored) {
-      const all = JSON.parse(stored)
+      const all = JSON.parse(stored);
       if (all.length > 0) {
-        const last = all[all.length - 1]
-        setLastProfile({ sessionId: last.sessionId, stats: last.stats })
+        const last = all[all.length - 1];
+        setLastProfile({ sessionId: last.sessionId, stats: last.stats });
       }
     }
-  }, [])
+  }, []);
 
   return (
     <div
@@ -194,41 +196,24 @@ export default function App() {
               {lastProfile?.stats?.fused ?? 0}
             </span>
 
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-              <button
-                onClick={() => alert("🔐 Sign In logic goes here")}
-                style={{
-                  padding: "0.4rem 0.8rem",
-                  fontSize: "0.8rem",
-                  fontWeight: "bold",
-                  color: "#00ffcc",
-                  background: "#002a33",
-                  border: "1px solid #00f0ff88",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  boxShadow: "0 0 6px #00f0ff44",
-                }}
-              >
-                🔐 Sign In
-              </button>
-
-              <button
-                onClick={() => setShowProfileOverlay(true)}
-                style={{
-                  padding: "0.4rem 0.8rem",
-                  fontSize: "0.8rem",
-                  fontWeight: "bold",
-                  color: "#00ffcc",
-                  background: "#001a1a",
-                  border: "1px solid #00ffcc88",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  boxShadow: "0 0 6px #00ffcc44",
-                }}
-              >
-                👤 Create Profile
-              </button>
-            </div>
+            {/* 🔐 Single Sign In Button */}
+            <button
+              onClick={() => setShowProfileOverlay(true)}
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.4rem 0.8rem",
+                fontSize: "0.8rem",
+                fontWeight: "bold",
+                color: "#00ffcc",
+                background: "#002a33",
+                border: "1px solid #00f0ff88",
+                borderRadius: "6px",
+                cursor: "pointer",
+                boxShadow: "0 0 6px #00f0ff44",
+              }}
+            >
+              🔐 Sign In
+            </button>
           </div>
         </div>
 
@@ -345,7 +330,7 @@ export default function App() {
 
       {/* Overlays */}
       {showSporeOverlay && <SporeOverlay />}
-      {showProfileOverlay && <createProfileOverlay />}
+      {showProfileOverlay && <CreateProfileOverlay />}
     </div>
-  )
+  );
 }
