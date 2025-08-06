@@ -46,7 +46,9 @@ function SavedSporez() {
               Short Link:{" "}
               <a
               <a
-  href={`${window.location.origin}/${slug}`}
+  <a href={`${window.location.origin}/${slug}`}>
+
+
   target="_blank"
   rel="noopener noreferrer"
 >
