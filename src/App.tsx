@@ -330,7 +330,9 @@ export default function App() {
 
       {/* Overlays */}
       {showSporeOverlay && <SporeOverlay />}
-      {showProfileOverlay && <CreateProfileOverlay />}
+      {showProfileOverlay && (
+        <CreateProfileOverlay onClose={() => setShowProfileOverlay(false)} />
+      )}
     </div>
   );
 }
