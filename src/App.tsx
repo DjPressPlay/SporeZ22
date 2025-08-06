@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import SporeOverlay from "./SporeOverlay"
-import CreateProfileOverlay from "./CreateProfile"
+import createProfileOverlay from "./createProfile"
 
 function SavedSporez() {
   const [spores, setSpores] = useState<
@@ -345,7 +345,7 @@ export default function App() {
 
       {/* Overlays */}
       {showSporeOverlay && <SporeOverlay />}
-      {showProfileOverlay && <CreateProfileOverlay />}
+      {showProfileOverlay && <createProfileOverlay />}
     </div>
   )
 }
