@@ -1,7 +1,7 @@
 // src/CreateProfile.tsx
 import React from 'react'
 
-export default function CreateProfileOverlay() {
+export default function createProfileOverlay() {
   return (
     <div
       style={{
