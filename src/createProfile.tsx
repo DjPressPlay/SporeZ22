@@ -3,28 +3,42 @@
 import React, { useState } from "react";
 
 const CreateProfile = ({ onClose }: { onClose: () => void }) => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [sporeId, setSporeId] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirm) {
-      setError("Passwords do not match.");
+    if (!sporeId || !password) {
+      setError("Both fields are required.");
       return;
     }
 
-    // ✅ PLACE AUTH LOGIC HERE (e.g. Supabase, Firebase, Local)
-    // Example with Supabase:
-    // const { data, error } = await supabase.auth.signUp({ email, password });
+    const endpoint =
+      mode === "signup"
+        ? "/.netlify/functions/create-profile"
+        : "/.netlify/functions/login-profile";
 
-    console.log("Create user:", { username, email, password });
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({ name: sporeId, password }),
+      });
 
-    // Clear or close on success
-    onClose();
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.error || "Something went wrong.");
+        return;
+      }
+
+      console.log(`${mode} success:`, result);
+      onClose(); // ✅ Close on success
+    } catch (err) {
+      setError("Server error. Try again.");
+    }
   };
 
   return (
@@ -61,27 +75,46 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
         ❌
       </button>
 
-      <h2 style={{ color: "#00ffcc", marginBottom: "1rem" }}>Create Profile</h2>
+      {/* Toggle Sign In / Sign Up */}
+      <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+        <button
+          onClick={() => setMode("signin")}
+          style={{
+            ...tabButtonStyle,
+            background: mode === "signin" ? "#00ffcc" : "transparent",
+            color: mode === "signin" ? "#000" : "#00ffcc",
+          }}
+        >
+          Sign In
+        </button>
+        <button
+          onClick={() => setMode("signup")}
+          style={{
+            ...tabButtonStyle,
+            background: mode === "signup" ? "#00ffcc" : "transparent",
+            color: mode === "signup" ? "#000" : "#00ffcc",
+          }}
+        >
+          Create Profile
+        </button>
+      </div>
+
+      <h2 style={{ color: "#00ffcc", marginBottom: "1rem" }}>
+        {mode === "signup" ? "Create Profile" : "Sign In"}
+      </h2>
 
       <form onSubmit={handleSubmit}>
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Spore ID"
+          value={sporeId}
+          onChange={(e) => setSporeId(e.target.value)}
           style={inputStyle}
           required
         />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={inputStyle}
-          required
-        />
+
         <input
           type="password"
           placeholder="Password"
@@ -90,30 +123,9 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
           style={inputStyle}
           required
         />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          style={inputStyle}
-          required
-        />
 
-        <button
-          type="submit"
-          style={{
-            background: "#00ffcc",
-            color: "#000",
-            border: "none",
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px",
-            fontWeight: "bold",
-            marginTop: "1rem",
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Sign Up
+        <button type="submit" style={submitButtonStyle}>
+          {mode === "signup" ? "Create Profile" : "Sign In"}
         </button>
       </form>
     </div>
@@ -129,6 +141,28 @@ const inputStyle: React.CSSProperties = {
   color: "#fff",
   border: "1px solid #00ffcc",
   borderRadius: "8px",
+};
+
+const submitButtonStyle: React.CSSProperties = {
+  background: "#00ffcc",
+  color: "#000",
+  border: "none",
+  padding: "0.75rem 1.5rem",
+  borderRadius: "8px",
+  fontWeight: "bold",
+  marginTop: "1rem",
+  cursor: "pointer",
+  width: "100%",
+};
+
+const tabButtonStyle: React.CSSProperties = {
+  border: "1px solid #00ffcc",
+  borderRadius: "6px",
+  padding: "0.5rem 1rem",
+  marginRight: "0.5rem",
+  cursor: "pointer",
+  fontWeight: "bold",
+  background: "transparent",
 };
 
 export default CreateProfile;
