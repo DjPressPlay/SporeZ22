@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
 
-// Component: 🧬 Saved Sporez
 function SavedSporez() {
   const [spores, setSpores] = useState<
     { slug: string; url: string; sessionId?: string; stats?: any }[]
@@ -78,7 +77,6 @@ function SavedSporez() {
   );
 }
 
-// Component: 🧠 Main App
 export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
@@ -107,9 +105,12 @@ export default function App() {
         const slug = data.shortenedUrl.split("/").pop() || "";
         const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        // Dummy session/profile values – replace with real session logic later
         const sessionId = "EGG-91XZ";
-        const stats = { xp: 240 + spores.length * 10, drops: spores.length + 1, fused: 1 };
+        const stats = {
+          xp: 240 + spores.length * 10,
+          drops: spores.length + 1,
+          fused: 1,
+        };
 
         const newSpore = { slug, url: inputValue, sessionId, stats };
         spores.push(newSpore);
@@ -129,7 +130,6 @@ export default function App() {
     }
   };
 
-  // Load profile from last stored spore on startup
   useEffect(() => {
     const stored = localStorage.getItem("spores");
     if (stored) {
@@ -191,6 +191,25 @@ export default function App() {
               {lastProfile?.stats?.drops ?? 0} • Fused:{" "}
               {lastProfile?.stats?.fused ?? 0}
             </span>
+
+            {/* 🔐 Sign In Button */}
+            <button
+              onClick={() => alert("🔐 Sign In logic goes here")}
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.4rem 0.8rem",
+                fontSize: "0.8rem",
+                fontWeight: "bold",
+                color: "#00ffcc",
+                background: "#002a33",
+                border: "1px solid #00f0ff88",
+                borderRadius: "6px",
+                cursor: "pointer",
+                boxShadow: "0 0 6px #00f0ff44",
+              }}
+            >
+              🔐 Sign In
+            </button>
           </div>
         </div>
 
@@ -298,7 +317,6 @@ export default function App() {
         )}
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
-
         {activeTab === "Spore Fusion" && (
           <p style={{ opacity: 0.5 }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
