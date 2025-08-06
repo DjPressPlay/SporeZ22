@@ -45,13 +45,11 @@ function SavedSporez() {
             <small style={{ color: "#00f0ff" }}>
               Short Link:{" "}
               <a
-              <a
-  <a href={`${window.location.origin}/${slug}`}>
-
-
-  target="_blank"
-  rel="noopener noreferrer"
->
+                href={`${window.location.origin}/${slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00ffcc" }}
+              >
                 {window.location.origin}/{slug}
               </a>
             </small>
@@ -120,7 +118,7 @@ export default function App() {
         setLastProfile({ sessionId, stats });
 
         navigator.clipboard.writeText(data.shortenedUrl);
-        alert(Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl});
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue("");
       } else {
         alert("Error: Could not generate Spore link.");
@@ -213,10 +211,6 @@ export default function App() {
         <div></div>
       </header>
 
-
-
-
-      
       {/* 🔸 Nav Tabs */}
       <nav
         style={{
