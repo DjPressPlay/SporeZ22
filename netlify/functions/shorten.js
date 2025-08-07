@@ -1,26 +1,12 @@
 // netlify/functions/shorten.js
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
-const dataPath = path.join('/tmp', 'data.json'); // Use /tmp folder for writable storage
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-function readData() {
-  try {
-    if (!fs.existsSync(dataPath)) return {};
-    const raw = fs.readFileSync(dataPath, 'utf-8');
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('Read error:', e);
-    return {};
-  }
-}
-
-function writeData(data) {
-  try {
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.error('Write error:', e);
-  }
+function generateSlug() {
+  return Math.random().toString(36).substring(2, 8);
 }
 
 exports.handler = async (event) => {
@@ -33,7 +19,8 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body);
-    const originalUrl = body.url;
+    const originalUrl = body.url?.trim();
+    const sessionId = body.sessionId || null; // Optional: from frontend if sent
 
     if (!originalUrl) {
       return {
@@ -42,29 +29,64 @@ exports.handler = async (event) => {
       };
     }
 
-    const data = readData();
+    // Check if this URL already exists in profiles table
+    const { data: existing, error: fetchError } = await supabase
+      .from('profiles')
+      .select('short_code')
+      .eq('target_url', originalUrl)
+      .single();
 
-    // Check if URL already shortened
-    const existingSlug = Object.keys(data).find(slug => data[slug] === originalUrl);
-    if (existingSlug) {
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Supabase fetch error:', fetchError);
+      throw fetchError;
+    }
+
+    if (existing && existing.short_code) {
       return {
         statusCode: 200,
-        body: JSON.stringify({ shortenedUrl: `https://sporez.netlify.app/${existingSlug}` }),
+        body: JSON.stringify({
+          shortenedUrl: `https://sporez.netlify.app/${existing.short_code}`,
+        }),
       };
     }
 
-    // Generate unique slug
-    let slug;
+    // Generate unique short_code slug
+    let short_code;
+    let isUnique = false;
     do {
-      slug = Math.random().toString(36).substring(2, 8);
-    } while (data[slug]);
+      short_code = generateSlug();
+      const { data: slugExists } = await supabase
+        .from('profiles')
+        .select('short_code')
+        .eq('short_code', short_code)
+        .single();
 
-    data[slug] = originalUrl;
-    writeData(data);
+      if (!slugExists) isUnique = true;
+    } while (!isUnique);
+
+    // Insert new record in profiles table
+    const { error: insertError } = await supabase.from('profiles').insert([
+      {
+        short_code,
+        target_url: originalUrl,
+        session_id: sessionId,
+        type: 'short_link', // optional type tag
+      },
+    ]);
+
+    if (insertError) {
+      console.error('Supabase insert error:', insertError);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Failed to save short link' }),
+      };
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ shortenedUrl: `https://sporez.netlify.app/${slug}` }),
+      body: JSON.stringify({
+        shortenedUrl: `https://sporez.netlify.app/${short_code}`,
+      }),
     };
   } catch (err) {
     console.error('Error:', err);
