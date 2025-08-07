@@ -15,35 +15,59 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
   }, [userProfile]);
 
   if (spores.length === 0) {
-    return <p style={{ opacity: 0.5 }}>🧬 No saved Sporez yet.</p>;
+    return (
+      <div style={{ marginTop: "2rem", opacity: 0.5 }}>
+        <p>🧬 No saved Sporez yet.</p>
+      </div>
+    );
   }
 
   return (
     <div style={{ width: "100%", maxWidth: 600 }}>
-      <h2>Saved Sporez</h2>
+      <h2
+        style={{
+          fontSize: "1.4rem",
+          color: "#00f0ff",
+          marginBottom: "1rem",
+          borderBottom: "1px solid #00f0ff55",
+          paddingBottom: "0.5rem",
+        }}
+      >
+        Z-Entity:
+      </h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {spores.map(({ slug, url, sessionId, stats }) => (
           <li
             key={slug}
             style={{
-              marginBottom: "1rem",
+              marginBottom: "1.5rem",
               background: "#001a26",
               padding: "1rem",
               borderRadius: "10px",
               border: "1px solid #00f0ff88",
+              boxShadow: "0 0 8px #00f0ff44",
             }}
           >
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#00ff88", wordBreak: "break-all" }}
+            <div
+              style={{
+                color: "#00ff88",
+                wordBreak: "break-word",
+                marginBottom: "0.5rem",
+              }}
             >
-              {url}
-            </a>
-            <br />
-            <small style={{ color: "#00f0ff" }}>
-              Short Link:{" "}
+              <strong>URL:</strong>{" "}
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00ff88" }}
+              >
+                {url}
+              </a>
+            </div>
+
+            <div style={{ fontSize: "0.85rem", color: "#00f0ffcc" }}>
+              <strong>Short Link:</strong>{" "}
               <a
                 href={`${window.location.origin}/${slug}`}
                 target="_blank"
@@ -52,7 +76,7 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
               >
                 {window.location.origin}/{slug}
               </a>
-            </small>
+            </div>
 
             {sessionId && (
               <div
@@ -62,14 +86,15 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
                   color: "#00f0ffcc",
                 }}
               >
-                Session: <strong>{sessionId}</strong>
+                <strong>Session:</strong> {sessionId}
               </div>
             )}
+
             {stats && (
               <div
                 style={{
                   fontSize: "0.75rem",
-                  marginTop: "0.2rem",
+                  marginTop: "0.3rem",
                   color: "#00f0ff99",
                 }}
               >
