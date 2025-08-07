@@ -4,7 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 exports.handler = async (event) => {
@@ -16,37 +16,43 @@ exports.handler = async (event) => {
       };
     }
 
-    const { name } = JSON.parse(event.body);
+    const { name, password } = JSON.parse(event.body);
 
-    if (!name) {
+    if (!name || !password) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Name is required' }),
+        body: JSON.stringify({ error: 'Name and password are required' }),
       };
     }
 
+    // Query profiles table for matching name & password
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('name', name)
-      .single(); // Get a single profile match
+      .eq('password', password)
+      .limit(1);
 
-    if (error || !data) {
+    if (error) {
       return {
-        statusCode: 404,
-        body: JSON.stringify({ error: 'Profile not found' }),
+        statusCode: 500,
+        body: JSON.stringify({ error: error.message }),
       };
     }
 
+    if (!data || data.length === 0) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: 'Invalid name or password' }),
+      };
+    }
+
+    // Successful login
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Profile loaded',
-        profile: {
-          id: data.id,
-          name: data.name,
-          // Add more fields if needed
-        },
+        message: 'Login successful',
+        profile: data[0],
       }),
     };
   } catch (err) {
@@ -59,4 +65,3 @@ exports.handler = async (event) => {
     };
   }
 };
-
