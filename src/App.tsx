@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
 import CreateProfileOverlay from "./createProfile";
 
-function SavedSporez() {
+function SavedSporez({ userProfile }: { userProfile: any }) {
   const [spores, setSpores] = useState<
     { slug: string; url: string; sessionId?: string; stats?: any }[]
   >([]);
-  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     const storedSpores = localStorage.getItem("spores");
@@ -14,13 +13,6 @@ function SavedSporez() {
       setSpores(JSON.parse(storedSpores));
     }
   }, [userProfile]);
-
-  useEffect(() => {
-    const storedProfile = localStorage.getItem("userProfile");
-    if (storedProfile) {
-      setUserProfile(JSON.parse(storedProfile));
-    }
-  }, []);
 
   if (spores.length === 0) {
     return <p style={{ opacity: 0.5 }}>🧬 No saved Sporez yet.</p>;
@@ -64,7 +56,11 @@ function SavedSporez() {
 
             {sessionId && (
               <div
-                style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#00f0ffcc" }}
+                style={{
+                  marginTop: "0.5rem",
+                  fontSize: "0.8rem",
+                  color: "#00f0ffcc",
+                }}
               >
                 Session: <strong>{sessionId}</strong>
               </div>
@@ -77,7 +73,8 @@ function SavedSporez() {
                   color: "#00f0ff99",
                 }}
               >
-                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused: {stats?.fused ?? 0}
+                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused:{" "}
+                {stats?.fused ?? 0}
               </div>
             )}
           </li>
@@ -92,10 +89,7 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
   const [showProfileOverlay, setShowProfileOverlay] = useState(false);
-  const [lastProfile, setLastProfile] = useState<{
-    sessionId?: string;
-    stats?: { xp: number; drops: number; fused: number };
-  } | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
@@ -116,7 +110,7 @@ export default function App() {
         const slug = data.shortenedUrl.split("/").pop() || "";
         const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        const sessionId = "EGG-91XZ";
+        const sessionId = userProfile?.sessionId || "UNKNOWN-Z";
         const stats = {
           xp: 240 + spores.length * 10,
           drops: spores.length + 1,
@@ -127,7 +121,6 @@ export default function App() {
         spores.push(newSpore);
 
         localStorage.setItem("spores", JSON.stringify(spores));
-        setLastProfile({ sessionId, stats });
 
         navigator.clipboard.writeText(data.shortenedUrl);
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
@@ -142,15 +135,11 @@ export default function App() {
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem("spores");
+    const stored = localStorage.getItem("userProfile");
     if (stored) {
-      const all = JSON.parse(stored);
-      if (all.length > 0) {
-        const last = all[all.length - 1];
-        setLastProfile({ sessionId: last.sessionId, stats: last.stats });
-      }
+      setUserProfile(JSON.parse(stored));
     }
-  }, []);
+  }, [showProfileOverlay]);
 
   return (
     <div
@@ -163,6 +152,7 @@ export default function App() {
         flexDirection: "column",
       }}
     >
+      {/* 🔹 Header */}
       <header
         style={{
           display: "grid",
@@ -186,17 +176,22 @@ export default function App() {
             }}
           >
             <img
-              src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+              src={
+                userProfile?.avatar ||
+                "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+              }
               alt="Spore Avatar"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              Z-Entity: {lastProfile?.sessionId || "Unknown"}
+              Z-Entity: {userProfile?.name || "Unknown"}
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: {lastProfile?.stats?.xp ?? 0} • Drops: {lastProfile?.stats?.drops ?? 0} • Fused: {lastProfile?.stats?.fused ?? 0}
+              XP: {userProfile?.stats?.xp ?? 0} • Drops:{" "}
+              {userProfile?.stats?.drops ?? 0} • Fused:{" "}
+              {userProfile?.stats?.fused ?? 0}
             </span>
             <button
               onClick={() => setShowProfileOverlay(true)}
@@ -234,6 +229,7 @@ export default function App() {
         <div></div>
       </header>
 
+      {/* 🔸 Navigation */}
       <nav
         style={{
           display: "flex",
@@ -263,6 +259,7 @@ export default function App() {
         ))}
       </nav>
 
+      {/* 🔘 Main Content */}
       <main
         style={{
           flexGrow: 1,
@@ -318,7 +315,7 @@ export default function App() {
           </>
         )}
 
-        {activeTab === "Saved Sporez" && <SavedSporez />}
+        {activeTab === "Saved Sporez" && <SavedSporez userProfile={userProfile} />}
         {activeTab === "Spore Fusion" && (
           <p style={{ opacity: 0.5 }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
@@ -328,7 +325,9 @@ export default function App() {
 
       {showSporeOverlay && <SporeOverlay />}
       {showProfileOverlay && (
-        <CreateProfileOverlay onClose={() => setShowProfileOverlay(false)} />
+        <CreateProfileOverlay
+          onClose={() => setShowProfileOverlay(false)}
+        />
       )}
     </div>
   );
