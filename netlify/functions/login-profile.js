@@ -8,31 +8,55 @@ const supabase = createClient(
 );
 
 exports.handler = async (event) => {
-  const { name, password } = JSON.parse(event.body);
+  try {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing request body' }),
+      };
+    }
 
-  if (!name || !password) {
+    const { name, password } = JSON.parse(event.body);
+
+    if (!name || !password) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Name and password are required' }),
+      };
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('name', name)
+      .eq('password', password)
+      .single();
+
+    if (error || !data) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: 'Invalid credentials' }),
+      };
+    }
+
     return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Name and password are required' }),
+      statusCode: 200,
+      body: JSON.stringify({
+        message: 'Login successful',
+        profile: {
+          id: data.id,
+          name: data.name,
+          // You can include more fields if needed, just avoid sensitive ones
+        },
+      }),
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'Unexpected server error',
+        detail: err.message,
+      }),
     };
   }
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('name', name)
-    .eq('password', password)
-    .single();
-
-  if (error || !data) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ error: 'Invalid credentials' }),
-    };
-  }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: 'Login successful', profile: data }),
-  };
 };
