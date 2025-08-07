@@ -9,10 +9,17 @@ const supabase = createClient(
 
 exports.handler = async (event) => {
   try {
+    if (event.httpMethod !== "POST") {
+      return {
+        statusCode: 405,
+        body: JSON.stringify({ error: "Method not allowed" }),
+      };
+    }
+
     if (!event.body) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing request body' }),
+        body: JSON.stringify({ error: "Missing request body" }),
       };
     }
 
@@ -21,13 +28,13 @@ exports.handler = async (event) => {
     if (!name || !password) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Name and password are required' }),
+        body: JSON.stringify({ error: "Name and password are required" }),
       };
     }
 
     // Insert new profile, return inserted row(s)
     const { data, error } = await supabase
-      .from('profiles')
+      .from("profiles")
       .insert([{ name, password }])
       .select(); // Make sure data is returned after insert
 
@@ -41,29 +48,36 @@ exports.handler = async (event) => {
     if (!data || !Array.isArray(data) || data.length === 0) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Profile was created but no data returned' }),
+        body: JSON.stringify({ error: "Profile was created but no data returned" }),
       };
     }
 
+    const profile = {
+      id: data[0].id,
+      name: data[0].name,
+      stats: {
+        xp: 0,
+        drops: 0,
+        fused: 0
+      }
+    };
+
+    // Return the new profile in a way that frontend can use immediately
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Profile created',
-        profile: {
-          id: data[0].id,
-          name: data[0].name,
-          // You can add more profile fields here if needed
-        },
+        message: "Profile created successfully",
+        profile
       }),
     };
+
   } catch (err) {
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: 'Unexpected server error',
+        error: "Unexpected server error",
         detail: err.message,
       }),
     };
   }
 };
-
