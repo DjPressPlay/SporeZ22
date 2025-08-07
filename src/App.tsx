@@ -6,19 +6,15 @@ function SavedSporez() {
   const [spores, setSpores] = useState<
     { slug: string; url: string; sessionId?: string; stats?: any }[]
   >([]);
-
-  // Add state to track user profile changes
   const [userProfile, setUserProfile] = useState(null);
 
-  // Load spores on mount and when userProfile changes
   useEffect(() => {
     const storedSpores = localStorage.getItem("spores");
     if (storedSpores) {
       setSpores(JSON.parse(storedSpores));
     }
-  }, [userProfile]); // re-run when userProfile changes
+  }, [userProfile]);
 
-  // Listen for changes to userProfile in localStorage (e.g. after login)
   useEffect(() => {
     const storedProfile = localStorage.getItem("userProfile");
     if (storedProfile) {
@@ -81,8 +77,7 @@ function SavedSporez() {
                   color: "#00f0ff99",
                 }}
               >
-                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused:{" "}
-                {stats?.fused ?? 0}
+                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused: {stats?.fused ?? 0}
               </div>
             )}
           </li>
@@ -168,7 +163,6 @@ export default function App() {
         flexDirection: "column",
       }}
     >
-      {/* 🔹 Header Bar */}
       <header
         style={{
           display: "grid",
@@ -179,7 +173,6 @@ export default function App() {
           background: "#000a12",
         }}
       >
-        {/* 👤 Profile Info */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div
             style={{
@@ -203,12 +196,8 @@ export default function App() {
               Z-Entity: {lastProfile?.sessionId || "Unknown"}
             </span>
             <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: {lastProfile?.stats?.xp ?? 0} • Drops:{" "}
-              {lastProfile?.stats?.drops ?? 0} • Fused:{" "}
-              {lastProfile?.stats?.fused ?? 0}
+              XP: {lastProfile?.stats?.xp ?? 0} • Drops: {lastProfile?.stats?.drops ?? 0} • Fused: {lastProfile?.stats?.fused ?? 0}
             </span>
-
-            {/* 🔐 Single Sign In Button */}
             <button
               onClick={() => setShowProfileOverlay(true)}
               style={{
@@ -229,7 +218,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* 🧠 Title */}
         <h1
           style={{
             fontSize: "1.5rem",
@@ -246,7 +234,6 @@ export default function App() {
         <div></div>
       </header>
 
-      {/* 🔸 Navigation */}
       <nav
         style={{
           display: "flex",
@@ -276,7 +263,6 @@ export default function App() {
         ))}
       </nav>
 
-      {/* 🔘 Main Content */}
       <main
         style={{
           flexGrow: 1,
@@ -340,7 +326,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Overlays */}
       {showSporeOverlay && <SporeOverlay />}
       {showProfileOverlay && (
         <CreateProfileOverlay onClose={() => setShowProfileOverlay(false)} />
