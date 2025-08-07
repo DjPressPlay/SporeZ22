@@ -7,10 +7,22 @@ function SavedSporez() {
     { slug: string; url: string; sessionId?: string; stats?: any }[]
   >([]);
 
+  // Add state to track user profile changes
+  const [userProfile, setUserProfile] = useState(null);
+
+  // Load spores on mount and when userProfile changes
   useEffect(() => {
-    const stored = localStorage.getItem("spores");
-    if (stored) {
-      setSpores(JSON.parse(stored));
+    const storedSpores = localStorage.getItem("spores");
+    if (storedSpores) {
+      setSpores(JSON.parse(storedSpores));
+    }
+  }, [userProfile]); // re-run when userProfile changes
+
+  // Listen for changes to userProfile in localStorage (e.g. after login)
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedProfile) {
+      setUserProfile(JSON.parse(storedProfile));
     }
   }, []);
 
