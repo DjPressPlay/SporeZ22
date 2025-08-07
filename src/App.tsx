@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
+import siteGif from "./assets/logo.gif"; // <-- update path if needed
 
 function SavedSporez() {
   const [spores, setSpores] = useState<
@@ -153,29 +154,37 @@ export default function App() {
         flexDirection: "column",
       }}
     >
-      {/* 🔹 Header */}
+      {/* 🔹 Updated Header with GIF + Name */}
       <header
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
+          display: "flex",
           alignItems: "center",
-          padding: "1rem 2rem",
+          padding: "0.8rem 1.5rem",
           borderBottom: "1px solid #00f0ff33",
           background: "#000a12",
         }}
       >
-        <h1
+        <img
+          src={siteGif}
+          alt="SporeZ Logo"
+          style={{
+            width: "40px",
+            height: "40px",
+            objectFit: "contain",
+            marginRight: "10px",
+          }}
+        />
+        <span
           style={{
             fontSize: "1.5rem",
             background: "linear-gradient(to right, #00f0ff, #00ff88)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            margin: 0,
-            textAlign: "center",
+            fontWeight: "bold",
           }}
         >
           SporeZ // E.I.G.
-        </h1>
+        </span>
       </header>
 
       {/* 🔸 Navigation */}
