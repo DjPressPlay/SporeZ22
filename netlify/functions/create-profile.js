@@ -4,7 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // Use service role key for insert
+  process.env.SUPABASE_SERVICE_ROLE_KEY // Service role key for insert permissions
 );
 
 exports.handler = async (event) => {
@@ -25,10 +25,11 @@ exports.handler = async (event) => {
       };
     }
 
+    // Insert new profile, return inserted row(s)
     const { data, error } = await supabase
       .from('profiles')
       .insert([{ name, password }])
-      .select(); // 🛠 ensure `data` comes back
+      .select(); // Make sure data is returned after insert
 
     if (error) {
       return {
@@ -46,12 +47,23 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Profile created', profile: data[0] }),
+      body: JSON.stringify({
+        message: 'Profile created',
+        profile: {
+          id: data[0].id,
+          name: data[0].name,
+          // You can add more profile fields here if needed
+        },
+      }),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Unexpected server error', detail: err.message }),
+      body: JSON.stringify({
+        error: 'Unexpected server error',
+        detail: err.message,
+      }),
     };
   }
 };
+
