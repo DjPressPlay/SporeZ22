@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import siteGif from "./assets/logo.gif"; // <-- update path if needed
 
 function SavedSporez() {
   const [spores, setSpores] = useState<
@@ -154,37 +153,48 @@ export default function App() {
         flexDirection: "column",
       }}
     >
-      {/* 🔹 Updated Header with GIF + Name */}
+      {/* 🔹 Header with circular GIF container */}
       <header
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
           alignItems: "center",
-          padding: "0.8rem 1.5rem",
+          padding: "1rem 2rem",
           borderBottom: "1px solid #00f0ff33",
           background: "#000a12",
+          gap: "1rem",
         }}
       >
-        <img
-          src={siteGif}
-          alt="SporeZ Logo"
+        <div
           style={{
-            width: "40px",
-            height: "40px",
-            objectFit: "contain",
-            marginRight: "10px",
+            width: "70px",
+            height: "70px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: "2px solid #00f0ff88",
+            boxShadow: "0 0 12px #00f0ff55",
+            background: "#001a26",
           }}
-        />
-        <span
+        >
+          <img
+            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+            alt="Spore Logo"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
+
+        <h1
           style={{
             fontSize: "1.5rem",
             background: "linear-gradient(to right, #00f0ff, #00ff88)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            fontWeight: "bold",
+            margin: 0,
+            textAlign: "left",
           }}
         >
           SporeZ // E.I.G.
-        </span>
+        </h1>
       </header>
 
       {/* 🔸 Navigation */}
