@@ -1,15 +1,19 @@
-// src/CreateProfile.tsx
-// src/CreateProfile.tsx
 import React, { useState } from "react";
 
-const CreateProfile = ({ onClose }: { onClose: () => void }) => {
+type Mode = "signin" | "signup";
+
+interface CreateProfileProps {
+  onClose: () => void;
+}
+
+const CreateProfile: React.FC<CreateProfileProps> = ({ onClose }) => {
   const [sporeId, setSporeId] = useState("");
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<Mode>("signin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -18,31 +22,32 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    const endpoint =
-      mode === "signup"
-        ? "/.netlify/functions/create-profile"
-        : "/.netlify/functions/login-profile";
-
     setLoading(true);
+
     try {
-      const res = await fetch(endpoint, {
+      const endpoint =
+        mode === "signup"
+          ? "/.netlify/functions/create-profile"
+          : "/.netlify/functions/login-profile";
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: sporeId, password }),
+        body: JSON.stringify({ name: sporeId.trim(), password: password.trim() }),
       });
 
-      const result = await res.json();
+      const result = await response.json();
 
-      if (!res.ok) {
-        throw new Error(result.error || "Something went wrong.");
+      if (!response.ok) {
+        throw new Error(result.error || "Unexpected server error.");
       }
 
-      console.log(`${mode} success:`, result);
-      onClose(); // ✅ close modal
+      console.log(`${mode.toUpperCase()} SUCCESS:`, result);
+      onClose();
     } catch (err: any) {
-      setError(err.message || "Server error. Try again.");
+      setError(err.message || "Something went wrong. Try again.");
     } finally {
       setLoading(false);
     }
@@ -50,33 +55,24 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div style={containerStyle}>
-      {/* ❌ Close Button */}
       <button onClick={onClose} style={closeButtonStyle}>
         ❌
       </button>
 
-      {/* Toggle Sign In / Sign Up */}
       <div style={tabStyle}>
-        <button
-          onClick={() => setMode("signin")}
-          style={{
-            ...tabButtonStyle,
-            background: mode === "signin" ? "#00ffcc" : "transparent",
-            color: mode === "signin" ? "#000" : "#00ffcc",
-          }}
-        >
-          Sign In
-        </button>
-        <button
-          onClick={() => setMode("signup")}
-          style={{
-            ...tabButtonStyle,
-            background: mode === "signup" ? "#00ffcc" : "transparent",
-            color: mode === "signup" ? "#000" : "#00ffcc",
-          }}
-        >
-          Create Profile
-        </button>
+        {["signin", "signup"].map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m as Mode)}
+            style={{
+              ...tabButtonStyle,
+              background: mode === m ? "#00ffcc" : "transparent",
+              color: mode === m ? "#000" : "#00ffcc",
+            }}
+          >
+            {m === "signin" ? "Sign In" : "Create Profile"}
+          </button>
+        ))}
       </div>
 
       <h2 style={{ color: "#00ffcc", marginBottom: "1rem" }}>
@@ -92,7 +88,6 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
           value={sporeId}
           onChange={(e) => setSporeId(e.target.value)}
           style={inputStyle}
-          required
         />
 
         <input
@@ -101,14 +96,13 @@ const CreateProfile = ({ onClose }: { onClose: () => void }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
-          required
         />
 
         <button type="submit" style={submitButtonStyle} disabled={loading}>
           {loading
             ? mode === "signup"
               ? "Creating..."
-              : "Signing in..."
+              : "Signing In..."
             : mode === "signup"
             ? "Create Profile"
             : "Sign In"}
@@ -150,6 +144,16 @@ const tabStyle: React.CSSProperties = {
   textAlign: "center",
 };
 
+const tabButtonStyle: React.CSSProperties = {
+  border: "1px solid #00ffcc",
+  borderRadius: "6px",
+  padding: "0.5rem 1rem",
+  marginRight: "0.5rem",
+  cursor: "pointer",
+  fontWeight: "bold",
+  background: "transparent",
+};
+
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "0.75rem",
@@ -170,16 +174,6 @@ const submitButtonStyle: React.CSSProperties = {
   marginTop: "1rem",
   cursor: "pointer",
   width: "100%",
-};
-
-const tabButtonStyle: React.CSSProperties = {
-  border: "1px solid #00ffcc",
-  borderRadius: "6px",
-  padding: "0.5rem 1rem",
-  marginRight: "0.5rem",
-  cursor: "pointer",
-  fontWeight: "bold",
-  background: "transparent",
 };
 
 export default CreateProfile;
