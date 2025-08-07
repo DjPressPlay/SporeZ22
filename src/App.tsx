@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SporeOverlay from "./SporeOverlay";
-import CreateProfileOverlay from "./createProfile";
 
-function SavedSporez({ userProfile }: { userProfile: any }) {
+function SavedSporez() {
   const [spores, setSpores] = useState<
-    { slug: string; url: string; sessionId?: string; stats?: any }[]
+    { slug: string; url: string; stats?: any }[]
   >([]);
 
   useEffect(() => {
@@ -12,7 +11,7 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
     if (storedSpores) {
       setSpores(JSON.parse(storedSpores));
     }
-  }, [userProfile]);
+  }, []);
 
   if (spores.length === 0) {
     return (
@@ -33,10 +32,10 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
           paddingBottom: "0.5rem",
         }}
       >
-        Z-Entity:
+        Saved Sporez:
       </h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
-        {spores.map(({ slug, url, sessionId, stats }) => (
+        {spores.map(({ slug, url, stats }) => (
           <li
             key={slug}
             style={{
@@ -78,18 +77,6 @@ function SavedSporez({ userProfile }: { userProfile: any }) {
               </a>
             </div>
 
-            {sessionId && (
-              <div
-                style={{
-                  marginTop: "0.5rem",
-                  fontSize: "0.8rem",
-                  color: "#00f0ffcc",
-                }}
-              >
-                <strong>Session:</strong> {sessionId}
-              </div>
-            )}
-
             {stats && (
               <div
                 style={{
@@ -113,12 +100,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("Home");
   const [inputValue, setInputValue] = useState("");
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
-  const [showProfileOverlay, setShowProfileOverlay] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
   const handleShorten = async () => {
     if (inputValue.trim() === "") return;
-
     setShowSporeOverlay(true);
 
     try {
@@ -135,14 +119,13 @@ export default function App() {
         const slug = data.shortenedUrl.split("/").pop() || "";
         const spores = JSON.parse(localStorage.getItem("spores") || "[]");
 
-        const sessionId = userProfile?.sessionId || "UNKNOWN-Z";
         const stats = {
           xp: 240 + spores.length * 10,
           drops: spores.length + 1,
           fused: 1,
         };
 
-        const newSpore = { slug, url: inputValue, sessionId, stats };
+        const newSpore = { slug, url: inputValue, stats };
         spores.push(newSpore);
 
         localStorage.setItem("spores", JSON.stringify(spores));
@@ -158,13 +141,6 @@ export default function App() {
       alert("Failed to contact the Spore shortening service.");
     }
   };
-
-  useEffect(() => {
-    const stored = localStorage.getItem("userProfile");
-    if (stored) {
-      setUserProfile(JSON.parse(stored));
-    }
-  }, [showProfileOverlay]);
 
   return (
     <div
@@ -188,56 +164,6 @@ export default function App() {
           background: "#000a12",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div
-            style={{
-              width: "70px",
-              height: "70px",
-              borderRadius: "50%",
-              overflow: "hidden",
-              border: "2px solid #00f0ff88",
-              boxShadow: "0 0 12px #00f0ff55",
-              background: "#001a26",
-            }}
-          >
-            <img
-              src={
-                userProfile?.avatar ||
-                "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
-              }
-              alt="Spore Avatar"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontWeight: "bold", color: "#00ffcc" }}>
-              Z-Entity: {userProfile?.name || "Unknown"}
-            </span>
-            <span style={{ fontSize: "0.85rem", opacity: 0.6 }}>
-              XP: {userProfile?.stats?.xp ?? 0} • Drops:{" "}
-              {userProfile?.stats?.drops ?? 0} • Fused:{" "}
-              {userProfile?.stats?.fused ?? 0}
-            </span>
-            <button
-              onClick={() => setShowProfileOverlay(true)}
-              style={{
-                marginTop: "0.5rem",
-                padding: "0.4rem 0.8rem",
-                fontSize: "0.8rem",
-                fontWeight: "bold",
-                color: "#00ffcc",
-                background: "#002a33",
-                border: "1px solid #00f0ff88",
-                borderRadius: "6px",
-                cursor: "pointer",
-                boxShadow: "0 0 6px #00f0ff44",
-              }}
-            >
-              🔐 Sign In
-            </button>
-          </div>
-        </div>
-
         <h1
           style={{
             fontSize: "1.5rem",
@@ -250,8 +176,6 @@ export default function App() {
         >
           SporeZ // E.I.G.
         </h1>
-
-        <div></div>
       </header>
 
       {/* 🔸 Navigation */}
@@ -340,7 +264,7 @@ export default function App() {
           </>
         )}
 
-        {activeTab === "Saved Sporez" && <SavedSporez userProfile={userProfile} />}
+        {activeTab === "Saved Sporez" && <SavedSporez />}
         {activeTab === "Spore Fusion" && (
           <p style={{ opacity: 0.5 }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
@@ -349,11 +273,6 @@ export default function App() {
       </main>
 
       {showSporeOverlay && <SporeOverlay />}
-      {showProfileOverlay && (
-        <CreateProfileOverlay
-          onClose={() => setShowProfileOverlay(false)}
-        />
-      )}
     </div>
   );
 }
