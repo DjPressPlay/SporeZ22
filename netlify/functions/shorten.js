@@ -1,4 +1,5 @@
 // netlify/functions/shorten.js
+// netlify/functions/shorten.js
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -20,7 +21,7 @@ exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body);
     const originalUrl = body.url?.trim();
-    const sessionId = body.sessionId || null; // Optional: from frontend if sent
+    const sessionId = body.sessionId || null;
 
     if (!originalUrl) {
       return {
@@ -29,7 +30,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // Check if this URL already exists in profiles table
+    // Check if URL already shortened
     const { data: existing, error: fetchError } = await supabase
       .from('profiles')
       .select('short_code')
@@ -50,7 +51,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // Generate unique short_code slug
+    // Generate unique short_code
     let short_code;
     let isUnique = false;
     do {
@@ -60,17 +61,16 @@ exports.handler = async (event) => {
         .select('short_code')
         .eq('short_code', short_code)
         .single();
-
       if (!slugExists) isUnique = true;
     } while (!isUnique);
 
-    // Insert new record in profiles table
+    // Insert new short link record
     const { error: insertError } = await supabase.from('profiles').insert([
       {
         short_code,
         target_url: originalUrl,
         session_id: sessionId,
-        type: 'short_link', // optional type tag
+        type: 'short_link',
       },
     ]);
 
@@ -96,3 +96,4 @@ exports.handler = async (event) => {
     };
   }
 };
+
