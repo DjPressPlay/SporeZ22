@@ -1,2 +1,2 @@
-/* /index.html 200
-/.netlify/functions/redirect/:slug /:slug 302!
+/:splat  /.netlify/functions/redirect/:splat  200!
+/*       /index.html                            200
