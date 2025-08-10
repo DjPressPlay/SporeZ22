@@ -66,10 +66,10 @@ function SavedSporez() {
               transition: "transform .18s ease, box-shadow .18s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
+              (e.currentTarget as HTMLLIElement).style.transform = "translateY(-2px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
+              (e.currentTarget as HTMLLIElement).style.transform = "translateY(0)";
             }}
           >
             <div
@@ -128,6 +128,33 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
 
+  // --- NEW: mouse-following glow state ---
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // start near upper third center
+      setMouse({ x: window.innerWidth / 2, y: window.innerHeight / 3 });
+    }
+    let raf = 0 as number;
+    const update = (x: number, y: number) => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setMouse({ x, y }));
+    };
+    const onMove = (e: MouseEvent) => update(e.clientX, e.clientY);
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches && e.touches[0];
+      if (t) update(t.clientX, t.clientY);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onTouch);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const handleShorten = async () => {
     const url = inputValue.trim();
     if (!url) return;
@@ -173,44 +200,47 @@ export default function App() {
 
   const TABS: string[] = ["Home", "Saved Sporez", "Spore Fusion"];
 
+  // build the dynamic background string
+  const bgGlow =
+    `radial-gradient(900px 650px at ${mouse.x}px ${mouse.y}px, rgba(0,255,230,.18), transparent 60%),` +
+    `radial-gradient(700px 500px at 22% 10%, rgba(0,200,255,.10), transparent 55%),` +
+    `linear-gradient(180deg, #000000 0%, #001018 40%, #022533 100%)`;
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        // keep your base gradient
-        background: "linear-gradient(to bottom, #00040f, #00111a)",
+        background: "transparent", // base is provided by layers below
         color: "#00f0ff",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
-        position: "relative", // needed for z-index layering
+        position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* ==== ONLY NEW VISUALS: glow + checkered grid ==== */}
+      {/* === NEW: gradient base + mouse-follow glow === */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -2,
+          pointerEvents: "none",
+          background: bgGlow,
+        }}
+      />
+      {/* === Teal checkered grid overlay === */}
       <div
         style={{
           position: "fixed",
           inset: 0,
           zIndex: -1,
-          background:
-            "radial-gradient(900px 600px at 50% 28%, rgba(0,224,255,.10), transparent 60%)," +
-            "radial-gradient(600px 420px at 22% 8%, rgba(0,255,194,.08), transparent 55%)",
           pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
           background:
             "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)," +
             "repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)",
-          pointerEvents: "none",
         }}
       />
-      {/* ================================================ */}
 
       {/* Header */}
       <header
@@ -351,3 +381,4 @@ export default function App() {
     </div>
   );
 }
+
