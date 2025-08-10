@@ -3,9 +3,11 @@
   publish   = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "18"
+
 [functions]
   node_bundler = "esbuild"
-  node_version = "18"
 
 # API → Netlify Functions
 [[redirects]]
@@ -13,13 +15,13 @@
   to   = "/.netlify/functions/:splat"
   status = 200
 
-# Short link slugs → redirect function (must be before SPA catch-all)
+# Short links must resolve via the redirect function
 [[redirects]]
   from = "/:slug"
   to   = "/.netlify/functions/redirect/:slug"
   status = 200
 
-# SPA fallback
+# SPA fallback LAST
 [[redirects]]
   from = "/*"
   to   = "/index.html"
