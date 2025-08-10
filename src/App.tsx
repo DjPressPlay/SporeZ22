@@ -6,19 +6,17 @@ import SporeOverlay from "./SporeOverlay";
 type Spore = { slug: string; url: string; stats?: any; ts: number };
 type Tab = "Home" | "Saved Sporez" | "Spore Fusion";
 
-/** Global: BLACK scrollbar (ChatGPT-style) */
+/** Global: PURE BLACK scrollbar (ChatGPT-like) */
 function ScrollbarStyles() {
   return (
     <style>{`
       :root {
-        --scroll-thumb: #000;         /* pure black */
-        --scroll-thumb-hover: #000;   /* stay black on hover */
+        --scroll-thumb: #000;        /* pure black */
+        --scroll-thumb-hover: #000;  /* stay black on hover */
         --scroll-track: transparent;
-        --blk: #000;                  /* black line */
+        --blk: #000;                 /* black line */
       }
-      /* Firefox */
       * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--scroll-track); }
-      /* Chrome / Edge / Safari */
       *::-webkit-scrollbar { width: 10px; height: 10px; }
       *::-webkit-scrollbar-track { background: var(--scroll-track); }
       *::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 8px; border: 2px solid #000; }
@@ -28,7 +26,7 @@ function ScrollbarStyles() {
   );
 }
 
-/** Global: BLACK outline utilities for all boxes/containers */
+/** Global: PURE BLACK outline utilities */
 function BlackLineStyles() {
   return (
     <style>{`
@@ -36,9 +34,51 @@ function BlackLineStyles() {
       .blk-thick  { border: 2px solid var(--blk); }
       .blk-inset  { box-shadow: inset 0 0 0 1px var(--blk); }
       .blk-soft   { box-shadow: 0 0 0 1px var(--blk); }
-      /* Optional: rounded helper to avoid repeating radius inline */
       .r14        { border-radius: 14px; }
       .r10        { border-radius: 10px; }
+    `}</style>
+  );
+}
+
+/** Global: Iridescent green↔blue palette + animation */
+function HoloStyles() {
+  return (
+    <style>{`
+      :root{
+        --holo-a:#00ffd0;     /* neon green-cyan */
+        --holo-b:#00e1ff;     /* aqua blue */
+        --holo-c:#26ff9a;     /* vivid green */
+        --holo-t:#b9fff0;     /* readable light text */
+        --holo-glow-a: rgba(0, 225, 255, .10);
+        --holo-glow-b: rgba(0, 255, 165, .10);
+        --holo-grid-a: rgba(0, 255, 190, .08);
+        --holo-grid-b: rgba(0, 215, 255, .06);
+      }
+      @keyframes holoShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .bg-holo {
+        background-image: linear-gradient(90deg, var(--holo-a), var(--holo-b), var(--holo-c));
+        background-size: 220% 220%;
+      }
+      .txt-holo {
+        background-image: linear-gradient(90deg, var(--holo-b), var(--holo-a));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .rule-holo { border-bottom: 1px solid rgba(0,255,210,.45); }
+      .border-holo { border-color: rgba(0,255,210,.55)!important; }
+      .holo-anim { animation: holoShift 9s ease-in-out infinite; }
+      .chip {
+        color:#001a1a;
+        padding:6px 10px;
+        border-radius:999px;
+        text-decoration:none;
+        display:inline-block;
+      }
     `}</style>
   );
 }
@@ -78,17 +118,16 @@ function SavedSporez() {
   return (
     <div className="blk r10" style={{ width: "100%", maxWidth: 720, padding: "1rem" }}>
       <h2
-        className="blk-inset r10"
+        className="blk-inset r10 rule-holo"
         style={{
           fontSize: "1.4rem",
-          color: "#00f0ff",
+          color: "var(--holo-t)",
           marginBottom: "1rem",
-          borderBottom: "1px solid #00f0ff55",
           padding: "0.75rem 0.75rem",
           background: "#000a12",
         }}
       >
-        Saved Sporez:
+        <span className="txt-holo">Saved Sporez:</span>
       </h2>
 
       <ul
@@ -115,17 +154,13 @@ function SavedSporez() {
                   : "0 12px 28px rgba(0,240,255,0.18), inset 0 0 0 1px rgba(0,255,204,0.08)",
               transition: "transform .18s ease, box-shadow .18s ease",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
           >
             <div
               className="blk-inset r10"
               style={{
-                color: "#00ff88",
+                color: "var(--holo-c)",
                 wordBreak: "break-word",
                 marginBottom: "0.6rem",
                 padding: "0.5rem 0.6rem",
@@ -133,31 +168,21 @@ function SavedSporez() {
               }}
             >
               <strong>URL:</strong>{" "}
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#00ff88" }}
-              >
+              <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--holo-c)" }}>
                 {url}
               </a>
             </div>
 
-            <div className="blk-inset r10" style={{ fontSize: "0.9rem", color: "#00f0ffcc", padding: "0.5rem 0.6rem", background: "#00151c" }}>
+            <div
+              className="blk-inset r10"
+              style={{ fontSize: "0.9rem", color: "var(--holo-t)", padding: "0.5rem 0.6rem", background: "#00151c" }}
+            >
               <strong>Short Link:</strong>{" "}
               <a
                 href={`${origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="blk r10"
-                style={{
-                  display: "inline-block",
-                  color: "#001a1a",
-                  background:
-                    "linear-gradient(90deg, rgba(0,255,204,1) 0%, rgba(0,240,255,1) 100%)",
-                  padding: "6px 10px",
-                  textDecoration: "none",
-                }}
+                className="blk r10 chip bg-holo holo-anim border-holo"
               >
                 {origin}/{slug}
               </a>
@@ -169,7 +194,7 @@ function SavedSporez() {
                 style={{
                   fontSize: "0.75rem",
                   marginTop: "0.4rem",
-                  color: "#00f0ff99",
+                  color: "var(--holo-t)",
                   padding: "0.4rem 0.6rem",
                   background: "#00151c",
                 }}
@@ -218,9 +243,7 @@ export default function App() {
         const updated = [newSpore, ...prev].slice(0, 6);
         localStorage.setItem("spores", JSON.stringify(updated));
 
-        try {
-          await navigator.clipboard.writeText(data.shortenedUrl);
-        } catch {}
+        try { await navigator.clipboard.writeText(data.shortenedUrl); } catch {}
 
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue("");
@@ -242,7 +265,7 @@ export default function App() {
       style={{
         minHeight: "100vh",
         background: "linear-gradient(to bottom, #00040f, #00111a)",
-        color: "#00f0ff",
+        color: "var(--holo-t)",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
@@ -253,8 +276,9 @@ export default function App() {
     >
       <ScrollbarStyles />
       <BlackLineStyles />
+      <HoloStyles />
 
-      {/* Background glow */}
+      {/* Background glow (tinted green↔blue) */}
       <div
         className="blk-inset"
         style={{
@@ -262,13 +286,13 @@ export default function App() {
           inset: 0,
           zIndex: -1,
           background:
-            "radial-gradient(900px 600px at 50% 28%, rgba(0,224,255,.10), transparent 60%)," +
-            "radial-gradient(600px 420px at 22% 8%, rgba(0,255,194,.08), transparent 55%)",
+            `radial-gradient(900px 600px at 50% 28%, var(--holo-glow-a), transparent 60%),` +
+            `radial-gradient(600px 420px at 22% 8%, var(--holo-glow-b), transparent 55%)`,
           pointerEvents: "none",
         }}
       />
 
-      {/* Checkered grid */}
+      {/* Checkered grid (green↔blue tint) */}
       <div
         className="blk-inset"
         style={{
@@ -276,8 +300,8 @@ export default function App() {
           inset: 0,
           zIndex: 0,
           background:
-            "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)," +
-            "repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)",
+            `repeating-linear-gradient(0deg, transparent 0 39px, var(--holo-grid-b) 39px 40px),` +
+            `repeating-linear-gradient(90deg, transparent 0 39px, var(--holo-grid-a) 39px 40px)`,
           pointerEvents: "none",
         }}
       />
@@ -290,7 +314,7 @@ export default function App() {
           gridTemplateColumns: "auto 1fr",
           alignItems: "center",
           padding: "1rem 2rem",
-          borderBottom: "1px solid #00f0ff33",
+          borderBottom: "1px solid rgba(0,255,210,.33)",
           background: "#000a12",
           gap: "1rem",
           margin: "0.75rem",
@@ -313,18 +337,7 @@ export default function App() {
           />
         </div>
 
-        <h1
-          className="blk-inset r10"
-          style={{
-            fontSize: "1.5rem",
-            background: "linear-gradient(to right, #00f0ff, #00ff88)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            margin: 0,
-            textAlign: "left",
-            padding: "0.5rem 0.75rem",
-          }}
-        >
+        <h1 className="blk-inset r10 txt-holo" style={{ fontSize: "1.5rem", margin: 0, textAlign: "left", padding: "0.5rem 0.75rem" }}>
           SporeZ // E.I.G.
         </h1>
       </header>
@@ -337,7 +350,7 @@ export default function App() {
           justifyContent: "center",
           gap: "2rem",
           padding: "1rem",
-          borderBottom: "1px solid #00f0ff22",
+          borderBottom: "1px solid rgba(0,255,210,.35)",
           background: "#001923",
           margin: "0 0.75rem",
         }}
@@ -345,16 +358,18 @@ export default function App() {
         {TABS.map((tab) => (
           <button
             key={tab}
-            className="blk r10"
+            className="blk r10 bg-holo holo-anim border-holo"
             onClick={() => setActiveTab(tab)}
             style={{
-              background: "linear-gradient(180deg, #00141f, #001a26)",
-              color: activeTab === tab ? "#00ff88" : "#00f0ff",
+              backgroundBlendMode: "overlay",
+              color: activeTab === tab ? "#001a1a" : "#001a1a",
               fontSize: "1rem",
               fontWeight: "bold",
               cursor: "pointer",
-              textShadow: "0 0 6px #00f0ff66",
-              padding: "0.5rem 0.9rem",
+              textShadow: "none",
+              padding: "0.55rem 1rem",
+              opacity: activeTab === tab ? 1 : 0.85,
+              filter: activeTab === tab ? "none" : "saturate(0.9) brightness(0.95)",
             }}
           >
             {tab}
@@ -377,10 +392,10 @@ export default function App() {
       >
         {activeTab === "Home" && (
           <div className="blk r10" style={{ width: "100%", maxWidth: 560, padding: "1.25rem" }}>
-            <h2 className="blk-inset r10" style={{ opacity: 0.6, padding: "0.5rem 0.75rem", margin: 0 }}>
+            <h2 className="blk-inset r10 txt-holo" style={{ padding: "0.5rem 0.75rem", margin: 0 }}>
               Welcome to the SporeZ Engine
             </h2>
-            <p className="blk-inset r10" style={{ opacity: 0.4, marginTop: "0.75rem", padding: "0.5rem 0.75rem" }}>
+            <p className="blk-inset r10" style={{ opacity: 0.6, marginTop: "0.75rem", padding: "0.5rem 0.75rem", color: "var(--holo-t)" }}>
               Paste a link below to generate a compact Spore link.
             </p>
 
@@ -396,12 +411,12 @@ export default function App() {
                   padding: "1rem",
                   fontSize: "1rem",
                   background: "#001a26",
-                  color: "#00f0ff",
+                  color: "var(--holo-t)",
                   outline: "none",
                 }}
               />
               <button
-                className="blk-thick r10"
+                className="blk-thick r10 bg-holo holo-anim border-holo"
                 onClick={handleShorten}
                 style={{
                   marginTop: "1rem",
@@ -409,11 +424,10 @@ export default function App() {
                   padding: "1rem",
                   fontSize: "1rem",
                   fontWeight: "bold",
-                  background: "#00f0ff",
-                  color: "#000",
+                  color: "#001a1a",
                   border: "none",
                   cursor: "pointer",
-                  boxShadow: "0 0 10px #00f0ff88",
+                  boxShadow: "0 0 10px rgba(0,255,210,0.45)",
                 }}
               >
                 Shorten & Drop
@@ -425,7 +439,7 @@ export default function App() {
         {activeTab === "Saved Sporez" && <SavedSporez />}
 
         {activeTab === "Spore Fusion" && (
-          <p className="blk-inset r10" style={{ opacity: 0.5, padding: "0.75rem 1rem" }}>
+          <p className="blk-inset r10 txt-holo" style={{ padding: "0.75rem 1rem" }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
           </p>
         )}
