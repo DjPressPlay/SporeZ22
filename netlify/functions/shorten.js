@@ -3,11 +3,12 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-function generateSlug() {
-  return Math.random().toString(36).substring(2, 8);
+function generateSlug(len = 6) {
+  return Math.random().toString(36).slice(2, 2 + len);
 }
 
 exports.handler = async (event) => {
@@ -19,9 +20,9 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body);
-    const originalUrl = body.url?.trim();
-    const sessionId = body.sessionId || null;
+    const body = JSON.parse(event.body || '{}');
+    const originalUrl = (body.url || '').trim();
+    const sessionId = (body.sessionId || '').trim() || null;
 
     if (!originalUrl) {
       return {
@@ -30,52 +31,69 @@ exports.handler = async (event) => {
       };
     }
 
-    // Check if URL already shortened
-    const { data: existing, error: fetchError } = await supabase
+    // Build base URL dynamically from request
+    const host =
+      event.headers['x-forwarded-host'] ||
+      event.headers['host'] ||
+      'localhost:8888';
+    const proto = event.headers['x-forwarded-proto'] || 'https';
+    const baseUrl = `${proto}://${host}`;
+
+    // Check if URL already shortened in this table
+    const { data: existing, error: existingErr } = await supabase
       .from('profiles')
       .select('short_code')
+      .eq('type', 'short_link')
       .eq('target_url', originalUrl)
-      .single();
+      .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Supabase fetch error:', fetchError);
-      throw fetchError;
+    if (existingErr) {
+      console.error('[shorten] existingErr:', existingErr);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'DB error (lookup)' }),
+      };
     }
 
-    if (existing && existing.short_code) {
+    if (existing?.short_code) {
       return {
         statusCode: 200,
         body: JSON.stringify({
-          shortenedUrl: `https://sporez.netlify.app/${existing.short_code}`,
+          shortenedUrl: `${baseUrl}/${existing.short_code}`,
+          short_code: existing.short_code,
         }),
       };
     }
 
     // Generate unique short_code
-    let short_code;
-    let isUnique = false;
-    do {
-      short_code = generateSlug();
-      const { data: slugExists } = await supabase
+    let short_code = generateSlug();
+    for (let i = 0; i < 5; i++) {
+      const { data: slugHit, error: slugErr } = await supabase
         .from('profiles')
         .select('short_code')
         .eq('short_code', short_code)
-        .single();
-      if (!slugExists) isUnique = true;
-    } while (!isUnique);
+        .maybeSingle();
 
-    // Insert new short link record
-    const { error: insertError } = await supabase.from('profiles').insert([
+      if (slugErr) {
+        console.error('[shorten] slug check error:', slugErr);
+        break;
+      }
+      if (!slugHit) break;
+      short_code = generateSlug();
+    }
+
+    // Insert new short link row
+    const { error: insertErr } = await supabase.from('profiles').insert([
       {
+        type: 'short_link',
         short_code,
         target_url: originalUrl,
         session_id: sessionId,
-        type: 'short_link',
       },
     ]);
 
-    if (insertError) {
-      console.error('Supabase insert error:', insertError);
+    if (insertErr) {
+      console.error('[shorten] insertErr:', insertErr);
       return {
         statusCode: 500,
         body: JSON.stringify({ error: 'Failed to save short link' }),
@@ -85,15 +103,22 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        shortenedUrl: `https://sporez.netlify.app/${short_code}`,
+        shortenedUrl: `${baseUrl}/${short_code}`,
+        short_code,
       }),
     };
   } catch (err) {
-    console.error('Error:', err);
+    console.error('[shorten] server error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Server error', details: err.message }),
+      body: JSON.stringify({
+        error: 'Server error',
+        details: err.message,
+      }),
     };
+  }
+};
+
   }
 };
 
