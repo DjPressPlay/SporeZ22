@@ -53,7 +53,7 @@ function NeonStyles() {
         --n-pink:   #ff2fd1;   /* hot magenta */
         --n-rose:   #ff3cac;   /* pink-red */
 
-        /* readable neon-tinted text (avoid plain white) */
+        /* readable neon-tinted text */
         --txt: #cfe6ff;
 
         /* glows */
@@ -77,13 +77,6 @@ function NeonStyles() {
         100% { background-position:  200% 0; }
       }
 
-      /* animated gradient background utility */
-      .bg-neon {
-        background-image: linear-gradient(90deg, var(--n-purple), var(--n-cyan), var(--n-rose), var(--n-green));
-        background-size: 300% 300%;
-        animation: neonShift 10s ease-in-out infinite;
-      }
-
       /* text gradient */
       .txt-neon {
         background-image: linear-gradient(90deg, var(--n-rose), var(--n-purple), var(--n-cyan));
@@ -92,7 +85,7 @@ function NeonStyles() {
         color: transparent;
       }
 
-      /* chip/button gradient with moving sheen */
+      /* button gradient with moving sheen */
       .btn-neon {
         position: relative;
         color: #001316;
@@ -445,23 +438,30 @@ export default function App() {
         }}
       >
         {activeTab === "Home" && (
-          <div className="blk r10" style={{ width: "100%", maxWidth: 580, padding: "1.25rem", background: "#080212" }}>
-            <h2 className="blk-inset r10 txt-neon" style={{ padding: "0.5rem 0.75rem", margin: 0 }}>
-              Welcome to the SporeZ Engine
-            </h2>
-            <p
-              className="blk-inset r10"
-              style={{
-                opacity: 0.78,
-                marginTop: "0.75rem",
-                padding: "0.5rem 0.75rem",
-                color: "var(--txt)",
-              }}
-            >
-              Paste a link below to generate a compact Spore link.
-            </p>
+          /* === All-White Container === */
+          <div
+            className="blk r10"
+            style={{
+              width: "100%",
+              maxWidth: 640,
+              padding: 0,
+              background: "#ffffff",   // all white
+              color: "#000000",
+              boxShadow: "0 10px 30px rgba(0,0,0,.25)",
+            }}
+          >
+            {/* Header area inside white card */}
+            <div style={{ padding: "1.25rem 1.25rem .75rem", borderBottom: "1px solid #000" }}>
+              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#000" }}>
+                Welcome to the SporeZ Engine
+              </h2>
+              <p style={{ margin: ".5rem 0 0", color: "#222" }}>
+                Paste a link below to generate a compact Spore link.
+              </p>
+            </div>
 
-            <div className="blk r10" style={{ marginTop: "1rem", padding: "1rem", background: "#0b0017" }}>
+            {/* Form area */}
+            <div style={{ padding: "1.25rem" }}>
               <input
                 className="blk r10"
                 type="text"
@@ -472,10 +472,9 @@ export default function App() {
                   width: "100%",
                   padding: "1rem",
                   fontSize: "1rem",
-                  background: "#0a0b1a",
-                  color: "var(--txt)",
+                  background: "#ffffff",
+                  color: "#111",
                   outline: "none",
-                  boxShadow: "0 0 14px var(--glow-cyan)",
                 }}
               />
               <button
@@ -489,7 +488,6 @@ export default function App() {
                   fontWeight: 900,
                   border: "none",
                   cursor: "pointer",
-                  boxShadow: "0 0 26px var(--glow-pink)",
                 }}
               >
                 Shorten & Drop
