@@ -1,42 +1,43 @@
 // netlify/functions/redirect.js
 // netlify/functions/redirect.js
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
-const dataPath = path.resolve(__dirname, 'data.json');
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 exports.handler = async (event) => {
   try {
-    // Extract slug from path, e.g. "/abc123"
-    const slug = event.path.replace(/^\/?/, ''); // remove leading slash
+    const parts = (event.path || '/').split('/').filter(Boolean);
+    const slug = parts[parts.length - 1];
 
-    if (!fs.existsSync(dataPath)) {
-      return {
-        statusCode: 404,
-        body: 'Database not found',
-      };
+    if (!slug) {
+      return { statusCode: 404, body: 'Missing slug' };
     }
 
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    const targetUrl = data[slug];
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('target_url')
+      .eq('type', 'short_link')
+      .eq('short_code', slug)
+      .maybeSingle();
 
-    if (targetUrl) {
-      return {
-        statusCode: 301,
-        headers: {
-          Location: targetUrl,
-        },
-      };
-    } else {
-      return {
-        statusCode: 404,
-        body: 'Short link not found',
-      };
+    if (error) {
+      console.error('[redirect] DB error:', error);
+      return { statusCode: 500, body: 'DB error' };
     }
-  } catch (err) {
+    if (!data || !data.target_url) {
+      return { statusCode: 404, body: 'Short link not found' };
+    }
+
     return {
-      statusCode: 500,
-      body: `Server error: ${err.message}`,
+      statusCode: 301,
+      headers: { Location: data.target_url },
+      body: '',
     };
+  } catch (err) {
+    console.error('[redirect] server error:', err);
+    return { statusCode: 500, body: `Server error: ${err.message}` };
   }
 };
