@@ -31,15 +31,12 @@ exports.handler = async (event) => {
       };
     }
 
-    // Build base URL dynamically from request
-    const host =
-      event.headers['x-forwarded-host'] ||
-      event.headers['host'] ||
-      'localhost:8888';
+    // Build base URL dynamically
+    const host = event.headers['x-forwarded-host'] || event.headers['host'] || 'localhost:8888';
     const proto = event.headers['x-forwarded-proto'] || 'https';
     const baseUrl = `${proto}://${host}`;
 
-    // Check if URL already shortened in this table
+    // If this URL already has a short link
     const { data: existing, error: existingErr } = await supabase
       .from('profiles')
       .select('short_code')
@@ -48,11 +45,8 @@ exports.handler = async (event) => {
       .maybeSingle();
 
     if (existingErr) {
-      console.error('[shorten] existingErr:', existingErr);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'DB error (lookup)' }),
-      };
+      console.error('[shorten] lookup error:', existingErr);
+      return { statusCode: 500, body: JSON.stringify({ error: 'DB error (lookup)' }) };
     }
 
     if (existing?.short_code) {
@@ -65,12 +59,13 @@ exports.handler = async (event) => {
       };
     }
 
-    // Generate unique short_code
+    // Generate a unique short_code
     let short_code = generateSlug();
     for (let i = 0; i < 5; i++) {
       const { data: slugHit, error: slugErr } = await supabase
         .from('profiles')
         .select('short_code')
+        .eq('type', 'short_link')
         .eq('short_code', short_code)
         .maybeSingle();
 
@@ -82,7 +77,7 @@ exports.handler = async (event) => {
       short_code = generateSlug();
     }
 
-    // Insert new short link row
+    // Insert new short link
     const { error: insertErr } = await supabase.from('profiles').insert([
       {
         type: 'short_link',
@@ -93,11 +88,8 @@ exports.handler = async (event) => {
     ]);
 
     if (insertErr) {
-      console.error('[shorten] insertErr:', insertErr);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Failed to save short link' }),
-      };
+      console.error('[shorten] insert error:', insertErr);
+      return { statusCode: 500, body: JSON.stringify({ error: 'Failed to save short link' }) };
     }
 
     return {
@@ -111,14 +103,9 @@ exports.handler = async (event) => {
     console.error('[shorten] server error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: 'Server error',
-        details: err.message,
-      }),
+      body: JSON.stringify({ error: 'Server error', details: err.message }),
     };
   }
 };
 
-  }
-};
 
