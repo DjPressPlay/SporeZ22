@@ -12,7 +12,7 @@ function ScrollbarStyles() {
     <style>{`
       :root {
         --scroll-thumb: #000;        /* pure black */
-        --scroll-thumb-hover: #000;  /* stay black on hover */
+        --scroll-thumb-hover: #000;  /* pure black on hover */
         --scroll-track: transparent;
         --blk: #000;                 /* black line */
       }
@@ -26,7 +26,7 @@ function ScrollbarStyles() {
   );
 }
 
-/** Global: PURE BLACK outline utilities */
+/** Global: BLACK outline utilities */
 function BlackLineStyles() {
   return (
     <style>{`
@@ -40,45 +40,78 @@ function BlackLineStyles() {
   );
 }
 
-/** Global: Iridescent green↔blue palette + animation */
-function HoloStyles() {
+/** Global: Cyberpunk Neon palette + effects (purple/cyan/green/pink) */
+function NeonStyles() {
   return (
     <style>{`
       :root{
-        --holo-a:#00ffd0;     /* neon green-cyan */
-        --holo-b:#00e1ff;     /* aqua blue */
-        --holo-c:#26ff9a;     /* vivid green */
-        --holo-t:#b9fff0;     /* readable light text */
-        --holo-glow-a: rgba(0, 225, 255, .10);
-        --holo-glow-b: rgba(0, 255, 165, .10);
-        --holo-grid-a: rgba(0, 255, 190, .08);
-        --holo-grid-b: rgba(0, 215, 255, .06);
+        /* core neons */
+        --n-purple: #9b5cff;   /* electric violet */
+        --n-cyan:   #00e7ff;   /* aqua neon */
+        --n-blue:   #00a2ff;   /* electric blue */
+        --n-green:  #00ff85;   /* laser green */
+        --n-pink:   #ff2fd1;   /* hot magenta */
+        --n-rose:   #ff3cac;   /* pink-red */
+
+        /* readable neon-tinted text (avoid plain white) */
+        --txt: #cfe6ff;
+
+        /* glows */
+        --glow-purp: rgba(155, 92, 255, .26);
+        --glow-cyan: rgba(  0,231,255, .22);
+        --glow-grn:  rgba(  0,255,133, .20);
+        --glow-pink: rgba(255, 47, 209, .24);
+
+        /* grid tints */
+        --grid-a: rgba(155, 92, 255, .08);
+        --grid-b: rgba(  0,231,255, .06);
       }
-      @keyframes holoShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+
+      @keyframes neonShift {
+        0%   { background-position:   0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position:   0% 50%; }
       }
-      .bg-holo {
-        background-image: linear-gradient(90deg, var(--holo-a), var(--holo-b), var(--holo-c));
-        background-size: 220% 220%;
+      @keyframes sheen {
+        0%   { background-position: -200% 0; }
+        100% { background-position:  200% 0; }
       }
-      .txt-holo {
-        background-image: linear-gradient(90deg, var(--holo-b), var(--holo-a));
+
+      /* animated gradient background utility */
+      .bg-neon {
+        background-image: linear-gradient(90deg, var(--n-purple), var(--n-cyan), var(--n-rose), var(--n-green));
+        background-size: 300% 300%;
+        animation: neonShift 10s ease-in-out infinite;
+      }
+
+      /* text gradient */
+      .txt-neon {
+        background-image: linear-gradient(90deg, var(--n-rose), var(--n-purple), var(--n-cyan));
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
       }
-      .rule-holo { border-bottom: 1px solid rgba(0,255,210,.45); }
-      .border-holo { border-color: rgba(0,255,210,.55)!important; }
-      .holo-anim { animation: holoShift 9s ease-in-out infinite; }
-      .chip {
-        color:#001a1a;
-        padding:6px 10px;
-        border-radius:999px;
-        text-decoration:none;
-        display:inline-block;
+
+      /* chip/button gradient with moving sheen */
+      .btn-neon {
+        position: relative;
+        color: #001316;
+        background-image: linear-gradient(90deg, var(--n-green), var(--n-cyan), var(--n-rose), var(--n-purple));
+        background-size: 300% 300%;
+        animation: neonShift 8s linear infinite;
       }
+      .btn-neon::after {
+        content: "";
+        position: absolute; inset: 0;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,.18), transparent);
+        background-size: 200% 100%;
+        animation: sheen 2.8s linear infinite;
+        mix-blend-mode: screen;
+        border-radius: inherit;
+        pointer-events: none;
+      }
+
+      .rule-neon { border-bottom: 1px solid rgba(255, 47, 209, .45); }
     `}</style>
   );
 }
@@ -107,7 +140,7 @@ function SavedSporez() {
 
   if (spores.length === 0) {
     return (
-      <div className="blk r10" style={{ marginTop: "2rem", opacity: 0.5, padding: "1rem" }}>
+      <div className="blk r10" style={{ marginTop: "2rem", opacity: 0.6, padding: "1rem", color: "var(--txt)" }}>
         <p>🧬 No saved Sporez yet.</p>
       </div>
     );
@@ -116,18 +149,17 @@ function SavedSporez() {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
-    <div className="blk r10" style={{ width: "100%", maxWidth: 720, padding: "1rem" }}>
+    <div className="blk r10" style={{ width: "100%", maxWidth: 720, padding: "1rem", color: "var(--txt)" }}>
       <h2
-        className="blk-inset r10 rule-holo"
+        className="blk-inset r10 rule-neon"
         style={{
           fontSize: "1.4rem",
-          color: "var(--holo-t)",
           marginBottom: "1rem",
           padding: "0.75rem 0.75rem",
-          background: "#000a12",
+          background: "#0a0016",
         }}
       >
-        <span className="txt-holo">Saved Sporez:</span>
+        <span className="txt-neon">Saved Sporez:</span>
       </h2>
 
       <ul
@@ -146,12 +178,12 @@ function SavedSporez() {
             style={{
               position: "relative",
               margin: 0,
-              background: "linear-gradient(180deg, #00141f 0%, #001a26 100%)",
+              background: "linear-gradient(180deg, #070015 0%, #00111a 100%)",
               padding: "1rem",
               boxShadow:
                 idx === 0
-                  ? "0 18px 48px rgba(0,240,255,0.28), inset 0 0 0 1px rgba(0,255,204,0.10)"
-                  : "0 12px 28px rgba(0,240,255,0.18), inset 0 0 0 1px rgba(0,255,204,0.08)",
+                  ? `0 18px 48px var(--glow-pink), 0 0 0 1px var(--glow-cyan) inset`
+                  : `0 14px 32px var(--glow-purp), 0 0 0 1px var(--glow-grn) inset`,
               transition: "transform .18s ease, box-shadow .18s ease",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
@@ -160,29 +192,41 @@ function SavedSporez() {
             <div
               className="blk-inset r10"
               style={{
-                color: "var(--holo-c)",
+                color: "var(--n-green)",
                 wordBreak: "break-word",
                 marginBottom: "0.6rem",
                 padding: "0.5rem 0.6rem",
-                background: "#00151c",
+                background: "#0a0b1a",
+                textShadow: "0 0 8px var(--glow-grn)",
               }}
             >
               <strong>URL:</strong>{" "}
-              <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--holo-c)" }}>
+              <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--n-green)" }}>
                 {url}
               </a>
             </div>
 
             <div
               className="blk-inset r10"
-              style={{ fontSize: "0.9rem", color: "var(--holo-t)", padding: "0.5rem 0.6rem", background: "#00151c" }}
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--txt)",
+                padding: "0.5rem 0.6rem",
+                background: "#0a0b1a",
+              }}
             >
-              <strong>Short Link:</strong>{" "}
+              <strong style={{ color: "var(--n-cyan)" }}>Short Link:</strong>{" "}
               <a
                 href={`${origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="blk r10 chip bg-holo holo-anim border-holo"
+                className="blk r10 btn-neon"
+                style={{
+                  display: "inline-block",
+                  padding: "6px 10px",
+                  textDecoration: "none",
+                  boxShadow: "0 0 22px var(--glow-pink)",
+                }}
               >
                 {origin}/{slug}
               </a>
@@ -194,12 +238,14 @@ function SavedSporez() {
                 style={{
                   fontSize: "0.75rem",
                   marginTop: "0.4rem",
-                  color: "var(--holo-t)",
+                  color: "var(--txt)",
                   padding: "0.4rem 0.6rem",
-                  background: "#00151c",
+                  background: "#0a0b1a",
                 }}
               >
-                XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused: {stats?.fused ?? 0}
+                <span style={{ color: "var(--n-purple)" }}>XP:</span> {stats?.xp ?? 0} •{" "}
+                <span style={{ color: "var(--n-rose)" }}>Drops:</span> {stats?.drops ?? 0} •{" "}
+                <span style={{ color: "var(--n-cyan)" }}>Fused:</span> {stats?.fused ?? 0}
               </div>
             )}
           </li>
@@ -264,8 +310,8 @@ export default function App() {
       className="blk-inset"
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(to bottom, #00040f, #00111a)",
-        color: "var(--holo-t)",
+        background: "linear-gradient(180deg, #020109 0%, #070015 60%, #001018 100%)",
+        color: "var(--txt)",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
@@ -276,9 +322,9 @@ export default function App() {
     >
       <ScrollbarStyles />
       <BlackLineStyles />
-      <HoloStyles />
+      <NeonStyles />
 
-      {/* Background glow (tinted green↔blue) */}
+      {/* Background glow fields (purple/cyan/pink) */}
       <div
         className="blk-inset"
         style={{
@@ -286,13 +332,14 @@ export default function App() {
           inset: 0,
           zIndex: -1,
           background:
-            `radial-gradient(900px 600px at 50% 28%, var(--holo-glow-a), transparent 60%),` +
-            `radial-gradient(600px 420px at 22% 8%, var(--holo-glow-b), transparent 55%)`,
+            `radial-gradient(900px 600px at 18% 22%, var(--glow-purp), transparent 60%),` +
+            `radial-gradient(800px 520px at 80% 18%, var(--glow-cyan), transparent 65%),` +
+            `radial-gradient(700px 480px at 50% 78%, var(--glow-pink), transparent 60%)`,
           pointerEvents: "none",
         }}
       />
 
-      {/* Checkered grid (green↔blue tint) */}
+      {/* Cyber grid */}
       <div
         className="blk-inset"
         style={{
@@ -300,8 +347,8 @@ export default function App() {
           inset: 0,
           zIndex: 0,
           background:
-            `repeating-linear-gradient(0deg, transparent 0 39px, var(--holo-grid-b) 39px 40px),` +
-            `repeating-linear-gradient(90deg, transparent 0 39px, var(--holo-grid-a) 39px 40px)`,
+            `repeating-linear-gradient(0deg, transparent 0 39px, var(--grid-a) 39px 40px),` +
+            `repeating-linear-gradient(90deg, transparent 0 39px, var(--grid-b) 39px 40px)`,
           pointerEvents: "none",
         }}
       />
@@ -314,10 +361,11 @@ export default function App() {
           gridTemplateColumns: "auto 1fr",
           alignItems: "center",
           padding: "1rem 2rem",
-          borderBottom: "1px solid rgba(0,255,210,.33)",
-          background: "#000a12",
+          borderBottom: "1px solid rgba(255, 47, 209, .35)",
+          background: "#0b0017",
           gap: "1rem",
           margin: "0.75rem",
+          boxShadow: "0 10px 28px var(--glow-purp)",
         }}
       >
         <div
@@ -327,7 +375,8 @@ export default function App() {
             height: "70px",
             borderRadius: "50%",
             overflow: "hidden",
-            background: "#001a26",
+            background: "#00131a",
+            boxShadow: "0 0 22px var(--glow-cyan)",
           }}
         >
           <img
@@ -337,7 +386,10 @@ export default function App() {
           />
         </div>
 
-        <h1 className="blk-inset r10 txt-holo" style={{ fontSize: "1.5rem", margin: 0, textAlign: "left", padding: "0.5rem 0.75rem" }}>
+        <h1
+          className="blk-inset r10 txt-neon"
+          style={{ fontSize: "1.6rem", margin: 0, textAlign: "left", padding: "0.5rem 0.75rem" }}
+        >
           SporeZ // E.I.G.
         </h1>
       </header>
@@ -348,28 +400,29 @@ export default function App() {
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: "2rem",
-          padding: "1rem",
-          borderBottom: "1px solid rgba(0,255,210,.35)",
-          background: "#001923",
+          gap: "1rem",
+          padding: "0.9rem",
+          borderBottom: "1px solid rgba(0,231,255,.35)",
+          background: "#06101a",
           margin: "0 0.75rem",
+          boxShadow: "0 8px 20px var(--glow-cyan)",
         }}
       >
         {TABS.map((tab) => (
           <button
             key={tab}
-            className="blk r10 bg-holo holo-anim border-holo"
+            className="blk r10 btn-neon"
             onClick={() => setActiveTab(tab)}
             style={{
-              backgroundBlendMode: "overlay",
-              color: activeTab === tab ? "#001a1a" : "#001a1a",
-              fontSize: "1rem",
-              fontWeight: "bold",
+              color: "#001316",
+              fontSize: "0.98rem",
+              fontWeight: 800,
               cursor: "pointer",
-              textShadow: "none",
-              padding: "0.55rem 1rem",
-              opacity: activeTab === tab ? 1 : 0.85,
-              filter: activeTab === tab ? "none" : "saturate(0.9) brightness(0.95)",
+              padding: "0.6rem 1.1rem",
+              boxShadow: activeTab === tab ? "0 0 24px var(--glow-pink)" : "0 0 16px var(--glow-grn)",
+              opacity: activeTab === tab ? 1 : 0.92,
+              transform: activeTab === tab ? "translateY(-1px)" : "none",
+              transition: "all .18s ease",
             }}
           >
             {tab}
@@ -387,19 +440,28 @@ export default function App() {
           flexDirection: "column",
           alignItems: "center",
           margin: "0.75rem",
-          background: "rgba(0,0,0,0.25)",
+          background: "rgba(0,0,0,0.28)",
+          boxShadow: "0 18px 40px var(--glow-purp)",
         }}
       >
         {activeTab === "Home" && (
-          <div className="blk r10" style={{ width: "100%", maxWidth: 560, padding: "1.25rem" }}>
-            <h2 className="blk-inset r10 txt-holo" style={{ padding: "0.5rem 0.75rem", margin: 0 }}>
+          <div className="blk r10" style={{ width: "100%", maxWidth: 580, padding: "1.25rem", background: "#080212" }}>
+            <h2 className="blk-inset r10 txt-neon" style={{ padding: "0.5rem 0.75rem", margin: 0 }}>
               Welcome to the SporeZ Engine
             </h2>
-            <p className="blk-inset r10" style={{ opacity: 0.6, marginTop: "0.75rem", padding: "0.5rem 0.75rem", color: "var(--holo-t)" }}>
+            <p
+              className="blk-inset r10"
+              style={{
+                opacity: 0.78,
+                marginTop: "0.75rem",
+                padding: "0.5rem 0.75rem",
+                color: "var(--txt)",
+              }}
+            >
               Paste a link below to generate a compact Spore link.
             </p>
 
-            <div className="blk r10" style={{ marginTop: "1rem", padding: "1rem", background: "#000a12" }}>
+            <div className="blk r10" style={{ marginTop: "1rem", padding: "1rem", background: "#0b0017" }}>
               <input
                 className="blk r10"
                 type="text"
@@ -410,24 +472,24 @@ export default function App() {
                   width: "100%",
                   padding: "1rem",
                   fontSize: "1rem",
-                  background: "#001a26",
-                  color: "var(--holo-t)",
+                  background: "#0a0b1a",
+                  color: "var(--txt)",
                   outline: "none",
+                  boxShadow: "0 0 14px var(--glow-cyan)",
                 }}
               />
               <button
-                className="blk-thick r10 bg-holo holo-anim border-holo"
+                className="blk-thick r10 btn-neon"
                 onClick={handleShorten}
                 style={{
                   marginTop: "1rem",
                   width: "100%",
                   padding: "1rem",
                   fontSize: "1rem",
-                  fontWeight: "bold",
-                  color: "#001a1a",
+                  fontWeight: 900,
                   border: "none",
                   cursor: "pointer",
-                  boxShadow: "0 0 10px rgba(0,255,210,0.45)",
+                  boxShadow: "0 0 26px var(--glow-pink)",
                 }}
               >
                 Shorten & Drop
@@ -439,7 +501,7 @@ export default function App() {
         {activeTab === "Saved Sporez" && <SavedSporez />}
 
         {activeTab === "Spore Fusion" && (
-          <p className="blk-inset r10 txt-holo" style={{ padding: "0.75rem 1rem" }}>
+          <p className="blk-inset r10 txt-neon" style={{ padding: "0.75rem 1rem" }}>
             🔬 Fusion lab coming soon. Mix identity + payloads.
           </p>
         )}
