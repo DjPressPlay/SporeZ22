@@ -1,5 +1,6 @@
 // src/App.tsx
 // src/App.tsx
+// src/App.tsx
 import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
@@ -88,7 +89,7 @@ function SavedSporez() {
             <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
               <strong>Short Link:</strong>{" "}
               <a
-                href={`${window.location.origin}/${slug}`}  // ← fixed template string
+                href={${window.location.origin}/${slug}}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -158,7 +159,7 @@ export default function App() {
         try {
           await navigator.clipboard.writeText(data.shortenedUrl);
         } catch {}
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`); // ← fixed backticks
+        alert(Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl});
 
         setInputValue("");
         setActiveTab("Saved Sporez");
@@ -177,41 +178,40 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        background: "transparent", // show the layered pattern below
+        // keep your base gradient
+        background: "linear-gradient(to bottom, #00040f, #00111a)",
         color: "#00f0ff",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
-        position: "relative",
+        position: "relative", // needed for z-index layering
         overflow: "hidden",
       }}
     >
-      {/* === Gradient base + soft teal glow === */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: -2,
-          pointerEvents: "none",
-          background: `
-            radial-gradient(900px 650px at 50% 28%, rgba(0,255,230,.16), transparent 60%),
-            radial-gradient(700px 500px at 20% 10%, rgba(0,200,255,.10), transparent 55%),
-            linear-gradient(180deg, #000000 0%, #001018 40%, #022533 100%)
-          `,
-        }}
-      />
-      {/* === Teal checkered grid overlay === */}
+      {/* ==== ONLY NEW VISUALS: glow + checkered grid ==== */}
       <div
         style={{
           position: "fixed",
           inset: 0,
           zIndex: -1,
+          background:
+            "radial-gradient(900px 600px at 50% 28%, rgba(0,224,255,.10), transparent 60%)," +
+            "radial-gradient(600px 420px at 22% 8%, rgba(0,255,194,.08), transparent 55%)",
           pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
           background:
             "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)," +
             "repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)",
+          pointerEvents: "none",
         }}
       />
+      {/* ================================================ */}
 
       {/* Header */}
       <header
@@ -352,3 +352,5 @@ export default function App() {
     </div>
   );
 }
+
+
