@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
 type Spore = { slug: string; url: string; stats?: any; ts: number };
+type Tab = "Home" | "Saved Sporez" | "Spore Fusion";
 
 function ensureSessionId(): string {
   let sid = "";
@@ -35,6 +36,9 @@ function SavedSporez() {
     );
   }
 
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "";
+
   return (
     <div style={{ width: "100%", maxWidth: 720 }}>
       <h2
@@ -48,7 +52,16 @@ function SavedSporez() {
       >
         Saved Sporez:
       </h2>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 }}>
+
+      <ul
+        style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gap: 16,
+        }}
+      >
         {spores.map(({ slug, url, stats }, idx) => (
           <li
             key={slug}
@@ -80,7 +93,12 @@ function SavedSporez() {
               }}
             >
               <strong>URL:</strong>{" "}
-              <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "#00ff88" }}>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#00ff88" }}
+              >
                 {url}
               </a>
             </div>
@@ -88,7 +106,7 @@ function SavedSporez() {
             <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
               <strong>Short Link:</strong>{" "}
               <a
-                href={`${window.location.origin}/${slug}`}
+                href={`${origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -101,7 +119,7 @@ function SavedSporez() {
                   textDecoration: "none",
                 }}
               >
-                {window.location.origin}/{slug}
+                {origin}/{slug}
               </a>
             </div>
 
@@ -124,7 +142,7 @@ function SavedSporez() {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("Home");
+  const [activeTab, setActiveTab] = useState<Tab>("Home");
   const [inputValue, setInputValue] = useState("");
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
 
@@ -142,12 +160,14 @@ export default function App() {
         body: JSON.stringify({ url, sessionId }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setShowSporeOverlay(false);
 
-      if (data && data.shortenedUrl) {
-        const slug =
-          (data.short_code as string) || (data.shortenedUrl.split("/").pop() as string) || "";
+      if (res.ok && data?.shortenedUrl) {
+        const slug: string =
+          (data.short_code as string) ||
+          (String(data.shortenedUrl).split("/").pop() as string) ||
+          "";
 
         const prev: Spore[] = JSON.parse(localStorage.getItem("spores") || "[]");
         const stats = { xp: 240 + prev.length * 10, drops: prev.length + 1, fused: 1 };
@@ -157,37 +177,39 @@ export default function App() {
 
         try {
           await navigator.clipboard.writeText(data.shortenedUrl);
-        } catch {}
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        } catch {
+          /* non-fatal */
+        }
 
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue("");
         setActiveTab("Saved Sporez");
       } else {
         alert("Error: Could not generate Spore link.");
       }
-    } catch (err) {
+    } catch {
       setShowSporeOverlay(false);
       alert("Failed to contact the Spore shortening service.");
     }
   };
 
-  const TABS: string[] = ["Home", "Saved Sporez", "Spore Fusion"];
+  const TABS: Tab[] = ["Home", "Saved Sporez", "Spore Fusion"];
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        // keep your base gradient
         background: "linear-gradient(to bottom, #00040f, #00111a)",
         color: "#00f0ff",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
-        position: "relative", // needed for z-index layering
-        overflow: "hidden",
+        position: "relative",
+        overflowX: "hidden", // keep the grid clips
+        overflowY: "auto",   // ← enable scroll bar
       }}
     >
-      {/* ==== ONLY NEW VISUALS: glow + checkered grid ==== */}
+      {/* Background glow */}
       <div
         style={{
           position: "fixed",
@@ -199,6 +221,7 @@ export default function App() {
           pointerEvents: "none",
         }}
       />
+      {/* Checkered grid */}
       <div
         style={{
           position: "fixed",
@@ -210,7 +233,6 @@ export default function App() {
           pointerEvents: "none",
         }}
       />
-      {/* ================================================ */}
 
       {/* Header */}
       <header
