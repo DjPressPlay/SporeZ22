@@ -1,6 +1,5 @@
 // src/App.tsx
 // src/App.tsx
-// src/App.tsx
 import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
@@ -89,7 +88,7 @@ function SavedSporez() {
             <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
               <strong>Short Link:</strong>{" "}
               <a
-                href={${window.location.origin}/${slug}}
+                href={`${window.location.origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -159,7 +158,7 @@ export default function App() {
         try {
           await navigator.clipboard.writeText(data.shortenedUrl);
         } catch {}
-        alert(Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl});
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
 
         setInputValue("");
         setActiveTab("Saved Sporez");
