@@ -109,6 +109,52 @@ function NeonStyles() {
   );
 }
 
+/** Iridescent ring + 3D panel/gloss (for the white Home container) */
+function HoloRingStyles() {
+  return (
+    <style>{`
+      .holo-ring{
+        position:relative;border:1px solid transparent;border-radius:16px;
+        background:
+          linear-gradient(#fff,#fff) padding-box,
+          conic-gradient(from 0deg,
+            var(--n-purple), var(--n-cyan), var(--n-rose), var(--n-green), var(--n-blue), var(--n-pink), var(--n-purple)
+          ) border-box;
+        background-size:200% 200%, 300% 300%;
+        animation: neonShift 12s ease-in-out infinite;
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,.9) inset,
+          0 18px 60px rgba(0,0,0,.45),
+          0 10px 28px var(--glow-purp),
+          0 14px 38px var(--glow-pink);
+        border-radius:16px;
+      }
+      .holo-ring::after{
+        content:"";position:absolute;inset:-18px;border-radius:inherit;z-index:-1;
+        background:
+          radial-gradient(closest-side, rgba(155,92,255,.25), transparent 70%),
+          radial-gradient(closest-side, rgba(0,231,255,.22), transparent 72%),
+          radial-gradient(closest-side, rgba(255,47,209,.18), transparent 74%);
+        filter:blur(24px);
+      }
+      .panel-3d{
+        position:relative;background:#fff;border-radius:16px;
+        box-shadow:
+          0 28px 70px rgba(0,0,0,.48),
+          0 6px 18px rgba(0,0,0,.35),
+          inset 0 0 0 1px #000;
+      }
+      .panel-3d::before{
+        content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0) 45%),
+          radial-gradient(120% 60% at 0% 0%, rgba(255,255,255,.35), transparent 60%);
+        mix-blend-mode:screen;opacity:.9;
+      }
+    `}</style>
+  );
+}
+
 function ensureSessionId(): string {
   let sid = "";
   if (typeof window !== "undefined") {
@@ -316,6 +362,7 @@ export default function App() {
       <ScrollbarStyles />
       <BlackLineStyles />
       <NeonStyles />
+      <HoloRingStyles />
 
       {/* Background glow fields (purple/cyan/pink) */}
       <div
@@ -438,60 +485,53 @@ export default function App() {
         }}
       >
         {activeTab === "Home" && (
-          /* === All-White Container === */
-          <div
-            className="blk r10"
-            style={{
-              width: "100%",
-              maxWidth: 640,
-              padding: 0,
-              background: "#ffffff",   // all white
-              color: "#000000",
-              boxShadow: "0 10px 30px rgba(0,0,0,.25)",
-            }}
-          >
-            {/* Header area inside white card */}
-            <div style={{ padding: "1.25rem 1.25rem .75rem", borderBottom: "1px solid #000" }}>
-              <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#000" }}>
-                Welcome to the SporeZ Engine
-              </h2>
-              <p style={{ margin: ".5rem 0 0", color: "#222" }}>
-                Paste a link below to generate a compact Spore link.
-              </p>
-            </div>
+          /* === Iridescent ring → White 3D panel → Content === */
+          <div className="holo-ring" style={{ width: "100%", maxWidth: 740, margin: "0 auto" }}>
+            <div className="blk r14 panel-3d" style={{ padding: 0 }}>
+              {/* White header area */}
+              <div style={{ padding: "1.25rem 1.25rem .75rem", borderBottom: "1px solid #000" }}>
+                <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#000" }}>
+                  Welcome to the SporeZ Engine
+                </h2>
+                <p style={{ margin: ".5rem 0 0", color: "#222" }}>
+                  Paste a link below to generate a compact Spore link.
+                </p>
+              </div>
 
-            {/* Form area */}
-            <div style={{ padding: "1.25rem" }}>
-              <input
-                className="blk r10"
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Paste a long link..."
-                style={{
-                  width: "100%",
-                  padding: "1rem",
-                  fontSize: "1rem",
-                  background: "#ffffff",
-                  color: "#111",
-                  outline: "none",
-                }}
-              />
-              <button
-                className="blk-thick r10 btn-neon"
-                onClick={handleShorten}
-                style={{
-                  marginTop: "1rem",
-                  width: "100%",
-                  padding: "1rem",
-                  fontSize: "1rem",
-                  fontWeight: 900,
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Shorten & Drop
-              </button>
+              {/* Form area (fits perfectly) */}
+              <div style={{ padding: "1.25rem" }}>
+                <input
+                  className="blk r10"
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Paste a long link..."
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    padding: "1rem",
+                    fontSize: "1rem",
+                    background: "#ffffff",
+                    color: "#111",
+                    outline: "none",
+                  }}
+                />
+                <button
+                  className="blk-thick r10 btn-neon"
+                  onClick={handleShorten}
+                  style={{
+                    marginTop: "1rem",
+                    width: "100%",
+                    padding: "1rem",
+                    fontSize: "1rem",
+                    fontWeight: 900,
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  Shorten & Drop
+                </button>
+              </div>
             </div>
           </div>
         )}
