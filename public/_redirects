@@ -1,2 +1,44 @@
-/:splat  /.netlify/functions/redirect/:splat  200!
-/*       /index.html                            200
+// netlify/functions/redirect.js
+const { createClient } = require('@supabase/supabase-js');
+
+const supabaseUrl =
+  process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+exports.handler = async (event) => {
+  try {
+    const parts = (event.path || '/').split('/').filter(Boolean);
+    const slug = parts[parts.length - 1];
+
+    if (!slug) {
+      return { statusCode: 404, body: 'Missing slug' };
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('target_url')
+      .eq('type', 'short_link')
+      .eq('short_code', slug)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[redirect] DB error:', error);
+      return { statusCode: 500, body: 'DB error' };
+    }
+    if (!data || !data.target_url) {
+      return { statusCode: 404, body: 'Short link not found' };
+    }
+
+    return {
+      statusCode: 301,
+      headers: { Location: data.target_url },
+      body: '',
+    };
+  } catch (err) {
+    console.error('[redirect] server error:', err);
+    return { statusCode: 500, body: `Server error: ${err.message}` };
+  }
+};
