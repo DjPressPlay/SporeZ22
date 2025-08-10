@@ -1,115 +1,80 @@
 // src/App.tsx
-// src/App.tsx
 import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
 type Spore = { slug: string; url: string; stats?: any; ts: number };
 type Tab = "Home" | "Saved Sporez" | "Spore Fusion";
 
-/** Global: PURE BLACK scrollbar (ChatGPT-like) */
+/** PURE BLACK scrollbar */
 function ScrollbarStyles() {
   return (
     <style>{`
-      :root {
-        --scroll-thumb: #000;        /* pure black */
-        --scroll-thumb-hover: #000;  /* pure black on hover */
-        --scroll-track: transparent;
-        --blk: #000;                 /* black line */
-      }
-      * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) var(--scroll-track); }
-      *::-webkit-scrollbar { width: 10px; height: 10px; }
-      *::-webkit-scrollbar-track { background: var(--scroll-track); }
-      *::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 8px; border: 2px solid #000; }
-      *::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-thumb-hover); }
-      html { scrollbar-gutter: stable both-edges; }
+      :root { --scroll-thumb:#000; --scroll-thumb-hover:#000; --scroll-track:transparent; --blk:#000; }
+      *{ scrollbar-width:thin; scrollbar-color:var(--scroll-thumb) var(--scroll-track); }
+      *::-webkit-scrollbar{ width:10px; height:10px; }
+      *::-webkit-scrollbar-track{ background:var(--scroll-track); }
+      *::-webkit-scrollbar-thumb{ background-color:var(--scroll-thumb); border-radius:8px; border:2px solid #000; }
+      *::-webkit-scrollbar-thumb:hover{ background-color:var(--scroll-thumb-hover); }
+      html{ scrollbar-gutter:stable both-edges; }
     `}</style>
   );
 }
 
-/** Global: BLACK outline utilities */
+/** BLACK outlines */
 function BlackLineStyles() {
   return (
     <style>{`
-      .blk        { border: 1px solid var(--blk); }
-      .blk-thick  { border: 2px solid var(--blk); }
-      .blk-inset  { box-shadow: inset 0 0 0 1px var(--blk); }
-      .blk-soft   { box-shadow: 0 0 0 1px var(--blk); }
-      .r14        { border-radius: 14px; }
-      .r10        { border-radius: 10px; }
+      .blk{ border:1px solid var(--blk); }
+      .blk-thick{ border:2px solid var(--blk); }
+      .blk-inset{ box-shadow: inset 0 0 0 1px var(--blk); }
+      .blk-soft{ box-shadow: 0 0 0 1px var(--blk); }
+      .r14{ border-radius:14px; }
+      .r10{ border-radius:10px; }
     `}</style>
   );
 }
 
-/** Global: Cyberpunk Neon palette + effects (purple/cyan/green/pink) */
+/** Neon palette */
 function NeonStyles() {
   return (
     <style>{`
       :root{
-        /* core neons */
-        --n-purple: #9b5cff;   /* electric violet */
-        --n-cyan:   #00e7ff;   /* aqua neon */
-        --n-blue:   #00a2ff;   /* electric blue */
-        --n-green:  #00ff85;   /* laser green */
-        --n-pink:   #ff2fd1;   /* hot magenta */
-        --n-rose:   #ff3cac;   /* pink-red */
-
-        /* readable neon-tinted text */
-        --txt: #cfe6ff;
-
-        /* glows */
-        --glow-purp: rgba(155, 92, 255, .26);
-        --glow-cyan: rgba(  0,231,255, .22);
-        --glow-grn:  rgba(  0,255,133, .20);
-        --glow-pink: rgba(255, 47, 209, .24);
-
-        /* grid tints */
-        --grid-a: rgba(155, 92, 255, .08);
-        --grid-b: rgba(  0,231,255, .06);
+        --n-purple:#9b5cff; --n-cyan:#00e7ff; --n-blue:#00a2ff; --n-green:#00ff85; --n-pink:#ff2fd1; --n-rose:#ff3cac;
+        --txt:#cfe6ff;
+        --glow-purp:rgba(155,92,255,.26); --glow-cyan:rgba(0,231,255,.22); --glow-grn:rgba(0,255,133,.20); --glow-pink:rgba(255,47,209,.24);
+        --grid-a:rgba(155,92,255,.08); --grid-b:rgba(0,231,255,.06);
       }
-
-      @keyframes neonShift {
-        0%   { background-position:   0% 50%; }
-        50%  { background-position: 100% 50%; }
-        100% { background-position:   0% 50%; }
+      @keyframes neonShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+      @keyframes sheen{0%{background-position:-200% 0}100%{background-position:200% 0}}
+      .txt-neon{
+        background-image:linear-gradient(90deg,var(--n-rose),var(--n-purple),var(--n-cyan));
+        -webkit-background-clip:text;background-clip:text;color:transparent;
       }
-      @keyframes sheen {
-        0%   { background-position: -200% 0; }
-        100% { background-position:  200% 0; }
+      .btn-neon{
+        position:relative;color:#001316;background-image:linear-gradient(90deg,var(--n-green),var(--n-cyan),var(--n-rose),var(--n-purple));
+        background-size:300% 300%;animation:neonShift 8s linear infinite;
       }
-
-      /* text gradient */
-      .txt-neon {
-        background-image: linear-gradient(90deg, var(--n-rose), var(--n-purple), var(--n-cyan));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+      .btn-neon::after{
+        content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);
+        background-size:200% 100%;animation:sheen 2.8s linear infinite;mix-blend-mode:screen;border-radius:inherit;pointer-events:none;
       }
-
-      /* button gradient with moving sheen */
-      .btn-neon {
-        position: relative;
-        color: #001316;
-        background-image: linear-gradient(90deg, var(--n-green), var(--n-cyan), var(--n-rose), var(--n-purple));
-        background-size: 300% 300%;
-        animation: neonShift 8s linear infinite;
-      }
-      .btn-neon::after {
-        content: "";
-        position: absolute; inset: 0;
-        background: linear-gradient(120deg, transparent, rgba(255,255,255,.18), transparent);
-        background-size: 200% 100%;
-        animation: sheen 2.8s linear infinite;
-        mix-blend-mode: screen;
-        border-radius: inherit;
-        pointer-events: none;
-      }
-
-      .rule-neon { border-bottom: 1px solid rgba(255, 47, 209, .45); }
+      .rule-neon{ border-bottom:1px solid rgba(255,47,209,.45); }
     `}</style>
   );
 }
 
-/** Iridescent ring + 3D panel/gloss (for the white Home container) */
+/** Center EVERYTHING (including inputs & placeholders) */
+function CenterStyles() {
+  return (
+    <style>{`
+      .centered, .centered * { text-align: center !important; }
+      .centered input, .centered textarea { text-align: center !important; }
+      .centered input::placeholder, .centered textarea::placeholder { text-align: center; }
+    `}</style>
+  );
+}
+
+/** Iridescent ring + 3D panel/gloss */
 function HoloRingStyles() {
   return (
     <style>{`
@@ -139,10 +104,7 @@ function HoloRingStyles() {
       }
       .panel-3d{
         position:relative;background:#fff;border-radius:16px;
-        box-shadow:
-          0 28px 70px rgba(0,0,0,.48),
-          0 6px 18px rgba(0,0,0,.35),
-          inset 0 0 0 1px #000;
+        box-shadow:0 28px 70px rgba(0,0,0,.48),0 6px 18px rgba(0,0,0,.35),inset 0 0 0 1px #000;
       }
       .panel-3d::before{
         content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
@@ -159,17 +121,13 @@ function ensureSessionId(): string {
   let sid = "";
   if (typeof window !== "undefined") {
     sid = sessionStorage.getItem("session_id") || "";
-    if (!sid) {
-      sid = String(Date.now());
-      sessionStorage.setItem("session_id", sid);
-    }
+    if (!sid) { sid = String(Date.now()); sessionStorage.setItem("session_id", sid); }
   }
   return sid;
 }
 
 function SavedSporez() {
   const [spores, setSpores] = useState<Spore[]>([]);
-
   useEffect(() => {
     const stored = localStorage.getItem("spores");
     const list: Spore[] = stored ? JSON.parse(stored) : [];
@@ -191,25 +149,12 @@ function SavedSporez() {
     <div className="blk r10" style={{ width: "100%", maxWidth: 720, padding: "1rem", color: "var(--txt)" }}>
       <h2
         className="blk-inset r10 rule-neon"
-        style={{
-          fontSize: "1.4rem",
-          marginBottom: "1rem",
-          padding: "0.75rem 0.75rem",
-          background: "#0a0016",
-        }}
+        style={{ fontSize: "1.4rem", marginBottom: "1rem", padding: "0.75rem 0.75rem", background: "#0a0016" }}
       >
         <span className="txt-neon">Saved Sporez:</span>
       </h2>
 
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          margin: 0,
-          display: "grid",
-          gap: 16,
-        }}
-      >
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 }}>
         {spores.map(({ slug, url, stats }, idx) => (
           <li
             key={slug}
@@ -245,43 +190,21 @@ function SavedSporez() {
               </a>
             </div>
 
-            <div
-              className="blk-inset r10"
-              style={{
-                fontSize: "0.9rem",
-                color: "var(--txt)",
-                padding: "0.5rem 0.6rem",
-                background: "#0a0b1a",
-              }}
-            >
+            <div className="blk-inset r10" style={{ fontSize: "0.9rem", color: "var(--txt)", padding: "0.5rem 0.6rem", background: "#0a0b1a" }}>
               <strong style={{ color: "var(--n-cyan)" }}>Short Link:</strong>{" "}
               <a
                 href={`${origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="blk r10 btn-neon"
-                style={{
-                  display: "inline-block",
-                  padding: "6px 10px",
-                  textDecoration: "none",
-                  boxShadow: "0 0 22px var(--glow-pink)",
-                }}
+                style={{ display: "inline-block", padding: "6px 10px", textDecoration: "none", boxShadow: "0 0 22px var(--glow-pink)" }}
               >
                 {origin}/{slug}
               </a>
             </div>
 
             {stats && (
-              <div
-                className="blk-inset r10"
-                style={{
-                  fontSize: "0.75rem",
-                  marginTop: "0.4rem",
-                  color: "var(--txt)",
-                  padding: "0.4rem 0.6rem",
-                  background: "#0a0b1a",
-                }}
-              >
+              <div className="blk-inset r10" style={{ fontSize: "0.75rem", marginTop: "0.4rem", color: "var(--txt)", padding: "0.4rem 0.6rem", background: "#0a0b1a" }}>
                 <span style={{ color: "var(--n-purple)" }}>XP:</span> {stats?.xp ?? 0} •{" "}
                 <span style={{ color: "var(--n-rose)" }}>Drops:</span> {stats?.drops ?? 0} •{" "}
                 <span style={{ color: "var(--n-cyan)" }}>Fused:</span> {stats?.fused ?? 0}
@@ -306,30 +229,22 @@ export default function App() {
     setShowSporeOverlay(true);
     try {
       const sessionId = ensureSessionId();
-
       const res = await fetch("/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, sessionId }),
       });
-
       const data = await res.json().catch(() => ({}));
       setShowSporeOverlay(false);
 
       if (res.ok && data?.shortenedUrl) {
-        const slug: string =
-          (data.short_code as string) ||
-          (String(data.shortenedUrl).split("/").pop() as string) ||
-          "";
-
+        const slug: string = (data.short_code as string) || (String(data.shortenedUrl).split("/").pop() as string) || "";
         const prev: Spore[] = JSON.parse(localStorage.getItem("spores") || "[]");
         const stats = { xp: 240 + prev.length * 10, drops: prev.length + 1, fused: 1 };
         const newSpore: Spore = { slug, url, stats, ts: Date.now() };
         const updated = [newSpore, ...prev].slice(0, 6);
         localStorage.setItem("spores", JSON.stringify(updated));
-
         try { await navigator.clipboard.writeText(data.shortenedUrl); } catch {}
-
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
         setInputValue("");
         setActiveTab("Saved Sporez");
@@ -346,7 +261,7 @@ export default function App() {
 
   return (
     <div
-      className="blk-inset"
+      className="blk-inset centered"   // ← center all text app-wide
       style={{
         minHeight: "100vh",
         background: "linear-gradient(180deg, #020109 0%, #070015 60%, #001018 100%)",
@@ -362,9 +277,10 @@ export default function App() {
       <ScrollbarStyles />
       <BlackLineStyles />
       <NeonStyles />
+      <CenterStyles />   {/* ← add this */}
       <HoloRingStyles />
 
-      {/* Background glow fields (purple/cyan/pink) */}
+      {/* Background glow fields */}
       <div
         className="blk-inset"
         style={{
@@ -428,7 +344,7 @@ export default function App() {
 
         <h1
           className="blk-inset r10 txt-neon"
-          style={{ fontSize: "1.6rem", margin: 0, textAlign: "left", padding: "0.5rem 0.75rem" }}
+          style={{ fontSize: "1.6rem", margin: 0, padding: "0.5rem 0.75rem" }}  // ← no left align
         >
           SporeZ // E.I.G.
         </h1>
@@ -485,20 +401,15 @@ export default function App() {
         }}
       >
         {activeTab === "Home" && (
-          /* === Iridescent ring → White 3D panel → Content === */
           <div className="holo-ring" style={{ width: "100%", maxWidth: 740, margin: "0 auto" }}>
             <div className="blk r14 panel-3d" style={{ padding: 0 }}>
-              {/* White header area */}
               <div style={{ padding: "1.25rem 1.25rem .75rem", borderBottom: "1px solid #000" }}>
-                <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#000" }}>
-                  Welcome to the SporeZ Engine
-                </h2>
+                <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#000" }}>Welcome to the SporeZ Engine</h2>
                 <p style={{ margin: ".5rem 0 0", color: "#222" }}>
                   Paste a link below to generate a compact Spore link.
                 </p>
               </div>
 
-              {/* Form area (fits perfectly) */}
               <div style={{ padding: "1.25rem" }}>
                 <input
                   className="blk r10"
