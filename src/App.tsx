@@ -66,10 +66,10 @@ function SavedSporez() {
               transition: "transform .18s ease, box-shadow .18s ease",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLLIElement).style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-2px)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLLIElement).style.transform = "translateY(0)";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             <div
@@ -88,7 +88,7 @@ function SavedSporez() {
             <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
               <strong>Short Link:</strong>{" "}
               <a
-                href={`${window.location.origin}/${slug}`}
+                href={`${window.location.origin}/${slug}`}  // ← fixed template string
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -128,33 +128,6 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
 
-  // --- NEW: mouse-following glow state ---
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // start near upper third center
-      setMouse({ x: window.innerWidth / 2, y: window.innerHeight / 3 });
-    }
-    let raf = 0 as number;
-    const update = (x: number, y: number) => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setMouse({ x, y }));
-    };
-    const onMove = (e: MouseEvent) => update(e.clientX, e.clientY);
-    const onTouch = (e: TouchEvent) => {
-      const t = e.touches && e.touches[0];
-      if (t) update(t.clientX, t.clientY);
-    };
-    window.addEventListener("mousemove", onMove, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("touchmove", onTouch);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
-
   const handleShorten = async () => {
     const url = inputValue.trim();
     if (!url) return;
@@ -185,7 +158,7 @@ export default function App() {
         try {
           await navigator.clipboard.writeText(data.shortenedUrl);
         } catch {}
-        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+        alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`); // ← fixed backticks
 
         setInputValue("");
         setActiveTab("Saved Sporez");
@@ -200,17 +173,11 @@ export default function App() {
 
   const TABS: string[] = ["Home", "Saved Sporez", "Spore Fusion"];
 
-  // build the dynamic background string
-  const bgGlow =
-    `radial-gradient(900px 650px at ${mouse.x}px ${mouse.y}px, rgba(0,255,230,.18), transparent 60%),` +
-    `radial-gradient(700px 500px at 22% 10%, rgba(0,200,255,.10), transparent 55%),` +
-    `linear-gradient(180deg, #000000 0%, #001018 40%, #022533 100%)`;
-
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "transparent", // base is provided by layers below
+        background: "transparent", // show the layered pattern below
         color: "#00f0ff",
         fontFamily: "monospace",
         display: "flex",
@@ -219,14 +186,18 @@ export default function App() {
         overflow: "hidden",
       }}
     >
-      {/* === NEW: gradient base + mouse-follow glow === */}
+      {/* === Gradient base + soft teal glow === */}
       <div
         style={{
           position: "fixed",
           inset: 0,
           zIndex: -2,
           pointerEvents: "none",
-          background: bgGlow,
+          background: `
+            radial-gradient(900px 650px at 50% 28%, rgba(0,255,230,.16), transparent 60%),
+            radial-gradient(700px 500px at 20% 10%, rgba(0,200,255,.10), transparent 55%),
+            linear-gradient(180deg, #000000 0%, #001018 40%, #022533 100%)
+          `,
         }}
       />
       {/* === Teal checkered grid overlay === */}
@@ -381,4 +352,3 @@ export default function App() {
     </div>
   );
 }
-
