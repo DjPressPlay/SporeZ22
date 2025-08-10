@@ -1,13 +1,31 @@
 // src/App.tsx
-import React, { useState, useEffect } from "react";
+// src/App.tsx
+import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
+type Spore = { slug: string; url: string; stats?: any; ts: number };
+
+function ensureSessionId(): string {
+  let sid = "";
+  if (typeof window !== "undefined") {
+    sid = sessionStorage.getItem("session_id") || "";
+    if (!sid) {
+      sid = String(Date.now());
+      sessionStorage.setItem("session_id", sid);
+    }
+  }
+  return sid;
+}
+
 function SavedSporez() {
-  const [spores, setSpores] = useState<{ slug: string; url: string; stats?: any }[]>([]);
+  const [spores, setSpores] = useState<Spore[]>([]);
 
   useEffect(() => {
-    const storedSpores = localStorage.getItem("spores");
-    if (storedSpores) setSpores(JSON.parse(storedSpores));
+    const stored = localStorage.getItem("spores");
+    const list: Spore[] = stored ? JSON.parse(stored) : [];
+    // newest first, limit 6
+    list.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    setSpores(list.slice(0, 6));
   }, []);
 
   if (spores.length === 0) {
@@ -19,33 +37,85 @@ function SavedSporez() {
   }
 
   return (
-    <div style={{ width: "100%", maxWidth: 760 }}>
-      <h2 style={s.sectionTitle}>Saved Sporez</h2>
-      <ul style={s.list}>
+    <div style={{ width: "100%", maxWidth: 720 }}>
+      <h2
+        style={{
+          fontSize: "1.4rem",
+          color: "#00f0ff",
+          marginBottom: "1rem",
+          borderBottom: "1px solid #00f0ff55",
+          paddingBottom: "0.5rem",
+        }}
+      >
+        Saved Sporez:
+      </h2>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 16 }}>
         {spores.map(({ slug, url, stats }, idx) => (
-          <li key={slug} style={s.card(idx === 0)}>
-            <div style={s.glow(idx === 0)} />
-            {/* Destination URL */}
-            <div style={s.destWrap}>
+          <li
+            key={slug}
+            style={{
+              position: "relative",
+              margin: 0,
+              background: "linear-gradient(180deg, #00141f 0%, #001a26 100%)",
+              padding: "1rem",
+              borderRadius: 14,
+              border: "1px solid rgba(0,240,255,0.28)",
+              boxShadow:
+                idx === 0
+                  ? "0 18px 48px rgba(0,240,255,0.28), inset 0 0 0 1px rgba(0,255,204,0.10)"
+                  : "0 12px 28px rgba(0,240,255,0.18), inset 0 0 0 1px rgba(0,255,204,0.08)",
+              transition: "transform .18s ease, box-shadow .18s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            {/* destination URL */}
+            <div
+              style={{
+                color: "#00ff88",
+                wordBreak: "break-word",
+                marginBottom: "0.6rem",
+              }}
+            >
               <strong>URL:</strong>{" "}
-              <a href={url} target="_blank" rel="noopener noreferrer" style={s.destLink}>
+              <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "#00ff88" }}>
                 {url}
               </a>
             </div>
-            {/* Short link pill */}
-            <div style={s.shortWrap}>
-              <strong style={{ color: "#9fefff" }}>Short Link:</strong>{" "}
+
+            {/* short link */}
+            <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
+              <strong>Short Link:</strong>{" "}
               <a
                 href={`${window.location.origin}/${slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={s.pill}
+                style={{
+                  color: "#001a1a",
+                  background:
+                    "linear-gradient(90deg, rgba(0,255,204,1) 0%, rgba(0,240,255,1) 100%)",
+                  padding: "6px 10px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(0,255,204,0.55)",
+                  textDecoration: "none",
+                }}
               >
                 {window.location.origin}/{slug}
               </a>
             </div>
+
             {stats && (
-              <div style={s.meta}>
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  marginTop: "0.4rem",
+                  color: "#00f0ff99",
+                }}
+              >
                 XP: {stats?.xp ?? 0} • Drops: {stats?.drops ?? 0} • Fused: {stats?.fused ?? 0}
               </div>
             )}
@@ -62,39 +132,39 @@ export default function App() {
   const [showSporeOverlay, setShowSporeOverlay] = useState(false);
 
   const handleShorten = async () => {
-    if (inputValue.trim() === "") return;
-    setShowSporeOverlay(true);
+    const url = inputValue.trim();
+    if (!url) return;
 
+    setShowSporeOverlay(true);
     try {
-      const res = await fetch("/.netlify/functions/shorten", {
+      const sessionId = ensureSessionId();
+
+      const res = await fetch("/api/shorten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: inputValue }),
+        body: JSON.stringify({ url, sessionId }),
       });
 
       const data = await res.json();
       setShowSporeOverlay(false);
 
-      if (data.shortenedUrl) {
-        const slug = data.shortenedUrl.split("/").pop() || "";
-        const spores = JSON.parse(localStorage.getItem("spores") || "[]");
+      if (data && data.shortenedUrl) {
+        const slug = (data.short_code as string) || (data.shortenedUrl.split("/").pop() as string) || "";
 
-        const stats = {
-          xp: 240 + spores.length * 10,
-          drops: spores.length + 1,
-          fused: 1,
-        };
-
-        const newSpore = { slug, url: inputValue, stats };
-        spores.push(newSpore); // (kept your logic)
-
-        localStorage.setItem("spores", JSON.stringify(spores));
+        // prepend newest and cap to 6
+        const prev: Spore[] = JSON.parse(localStorage.getItem("spores") || "[]");
+        const stats = { xp: 240 + prev.length * 10, drops: prev.length + 1, fused: 1 };
+        const newSpore: Spore = { slug, url, stats, ts: Date.now() };
+        const updated = [newSpore, ...prev].slice(0, 6);
+        localStorage.setItem("spores", JSON.stringify(updated));
 
         try {
           await navigator.clipboard.writeText(data.shortenedUrl);
         } catch {}
         alert(`Spore Dropped!\nCopied to clipboard:\n${data.shortenedUrl}`);
+
         setInputValue("");
+        setActiveTab("Saved Sporez");
       } else {
         alert("Error: Could not generate Spore link.");
       }
@@ -104,31 +174,86 @@ export default function App() {
     }
   };
 
-  return (
-    <div style={s.appShell}>
-      {/* background + grid (behind everything) */}
-      <div style={s.bg} />
-      <div style={s.grid} />
+  const TABS: string[] = ["Home", "Saved Sporez", "Spore Fusion"];
 
-      {/* Top bar */}
-      <header style={s.topbar}>
-        <div style={s.brand}>
-          <span style={s.brandIcon}>🧬</span>
-          <span>SporeZ</span>
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom, #00040f, #00111a)",
+        color: "#00f0ff",
+        fontFamily: "monospace",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          display: "grid",
+          gridTemplateColumns: "auto 1fr",
+          alignItems: "center",
+          padding: "1rem 2rem",
+          borderBottom: "1px solid #00f0ff33",
+          background: "#000a12",
+          gap: "1rem",
+        }}
+      >
+        <div
+          style={{
+            width: "70px",
+            height: "70px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: "2px solid #00f0ff88",
+            boxShadow: "0 0 12px #00f0ff55",
+            background: "#001a26",
+          }}
+        >
+          <img
+            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif"
+            alt="Spore Logo"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
-        <h1 style={s.title}>E.I.G. // Shortlink Engine</h1>
+
+        <h1
+          style={{
+            fontSize: "1.5rem",
+            background: "linear-gradient(to right, #00f0ff, #00ff88)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            margin: 0,
+            textAlign: "left",
+          }}
+        >
+          SporeZ // E.I.G.
+        </h1>
       </header>
 
-      {/* Tabs */}
-      <nav style={s.nav}>
-        {["Home", "Saved Sporez", "Spore Fusion"].map((tab) => (
+      {/* Nav */}
+      <nav
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "2rem",
+          padding: "1rem",
+          borderBottom: "1px solid #00f0ff22",
+          background: "#001923",
+        }}
+      >
+        {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             style={{
-              ...s.tabBtn,
-              color: activeTab === tab ? "#00ffc2" : "#00e0ff",
-              textShadow: activeTab === tab ? "0 0 10px rgba(0,255,194,.35)" : "0 0 6px rgba(0,224,255,.35)",
+              background: "none",
+              border: "none",
+              color: activeTab === tab ? "#00ff88" : "#00f0ff",
+              fontSize: "1rem",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textShadow: "0 0 6px #00f0ff66",
             }}
           >
             {tab}
@@ -137,21 +262,53 @@ export default function App() {
       </nav>
 
       {/* Main */}
-      <main style={s.main}>
+      <main
+        style={{
+          flexGrow: 1,
+          padding: "2rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         {activeTab === "Home" && (
           <>
-            <h2 style={{ opacity: 0.55, marginTop: 6 }}>Welcome to the SporeZ Engine</h2>
-            <p style={{ opacity: 0.35, marginTop: 0 }}>Paste a link below to generate a compact Spore link.</p>
+            <h2 style={{ opacity: 0.5 }}>Welcome to the SporeZ Engine</h2>
+            <p style={{ opacity: 0.3 }}>Paste a link below to generate a compact Spore link.</p>
 
-            <div style={{ marginTop: "1.6rem", width: "100%", maxWidth: 520 }}>
+            <div style={{ marginTop: "2rem", width: "100%", maxWidth: 500 }}>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Paste a long link..."
-                style={s.input}
+                style={{
+                  width: "100%",
+                  padding: "1rem",
+                  fontSize: "1rem",
+                  borderRadius: "10px",
+                  border: "1px solid #00f0ff88",
+                  background: "#001a26",
+                  color: "#00f0ff",
+                  outline: "none",
+                }}
               />
-              <button onClick={handleShorten} style={s.cta}>
+              <button
+                onClick={handleShorten}
+                style={{
+                  marginTop: "1rem",
+                  width: "100%",
+                  padding: "1rem",
+                  fontSize: "1rem",
+                  fontWeight: "bold",
+                  background: "#00f0ff",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  boxShadow: "0 0 10px #00f0ff88",
+                }}
+              >
                 Shorten & Drop
               </button>
             </div>
@@ -169,215 +326,3 @@ export default function App() {
     </div>
   );
 }
-
-/* ================== STYLE OBJECTS (App.tsx only) ================== */
-const s = {
-  appShell: {
-    minHeight: "100vh",
-    color: "#00e0ff",
-    fontFamily: "monospace, monospace",
-    display: "flex",
-    flexDirection: "column" as const,
-    position: "relative" as const,
-    overflowX: "hidden" as const,
-    background: "#000a12",
-  },
-
-  bg: {
-    position: "fixed" as const,
-    inset: 0,
-    zIndex: -2,
-    background:
-      "radial-gradient(900px 600px at 50% 28%, rgba(0,224,255,.10), transparent 60%)," +
-      "radial-gradient(600px 420px at 22% 8%, rgba(0,255,194,.08), transparent 55%)," +
-      "#000a12",
-  },
-
-  grid: {
-    position: "fixed" as const,
-    inset: 0,
-    zIndex: -1,
-    pointerEvents: "none" as const,
-    background:
-      "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)," +
-      "repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)",
-  },
-
-  topbar: {
-    display: "grid",
-    gridTemplateColumns: "auto 1fr",
-    alignItems: "center",
-    height: 56,
-    padding: "0 14px 0 10px",
-    background: "#070a0e",
-    borderBottom: "1px solid #0f2730",
-    boxShadow: "0 2px 0 rgba(0,224,255,.08)",
-  },
-
-  brand: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    background: "#0b1f26",
-    border: "1px solid rgba(0,224,255,.25)",
-    color: "#00e0ff",
-    fontWeight: 800,
-    padding: "6px 10px",
-    borderRadius: 999,
-    boxShadow: "0 0 0 3px rgba(0,224,255,.06) inset",
-  },
-
-  brandIcon: {
-    width: 20,
-    height: 20,
-    display: "grid",
-    placeItems: "center",
-    background: "linear-gradient(135deg, #00ffc2, #00e0ff)",
-    color: "#011",
-    fontWeight: 900,
-    borderRadius: 6,
-    border: "1px solid rgba(0,0,0,.35)",
-  },
-
-  title: {
-    margin: 0,
-    paddingLeft: 12,
-    color: "#79f2ff",
-    fontSize: "1rem",
-    fontWeight: 700,
-    letterSpacing: 0.4,
-  },
-
-  nav: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "2rem",
-    padding: "1rem",
-    borderBottom: "1px solid #0c2430",
-    background: "rgba(10,24,32,.65)",
-    backdropFilter: "blur(6px)",
-  },
-
-  tabBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "1rem",
-    fontWeight: "bold",
-    cursor: "pointer",
-  },
-
-  main: {
-    flexGrow: 1,
-    padding: "2rem",
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-  },
-
-  input: {
-    width: "100%",
-    padding: "1rem",
-    fontSize: "1rem",
-    borderRadius: 12,
-    border: "1px solid rgba(0,224,255,.35)",
-    background: "linear-gradient(180deg, #05131b 0%, #071922 100%)",
-    color: "#9fefff",
-    outline: "none",
-    boxShadow: "inset 0 0 0 1px rgba(0,255,194,.06)",
-  },
-
-  cta: {
-    marginTop: "1rem",
-    width: "100%",
-    padding: "1rem",
-    fontSize: "1rem",
-    fontWeight: "bold",
-    background: "linear-gradient(90deg, #00ffc2, #00e0ff)",
-    color: "#001214",
-    border: "1px solid rgba(0,255,194,.55)",
-    borderRadius: 12,
-    cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(0,255,194,.25), inset 0 0 0 3px rgba(0,255,194,.14)",
-  },
-
-  /* Saved list styles */
-  sectionTitle: {
-    margin: "0 0 14px 0",
-    fontSize: "1.2rem",
-    color: "#bffcff",
-    letterSpacing: "0.4px",
-  },
-
-  list: {
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-    display: "grid",
-    gap: 16,
-  },
-
-  card: (isNewest: boolean) =>
-    ({
-      position: "relative",
-      borderRadius: 16,
-      overflow: "hidden",
-      background: "linear-gradient(180deg,#05131b 0%, #071922 100%)",
-      border: "1px solid rgba(0,224,255,.22)",
-      padding: 16,
-      boxShadow: isNewest
-        ? "0 18px 48px rgba(0,224,255,.22), inset 0 0 0 1px rgba(0,255,194,.08)"
-        : "0 12px 36px rgba(0,224,255,.16), inset 0 0 0 1px rgba(0,255,194,.06)",
-      transition: "transform .18s ease, box-shadow .18s ease, border-color .18s ease",
-    } as React.CSSProperties),
-
-  glow: (isNewest: boolean) =>
-    ({
-      position: "absolute",
-      inset: -1,
-      borderRadius: 18,
-      pointerEvents: "none",
-      background:
-        "radial-gradient(1200px 220px at 10% -40%, rgba(0,255,204,0.25) 0%, rgba(0,255,204,0) 60%), radial-gradient(1200px 260px at 90% 140%, rgba(0,240,255,0.20) 0%, rgba(0,240,255,0) 60%)",
-      boxShadow: isNewest
-        ? "0 0 0 2px rgba(0,255,204,0.32) inset"
-        : "0 0 0 1px rgba(0,255,204,0.22) inset",
-    } as React.CSSProperties),
-
-  destWrap: {
-    color: "#7be8ff",
-    wordBreak: "break-word" as const,
-    marginBottom: 8,
-  },
-
-  destLink: {
-    color: "#7be8ff",
-    textDecoration: "none",
-  },
-
-  shortWrap: {
-    fontSize: ".9rem",
-    color: "#9fefff",
-    marginTop: 6,
-  },
-
-  pill: {
-    display: "inline-block",
-    fontWeight: 800,
-    letterSpacing: ".2px",
-    color: "#001214",
-    textDecoration: "none",
-    background: "linear-gradient(90deg, #00ffc2, #00e0ff)",
-    padding: "8px 12px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,255,194,.55)",
-    boxShadow: "0 8px 28px rgba(0,255,194,.25), inset 0 0 0 3px rgba(0,255,194,.14)",
-    wordBreak: "break-all" as const,
-    marginLeft: 8,
-  },
-
-  meta: {
-    fontSize: ".76rem",
-    marginTop: 6,
-    color: "rgba(0,224,255,.75)",
-  },
-};
