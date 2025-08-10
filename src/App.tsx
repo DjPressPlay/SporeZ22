@@ -6,6 +6,49 @@ import SporeOverlay from "./SporeOverlay";
 type Spore = { slug: string; url: string; stats?: any; ts: number };
 type Tab = "Home" | "Saved Sporez" | "Spore Fusion";
 
+/** Inject a pure BLACK scrollbar (not grey), ChatGPT-style thin bar */
+function ScrollbarStyles() {
+  return (
+    <style>
+      {`
+        :root {
+          --scroll-thumb: #000;       /* pure black */
+          --scroll-thumb-hover: #000; /* stay black on hover */
+          --scroll-track: transparent;
+        }
+
+        /* Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+        }
+
+        /* Chrome / Edge / Safari */
+        *::-webkit-scrollbar {
+          width: 10px;          /* thickness */
+          height: 10px;
+        }
+        *::-webkit-scrollbar-track {
+          background: var(--scroll-track);
+        }
+        *::-webkit-scrollbar-thumb {
+          background-color: var(--scroll-thumb);
+          border-radius: 8px;
+          border: 2px solid #000; /* keeps the thumb solid-black against dark UIs */
+        }
+        *::-webkit-scrollbar-thumb:hover {
+          background-color: var(--scroll-thumb-hover);
+        }
+
+        /* Prevent layout shift when scrollbar appears */
+        html {
+          scrollbar-gutter: stable both-edges;
+        }
+      `}
+    </style>
+  );
+}
+
 function ensureSessionId(): string {
   let sid = "";
   if (typeof window !== "undefined") {
@@ -36,8 +79,7 @@ function SavedSporez() {
     );
   }
 
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <div style={{ width: "100%", maxWidth: 720 }}>
@@ -205,10 +247,12 @@ export default function App() {
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        overflowX: "hidden", // keep the grid clips
-        overflowY: "auto",   // ← enable scroll bar
+        overflowX: "hidden", // keep grid glow clipped
+        overflowY: "auto",   // show scrollbar
       }}
     >
+      <ScrollbarStyles />
+
       {/* Background glow */}
       <div
         style={{
@@ -221,6 +265,7 @@ export default function App() {
           pointerEvents: "none",
         }}
       />
+
       {/* Checkered grid */}
       <div
         style={{
