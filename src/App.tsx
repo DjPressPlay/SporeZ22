@@ -23,7 +23,6 @@ function SavedSporez() {
   useEffect(() => {
     const stored = localStorage.getItem("spores");
     const list: Spore[] = stored ? JSON.parse(stored) : [];
-    // newest first, limit 6
     list.sort((a, b) => (b.ts || 0) - (a.ts || 0));
     setSpores(list.slice(0, 6));
   }, []);
@@ -73,7 +72,6 @@ function SavedSporez() {
               e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            {/* destination URL */}
             <div
               style={{
                 color: "#00ff88",
@@ -87,7 +85,6 @@ function SavedSporez() {
               </a>
             </div>
 
-            {/* short link */}
             <div style={{ fontSize: "0.9rem", color: "#00f0ffcc" }}>
               <strong>Short Link:</strong>{" "}
               <a
@@ -149,9 +146,9 @@ export default function App() {
       setShowSporeOverlay(false);
 
       if (data && data.shortenedUrl) {
-        const slug = (data.short_code as string) || (data.shortenedUrl.split("/").pop() as string) || "";
+        const slug =
+          (data.short_code as string) || (data.shortenedUrl.split("/").pop() as string) || "";
 
-        // prepend newest and cap to 6
         const prev: Spore[] = JSON.parse(localStorage.getItem("spores") || "[]");
         const stats = { xp: 240 + prev.length * 10, drops: prev.length + 1, fused: 1 };
         const newSpore: Spore = { slug, url, stats, ts: Date.now() };
@@ -180,13 +177,41 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
+        // keep your base gradient
         background: "linear-gradient(to bottom, #00040f, #00111a)",
         color: "#00f0ff",
         fontFamily: "monospace",
         display: "flex",
         flexDirection: "column",
+        position: "relative", // needed for z-index layering
+        overflow: "hidden",
       }}
     >
+      {/* ==== ONLY NEW VISUALS: glow + checkered grid ==== */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: -1,
+          background:
+            "radial-gradient(900px 600px at 50% 28%, rgba(0,224,255,.10), transparent 60%)," +
+            "radial-gradient(600px 420px at 22% 8%, rgba(0,255,194,.08), transparent 55%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          background:
+            "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)," +
+            "repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,224,255,.06) 39px 40px)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* ================================================ */}
+
       {/* Header */}
       <header
         style={{
