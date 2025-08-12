@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
 
 type Spore = { slug: string; url: string; stats?: any; ts: number };
-type Tab = "Home" | "Saved Sporez" | "Spore Fusion";
+type Tab = "Home" | "Saved Sporez";
 
 /** PURE BLACK scrollbar */
 function ScrollbarStyles() {
@@ -257,11 +257,15 @@ export default function App() {
     }
   };
 
-  const TABS: Tab[] = ["Home", "Saved Sporez", "Spore Fusion"];
+  const NAV: Array<{ kind: "tab" | "link"; label: string; href?: string }> = [
+    { kind: "tab", label: "Home" },
+    { kind: "tab", label: "Saved Sporez" },
+    { kind: "link", label: "Spore Fusion", href: "https://jessicaspz.netlify.app/" },
+  ];
 
   return (
     <div
-      className="blk-inset centered"   // ← center all text app-wide
+      className="blk-inset centered"
       style={{
         minHeight: "100vh",
         background: "linear-gradient(180deg, #020109 0%, #070015 60%, #001018 100%)",
@@ -277,7 +281,7 @@ export default function App() {
       <ScrollbarStyles />
       <BlackLineStyles />
       <NeonStyles />
-      <CenterStyles />   {/* ← add this */}
+      <CenterStyles />
       <HoloRingStyles />
 
       {/* Background glow fields */}
@@ -344,7 +348,7 @@ export default function App() {
 
         <h1
           className="blk-inset r10 txt-neon"
-          style={{ fontSize: "1.6rem", margin: 0, padding: "0.5rem 0.75rem" }}  // ← no left align
+          style={{ fontSize: "1.6rem", margin: 0, padding: "0.5rem 0.75rem" }}
         >
           SporeZ // E.I.G.
         </h1>
@@ -364,26 +368,50 @@ export default function App() {
           boxShadow: "0 8px 20px var(--glow-cyan)",
         }}
       >
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            className="blk r10 btn-neon"
-            onClick={() => setActiveTab(tab)}
-            style={{
-              color: "#001316",
-              fontSize: "0.98rem",
-              fontWeight: 800,
-              cursor: "pointer",
-              padding: "0.6rem 1.1rem",
-              boxShadow: activeTab === tab ? "0 0 24px var(--glow-pink)" : "0 0 16px var(--glow-grn)",
-              opacity: activeTab === tab ? 1 : 0.92,
-              transform: activeTab === tab ? "translateY(-1px)" : "none",
-              transition: "all .18s ease",
-            }}
-          >
-            {tab}
-          </button>
-        ))}
+        {NAV.map((item) =>
+          item.kind === "link" ? (
+            <a
+              key={item.label}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="blk r10 btn-neon"
+              style={{
+                color: "#001316",
+                fontSize: "0.98rem",
+                fontWeight: 800,
+                padding: "0.6rem 1.1rem",
+                textDecoration: "none",
+                display: "inline-block",
+                textAlign: "center",
+                boxShadow: "0 0 24px var(--glow-pink)",
+                transform: "translateY(-1px)",
+                opacity: 1,
+              }}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <button
+              key={item.label}
+              className="blk r10 btn-neon"
+              onClick={() => setActiveTab(item.label as Tab)}
+              style={{
+                color: "#001316",
+                fontSize: "0.98rem",
+                fontWeight: 800,
+                cursor: "pointer",
+                padding: "0.6rem 1.1rem",
+                boxShadow: activeTab === (item.label as Tab) ? "0 0 24px var(--glow-pink)" : "0 0 16px var(--glow-grn)",
+                opacity: activeTab === (item.label as Tab) ? 1 : 0.92,
+                transform: activeTab === (item.label as Tab) ? "translateY(-1px)" : "none",
+                transition: "all .18s ease",
+              }}
+            >
+              {item.label}
+            </button>
+          )
+        )}
       </nav>
 
       {/* Main */}
@@ -448,18 +476,6 @@ export default function App() {
         )}
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
-
- {activeTab === "Spore Fusion" && (
-  <button
-    className="blk-inset r10 txt-neon"
-    style={{ padding: "0.75rem 1rem", cursor: "pointer" }}
-    onClick={() => window.open("https://jessicaspz.netlify.app/", "_blank")}
-  >
-    🚀 Open Jessica-SPZ Fusion Lab
-  </button>
-)}
-
-
       </main>
 
       {showSporeOverlay && <SporeOverlay />}
