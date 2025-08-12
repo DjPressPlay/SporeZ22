@@ -452,7 +452,7 @@ export default function App() {
      {activeTab === "Spore Fusion" && (
   <p className="blk-inset r10 txt-neon" style={{ padding: "0.75rem 1rem" }}>
     🔬 Fusion lab is live —{" "}
-    <a href="https://sporez.netlify.app/" target="_blank" rel="noopener noreferrer">
+    <a href="https://jessicaspz.netlify.app/" target="_blank" rel="noopener noreferrer">
       Open SporeZ Fusion
     </a>
   </p>
