@@ -449,14 +449,16 @@ export default function App() {
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
 
-     {activeTab === "Spore Fusion" && (
-  <p className="blk-inset r10 txt-neon" style={{ padding: "0.75rem 1rem" }}>
-    🔬 Fusion lab is live —{" "}
-    <a href="https://jessicaspz.netlify.app/" target="_blank" rel="noopener noreferrer">
-      Open SporeZ Fusion
-    </a>
-  </p>
+ {activeTab === "Spore Fusion" && (
+  <button
+    className="blk-inset r10 txt-neon"
+    style={{ padding: "0.75rem 1rem", cursor: "pointer" }}
+    onClick={() => window.open("https://jessicaspz.netlify.app/", "_blank")}
+  >
+    🚀 Open Jessica-SPZ Fusion Lab
+  </button>
 )}
+
 
       </main>
 
