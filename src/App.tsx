@@ -449,15 +449,15 @@ export default function App() {
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
 
-      {activeTab === "Spore Fusion" && (
-  <div className="blk-inset r10" style={{ padding: 0, overflow: "hidden", borderRadius: "10px" }}>
-    <iframe
-      src="https://sporez.netlify.app/"
-      title="SporeZ Fusion"
-      style={{ width: "100%", height: "80vh", border: "none" }}
-    ></iframe>
-  </div>
+     {activeTab === "Spore Fusion" && (
+  <p className="blk-inset r10 txt-neon" style={{ padding: "0.75rem 1rem" }}>
+    🔬 Fusion lab is live —{" "}
+    <a href="https://sporez.netlify.app/" target="_blank" rel="noopener noreferrer">
+      Open SporeZ Fusion
+    </a>
+  </p>
 )}
+
       </main>
 
       {showSporeOverlay && <SporeOverlay />}
