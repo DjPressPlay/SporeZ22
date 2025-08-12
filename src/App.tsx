@@ -354,65 +354,67 @@ export default function App() {
         </h1>
       </header>
 
-      {/* Nav */}
-      <nav
-        className="blk r10"
+    {/* Nav */}
+<nav
+  className="blk r10"
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: "1rem",
+    padding: "0.9rem",
+    borderBottom: "1px solid rgba(0,231,255,.35)",
+    background: "#06101a",
+    margin: "0 0.75rem",
+    boxShadow: "0 8px 20px var(--glow-cyan)",
+  }}
+>
+  {TABS.map((tab) =>
+    tab === "Spore Fusion" ? (
+      <a
+        key={tab}
+        href="https://jessicaspz.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="blk r10 btn-neon"
         style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "1rem",
-          padding: "0.9rem",
-          borderBottom: "1px solid rgba(0,231,255,.35)",
-          background: "#06101a",
-          margin: "0 0.75rem",
-          boxShadow: "0 8px 20px var(--glow-cyan)",
+          color: "#001316",
+          fontSize: "0.98rem",
+          fontWeight: 800,
+          cursor: "pointer",
+          padding: "0.6rem 1.1rem",
+          boxShadow: "0 0 16px var(--glow-grn)",
+          opacity: 0.92,
+          textDecoration: "none",
+          display: "inline-block",
+          textAlign: "center",
+          transition: "all .18s ease",
         }}
       >
-        {NAV.map((item) =>
-          item.kind === "link" ? (
-            <a
-              key={item.label}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="blk r10 btn-neon"
-              style={{
-                color: "#001316",
-                fontSize: "0.98rem",
-                fontWeight: 800,
-                padding: "0.6rem 1.1rem",
-                textDecoration: "none",
-                display: "inline-block",
-                textAlign: "center",
-                boxShadow: "0 0 24px var(--glow-pink)",
-                transform: "translateY(-1px)",
-                opacity: 1,
-              }}
-            >
-              {item.label}
-            </a>
-          ) : (
-            <button
-              key={item.label}
-              className="blk r10 btn-neon"
-              onClick={() => setActiveTab(item.label as Tab)}
-              style={{
-                color: "#001316",
-                fontSize: "0.98rem",
-                fontWeight: 800,
-                cursor: "pointer",
-                padding: "0.6rem 1.1rem",
-                boxShadow: activeTab === (item.label as Tab) ? "0 0 24px var(--glow-pink)" : "0 0 16px var(--glow-grn)",
-                opacity: activeTab === (item.label as Tab) ? 1 : 0.92,
-                transform: activeTab === (item.label as Tab) ? "translateY(-1px)" : "none",
-                transition: "all .18s ease",
-              }}
-            >
-              {item.label}
-            </button>
-          )
-        )}
-      </nav>
+        {tab}
+      </a>
+    ) : (
+      <button
+        key={tab}
+        className="blk r10 btn-neon"
+        onClick={() => setActiveTab(tab)}
+        style={{
+          color: "#001316",
+          fontSize: "0.98rem",
+          fontWeight: 800,
+          cursor: "pointer",
+          padding: "0.6rem 1.1rem",
+          boxShadow: activeTab === tab ? "0 0 24px var(--glow-pink)" : "0 0 16px var(--glow-grn)",
+          opacity: activeTab === tab ? 1 : 0.92,
+          transform: activeTab === tab ? "translateY(-1px)" : "none",
+          transition: "all .18s ease",
+        }}
+      >
+        {tab}
+      </button>
+    )
+  )}
+</nav>
+
 
       {/* Main */}
       <main
