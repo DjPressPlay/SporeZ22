@@ -3,370 +3,650 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zetsu Router — Skool → Article Engine</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Zetsu Router // Content Engine</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
 :root{
-  --bg:#07080c;--surface:#0c0e15;--card:#10131d;--card2:#141820;
-  --border:#1c2030;--border2:#242840;
-  --accent:#7cffb2;--accent2:#ff6b35;--blue:#4d9fff;--gold:#ffd166;--red:#ff4560;
-  --text:#dde2f0;--muted:#5a6280;--muted2:#8891aa;--white:#fff;
+  --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  --blk:#000;
+  --n-purple:#9b5cff;--n-cyan:#00e7ff;--n-blue:#00a2ff;
+  --n-green:#00ff85;--n-pink:#ff2fd1;--n-rose:#ff3cac;
+  --txt:#cfe6ff;
+  --glow-purp:rgba(155,92,255,.26);--glow-cyan:rgba(0,231,255,.22);
+  --glow-grn:rgba(0,255,133,.20);--glow-pink:rgba(255,47,209,.24);
+  --grid-a:rgba(155,92,255,.08);--grid-b:rgba(0,231,255,.06);
+  --scroll-thumb:#000;--scroll-track:transparent;
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow-x:hidden;min-height:100vh}
-.app{display:flex;min-height:100vh}
 
-/* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50}
-.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
-.logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--accent);display:block}
-.logo-sub{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:2px}
-.sidebar-nav{flex:1;padding:16px 0}
-.nav-sec{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;padding:14px 20px 6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:.88rem;font-weight:500;color:var(--muted2);transition:color .2s,background .2s;border-left:2px solid transparent}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(124,255,178,.05)}
-.nav-icon{font-size:1rem;width:18px;text-align:center}
-.nav-badge{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:2px 7px;border-radius:20px;background:rgba(124,255,178,.12);color:var(--accent)}
-.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
-.plan-pill{background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:2px;padding:5px 12px;text-transform:uppercase;display:inline-block;margin-bottom:10px}
-.zc-display{font-size:.8rem;color:var(--muted2)}
-.zc-display span{color:var(--gold);font-weight:600}
+html,body{
+  font-family:var(--font);
+  background:linear-gradient(180deg,#020109 0%,#070015 60%,#001018 100%);
+  color:var(--txt);
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-/* MAIN */
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+/* scrollbar */
+*{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+*::-webkit-scrollbar{width:8px}
+*::-webkit-scrollbar-thumb{background:#000;border-radius:8px;border:2px solid #000}
 
-/* TOPBAR */
-.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:40}
-.topbar-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--text)}
-.topbar-right{display:flex;align-items:center;gap:16px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+/* utility */
+.blk{border:1px solid #000}
+.blk-thick{border:2px solid #000}
+.blk-inset{box-shadow:inset 0 0 0 1px #000}
+.r14{border-radius:14px}
+.r10{border-radius:10px}
+
+@keyframes neonShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes sheen{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.topbar-stat{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted2)}
-.topbar-stat span{color:var(--accent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* CONTENT */
-.content{padding:28px;flex:1}
-.view{display:none}
+.txt-neon{
+  background-image:linear-gradient(90deg,var(--n-rose),var(--n-purple),var(--n-cyan));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.btn-neon{
+  position:relative;color:#001316;
+  background-image:linear-gradient(90deg,var(--n-green),var(--n-cyan),var(--n-rose),var(--n-purple));
+  background-size:300% 300%;animation:neonShift 8s linear infinite;
+  border:none;cursor:pointer;font-weight:900;
+}
+.btn-neon::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);
+  background-size:200% 100%;animation:sheen 2.8s linear infinite;
+  mix-blend-mode:screen;border-radius:inherit;pointer-events:none;
+}
+.rule-neon{border-bottom:1px solid rgba(255,47,209,.45)}
+
+/* layout */
+.app{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  position:relative;
+}
+
+/* bg layers */
+.bg-glow{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 18% 22%,var(--glow-purp),transparent 60%),
+    radial-gradient(800px 520px at 80% 18%,var(--glow-cyan),transparent 65%),
+    radial-gradient(700px 480px at 50% 78%,var(--glow-pink),transparent 60%);
+}
+.bg-grid{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 39px,var(--grid-a) 39px 40px),
+    repeating-linear-gradient(90deg,transparent 0 39px,var(--grid-b) 39px 40px);
+}
+
+/* header */
+header{
+  position:relative;z-index:10;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;
+  padding:1rem 2rem;margin:.75rem;
+  background:#0b0017;
+  border:1px solid #000;border-radius:10px;
+  box-shadow:0 10px 28px var(--glow-purp);
+  border-bottom:1px solid rgba(255,47,209,.35);
+}
+.header-logo{
+  width:60px;height:60px;border-radius:50%;overflow:hidden;
+  background:#00131a;box-shadow:0 0 22px var(--glow-cyan);
+  border:1px solid #000;flex-shrink:0;
+}
+.header-logo img{width:100%;height:100%;object-fit:cover}
+.header-title{font-size:1.5rem;font-weight:900;margin:0}
+.header-right{display:flex;align-items:center;gap:.75rem}
+.trial-badge{
+  font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+  padding:4px 12px;border-radius:6px;font-weight:800;
+  border:1px solid rgba(0,255,133,.35);
+  color:var(--n-green);background:rgba(0,255,133,.07);
+}
+.trial-badge.pro{
+  border-color:rgba(255,47,209,.35);
+  color:var(--n-pink);background:rgba(255,47,209,.07);
+}
+
+/* nav */
+nav{
+  position:relative;z-index:10;
+  display:flex;justify-content:center;flex-wrap:wrap;gap:.75rem;
+  padding:.9rem;margin:0 .75rem;
+  background:#06101a;border:1px solid #000;border-radius:10px;
+  box-shadow:0 8px 20px var(--glow-cyan);
+  border-bottom:1px solid rgba(0,231,255,.35);
+}
+.nav-btn{
+  font-size:.9rem;font-weight:800;padding:.55rem 1.1rem;
+  border-radius:10px;cursor:pointer;transition:all .18s ease;
+  border:1px solid #000;
+}
+.nav-btn.active{box-shadow:0 0 24px var(--glow-pink);transform:translateY(-1px)}
+.nav-btn:not(.active){opacity:.88}
+
+/* main */
+main{
+  position:relative;z-index:10;
+  flex:1;padding:1.5rem;margin:.75rem;
+  display:flex;flex-direction:column;align-items:center;
+  background:rgba(0,0,0,.28);
+  border:1px solid #000;border-radius:10px;
+  box-shadow:0 18px 40px var(--glow-purp);
+}
+
+/* views */
+.view{display:none;width:100%;max-width:820px;animation:fadeUp .3s ease}
 .view.active{display:block}
 
-/* STATS ROW */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-.stat-card{background:var(--card);border:1px solid var(--border);padding:20px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.stat-card.green::before{background:var(--accent)}
-.stat-card.orange::before{background:var(--accent2)}
-.stat-card.blue::before{background:var(--blue)}
-.stat-card.gold::before{background:var(--gold)}
-.stat-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
-.stat-value{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;color:var(--white)}
-.stat-card.green .stat-value{color:var(--accent)}
-.stat-card.gold .stat-value{color:var(--gold)}
-.stat-change{font-size:.75rem;color:var(--muted2);margin-top:6px}
+/* cards */
+.card{
+  background:linear-gradient(180deg,#070015,#00111a);
+  border:1px solid #000;border-radius:14px;
+  box-shadow:0 14px 36px var(--glow-purp),0 0 0 1px var(--glow-cyan) inset;
+  overflow:hidden;
+}
+.card-header{
+  padding:1rem 1.25rem;
+  border-bottom:1px solid rgba(255,47,209,.3);
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+}
+.card-title{
+  font-size:.7rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--n-cyan);font-weight:800;font-family:monospace;
+}
+.card-body{padding:1.25rem}
 
-/* PANEL */
-.panel{background:var(--card);border:1px solid var(--border)}
-.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:2px;color:var(--muted2);text-transform:uppercase}
-.panel-body{padding:20px}
-
-/* FORM */
-label{display:block;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
-input,textarea,select{width:100%;background:var(--card2);border:1px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;padding:10px 14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
-input::placeholder,textarea::placeholder{color:var(--muted)}
-textarea{resize:vertical}
+/* form elements */
+label{
+  display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(207,230,255,.45);margin-bottom:.5rem;font-family:monospace;
+}
+input,textarea,select{
+  width:100%;background:#0a0b1a;border:1px solid rgba(0,231,255,.2);
+  color:var(--txt);font-family:var(--font);font-size:.9rem;
+  padding:.75rem 1rem;border-radius:8px;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--n-cyan);
+  box-shadow:0 0 0 2px rgba(0,231,255,.1);
+}
+input::placeholder,textarea::placeholder{color:rgba(207,230,255,.3)}
+textarea{resize:vertical;min-height:80px}
 select{cursor:pointer}
-select option{background:var(--card2)}
-.form-row{margin-bottom:16px}
-.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+select option{background:#0a0b1a}
+.form-row{margin-bottom:1rem}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
 
-/* URL INPUT */
-.url-wrap{position:relative;margin-bottom:16px}
-.url-wrap input{padding:16px 130px 16px 48px;font-size:.95rem}
-.url-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(124,255,178,.1)}
-.url-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none}
-.url-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--accent);color:#000;border:none;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px;padding:8px 18px;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:background .2s}
-.url-btn:hover{background:#a0ffc8}
-.url-btn:disabled{background:var(--border2);color:var(--muted);cursor:not-allowed}
+/* URL input hero */
+.url-hero{position:relative;margin-bottom:1rem}
+.url-hero input{
+  padding:.9rem 130px .9rem 48px;font-size:.95rem;
+  border:1px solid rgba(0,231,255,.3);
+}
+.url-hero input:focus{border-color:var(--n-cyan);box-shadow:0 0 0 2px rgba(0,231,255,.12)}
+.url-hero-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none}
+.url-hero-btn{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  padding:.55rem 1.1rem;font-size:.85rem;border-radius:8px;
+}
 
-/* SKOOL PREVIEW */
-.skool-preview{display:none;background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:16px 20px;margin-bottom:20px}
-.skool-preview.visible{display:block}
-.sp-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
-.sp-title{font-size:.95rem;font-weight:600;color:var(--white);margin-bottom:6px}
-.sp-meta{font-size:.78rem;color:var(--muted2);display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
-.sp-body{font-size:.83rem;color:var(--muted2);line-height:1.7;border-top:1px solid var(--border);padding-top:10px;max-height:100px;overflow:hidden;position:relative}
-.sp-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,var(--card2))}
-
-/* TOGGLE */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+/* toggle */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 0;border-bottom:1px solid rgba(0,231,255,.1);
+}
 .toggle-row:last-child{border-bottom:none}
-.toggle-label{font-size:.85rem;color:var(--muted2)}
-.toggle-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+.toggle-info{}
+.toggle-label{font-size:.88rem;color:var(--txt);font-weight:600}
+.toggle-sub{font-size:.72rem;color:rgba(207,230,255,.4);margin-top:2px}
 .toggle{position:relative;width:40px;height:22px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:22px;transition:.3s}
-.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:.3s}
-.toggle input:checked+.toggle-slider{background:rgba(124,255,178,.25)}
-.toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:var(--accent)}
+.toggle-track{
+  position:absolute;cursor:pointer;inset:0;
+  background:rgba(0,231,255,.1);border:1px solid rgba(0,231,255,.2);
+  border-radius:22px;transition:.3s;
+}
+.toggle-track::before{
+  content:'';position:absolute;width:16px;height:16px;
+  left:2px;bottom:2px;background:rgba(207,230,255,.3);
+  border-radius:50%;transition:.3s;
+}
+.toggle input:checked+.toggle-track{background:rgba(0,255,133,.2);border-color:var(--n-green)}
+.toggle input:checked+.toggle-track::before{transform:translateX(18px);background:var(--n-green)}
 
-/* BUTTONS */
-.btn{font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;padding:10px 20px;border:none;cursor:pointer;transition:all .2s;letter-spacing:.5px;display:inline-flex;align-items:center;gap:8px}
-.btn-primary{background:var(--accent);color:#000;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
-.btn-primary:hover{background:#a0ffc8;transform:scale(1.02)}
-.btn-primary:disabled{background:var(--border2);color:var(--muted);cursor:not-allowed;transform:none}
-.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
-.btn-orange{background:var(--accent2);color:#fff;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
-.btn-orange:hover{background:#ff8555}
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font);font-size:.88rem;font-weight:800;
+  padding:.7rem 1.4rem;border-radius:10px;border:none;cursor:pointer;
+  transition:all .18s ease;letter-spacing:.5px;
+}
 .btn-full{width:100%;justify-content:center}
+.btn-outline{
+  background:transparent;border:1px solid rgba(0,231,255,.25);
+  color:rgba(207,230,255,.6);
+}
+.btn-outline:hover{border-color:var(--n-cyan);color:var(--n-cyan)}
+.btn-ghost{
+  background:transparent;border:1px solid rgba(155,92,255,.25);
+  color:rgba(207,230,255,.5);
+}
+.btn-ghost:hover{border-color:var(--n-purple);color:var(--n-purple)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
 
-/* PROGRESS */
-.progress-wrap{margin:16px 0;display:none}
-.progress-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.progress-bar{height:3px;background:var(--border2);overflow:hidden}
-.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .4s ease}
-.loader-dots{display:inline-flex;gap:4px;align-items:center}
-.loader-dots span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:db 1.2s infinite}
-.loader-dots span:nth-child(2){animation-delay:.2s}
-.loader-dots span:nth-child(3){animation-delay:.4s}
-@keyframes db{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+/* stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem}
+.stat{
+  background:linear-gradient(180deg,#070015,#00111a);
+  border:1px solid #000;border-radius:12px;padding:1rem;
+  position:relative;overflow:hidden;
+}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.c1::before{background:var(--n-cyan)}
+.stat.c2::before{background:var(--n-rose)}
+.stat.c3::before{background:var(--n-green)}
+.stat.c4::before{background:var(--n-purple)}
+.stat-lbl{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:rgba(207,230,255,.35);margin-bottom:.5rem;font-family:monospace}
+.stat-val{font-size:1.8rem;font-weight:900;line-height:1;color:#fff}
+.stat.c1 .stat-val{color:var(--n-cyan)}
+.stat.c3 .stat-val{color:var(--n-green)}
+.stat-sub{font-size:.7rem;color:rgba(207,230,255,.3);margin-top:4px}
 
-/* ARTICLE OUTPUT */
-.article-output{display:none;background:var(--card);border:1px solid var(--border);margin-top:16px}
-.article-output.visible{display:block}
-.out-topbar{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.out-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.chip{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;padding:4px 10px;border:1px solid var(--border2);color:var(--muted2);text-transform:uppercase}
-.chip.green{border-color:rgba(124,255,178,.3);color:var(--accent);background:rgba(124,255,178,.07)}
-.out-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* skool preview */
+.skool-preview{
+  display:none;
+  background:rgba(0,231,255,.04);
+  border:1px solid rgba(0,231,255,.2);border-left:3px solid var(--n-cyan);
+  border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;
+}
+.skool-preview.visible{display:block;animation:fadeUp .3s ease}
+.sp-tag{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--n-cyan);font-family:monospace;margin-bottom:.5rem}
+.sp-title{font-size:1rem;font-weight:800;color:#fff;margin-bottom:.4rem}
+.sp-meta{font-size:.75rem;color:rgba(207,230,255,.4);display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.6rem}
+.sp-body{font-size:.82rem;color:rgba(207,230,255,.5);line-height:1.65;max-height:80px;overflow:hidden;position:relative}
+.sp-body::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,rgba(0,231,255,.04))}
 
-.article-body{padding:28px;font-size:.92rem;line-height:1.85;color:var(--text);max-height:580px;overflow-y:auto}
-.article-body::-webkit-scrollbar{width:4px}
-.article-body::-webkit-scrollbar-thumb{background:var(--border2)}
-.article-body h1{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;color:var(--white);margin-bottom:18px;line-height:1.1}
-.article-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--accent);margin:30px 0 12px}
-.article-body h3{font-size:1rem;font-weight:700;color:var(--text);margin:20px 0 8px}
-.article-body p{margin-bottom:14px;color:var(--muted2)}
-.article-body strong{color:var(--text);font-weight:600}
-.article-body a{color:var(--blue);text-decoration:none}
+/* progress */
+.prog-wrap{display:none;margin-top:1rem}
+.prog-label{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(207,230,255,.4);font-family:monospace;margin-bottom:.5rem;
+}
+.prog-bar{height:2px;background:rgba(0,231,255,.1);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--n-cyan),var(--n-purple));width:0%;transition:width .4s ease}
+.loader{display:inline-flex;gap:3px;align-items:center}
+.loader span{width:4px;height:4px;border-radius:50%;background:var(--n-cyan);animation:pulse 1.2s infinite}
+.loader span:nth-child(2){animation-delay:.2s}
+.loader span:nth-child(3){animation-delay:.4s}
+
+/* output */
+.output{display:none;margin-top:1.25rem;animation:fadeUp .3s ease}
+.output.visible{display:block}
+.output-bar{
+  padding:1rem 1.25rem;
+  background:linear-gradient(180deg,#0a0016,#00111a);
+  border:1px solid rgba(0,231,255,.2);border-radius:12px 12px 0 0;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;
+}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.chip{
+  font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-family:monospace;
+  padding:3px 10px;border-radius:4px;
+  border:1px solid rgba(0,231,255,.2);color:rgba(207,230,255,.5);
+}
+.chip.ok{border-color:rgba(0,255,133,.35);color:var(--n-green);background:rgba(0,255,133,.07)}
+.chip.aff{border-color:rgba(255,47,209,.3);color:var(--n-pink)}
+.output-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.article-body{
+  background:linear-gradient(180deg,#070015,#00111a);
+  border:1px solid rgba(0,231,255,.15);border-top:none;
+  border-radius:0 0 12px 12px;
+  padding:1.75rem;font-size:.92rem;line-height:1.85;
+  max-height:520px;overflow-y:auto;
+}
+.article-body h1{font-size:1.7rem;font-weight:900;color:#fff;margin-bottom:1rem;line-height:1.15}
+.article-body h2{
+  font-size:1.15rem;font-weight:800;
+  background:linear-gradient(90deg,var(--n-cyan),var(--n-purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin:2rem 0 .75rem;
+}
+.article-body h3{font-size:1rem;font-weight:700;color:var(--n-purple);margin:1.5rem 0 .5rem}
+.article-body p{margin-bottom:1rem;color:rgba(207,230,255,.7)}
+.article-body strong{color:#fff;font-weight:700}
+.article-body a{color:var(--n-cyan);text-decoration:none}
 .article-body a:hover{text-decoration:underline}
-.article-body ul,.article-body ol{padding-left:20px;margin-bottom:14px}
-.article-body li{color:var(--muted2);margin-bottom:6px}
-.article-body blockquote{border-left:3px solid var(--accent);padding:10px 18px;background:rgba(124,255,178,.04);margin:20px 0;color:var(--muted2);font-style:italic}
-.aff-link{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);color:var(--accent2);padding:2px 10px;font-size:.82rem;border-radius:2px;text-decoration:none!important}
-.aff-link:hover{background:rgba(255,107,53,.2)!important}
-.seo-block{background:var(--card2);border:1px solid var(--border2);border-left:3px solid var(--blue);padding:16px 20px;margin-top:24px;font-size:.82rem}
-.seo-block-title{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:10px}
-.seo-row{display:flex;gap:8px;margin-bottom:8px}
-.seo-key{color:var(--muted);min-width:140px;font-family:'JetBrains Mono',monospace;font-size:.72rem;flex-shrink:0}
-.seo-val{color:var(--text);line-height:1.5}
+.article-body ul,.article-body ol{padding-left:1.5rem;margin-bottom:1rem}
+.article-body li{color:rgba(207,230,255,.65);margin-bottom:.4rem}
+.article-body blockquote{
+  border-left:3px solid var(--n-purple);padding:.75rem 1rem;
+  background:rgba(155,92,255,.06);margin:1.5rem 0;
+  color:rgba(207,230,255,.55);font-style:italic;border-radius:0 8px 8px 0;
+}
+.aff-link{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,47,209,.08);border:1px solid rgba(255,47,209,.25);
+  color:var(--n-pink);padding:2px 10px;font-size:.8rem;border-radius:4px;
+  text-decoration:none!important;transition:background .2s;
+}
+.aff-link:hover{background:rgba(255,47,209,.15)!important}
+.seo-block{
+  background:rgba(0,162,255,.05);border:1px solid rgba(0,162,255,.2);
+  border-left:3px solid var(--n-blue);padding:1rem 1.25rem;margin-top:1.5rem;border-radius:0 8px 8px 0;
+}
+.seo-block-title{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--n-blue);font-family:monospace;margin-bottom:.6rem}
+.seo-row{display:flex;gap:8px;margin-bottom:5px;font-size:.8rem}
+.seo-key{color:rgba(207,230,255,.35);min-width:140px;font-family:monospace;font-size:.7rem;flex-shrink:0}
+.seo-val{color:rgba(207,230,255,.8)}
 
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
-.tbl td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--muted2);vertical-align:middle}
-.tbl tr:hover td{background:rgba(255,255,255,.02)}
-.tbl tr:last-child td{border-bottom:none}
-.td-title{color:var(--text);font-weight:500;max-width:260px}
-.td-title small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px;font-weight:400}
+/* article table */
+.art-table{width:100%;border-collapse:collapse}
+.art-table th{
+  font-size:.58rem;letter-spacing:2px;text-transform:uppercase;font-family:monospace;
+  color:rgba(207,230,255,.35);text-align:left;padding:.75rem 1rem;
+  border-bottom:1px solid rgba(0,231,255,.1);white-space:nowrap;
+}
+.art-table td{
+  padding:.85rem 1rem;border-bottom:1px solid rgba(0,231,255,.07);
+  font-size:.83rem;color:rgba(207,230,255,.5);vertical-align:middle;
+}
+.art-table tr:hover td{background:rgba(0,231,255,.03)}
+.art-table tr:last-child td{border-bottom:none}
+.td-title{color:var(--txt);font-weight:700;max-width:260px}
+.td-title small{display:block;font-size:.7rem;color:rgba(207,230,255,.3);margin-top:2px;font-weight:400}
 
-/* STATUS */
-.badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:1.5px;padding:3px 9px;border-radius:2px;text-transform:uppercase;white-space:nowrap}
-.badge.published{background:rgba(124,255,178,.1);color:var(--accent);border:1px solid rgba(124,255,178,.2)}
-.badge.draft{background:rgba(255,209,102,.1);color:var(--gold);border:1px solid rgba(255,209,102,.2)}
-.badge.failed{background:rgba(255,69,96,.1);color:var(--red);border:1px solid rgba(255,69,96,.2)}
+/* status badge */
+.badge{
+  font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;font-family:monospace;white-space:nowrap;
+}
+.badge.draft{background:rgba(255,209,102,.08);color:#ffd166;border:1px solid rgba(255,209,102,.2)}
+.badge.published{background:rgba(0,255,133,.08);color:var(--n-green);border:1px solid rgba(0,255,133,.2)}
+.badge.failed{background:rgba(255,60,95,.08);color:#ff4560;border:1px solid rgba(255,60,95,.2)}
 
-/* WP */
-.wp-status-bar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--card2);border:1px solid var(--border2);margin-bottom:16px}
-.wp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.wp-dot.on{background:var(--accent);box-shadow:0 0 6px var(--accent)}
-.wp-dot.off{background:var(--red)}
-.wp-info{flex:1}
-.wp-url-text{font-size:.85rem;color:var(--text)}
-.wp-sub{font-size:.7rem;color:var(--muted)}
-
-/* PLANS */
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.plan-card{background:var(--card);border:1px solid var(--border);padding:24px;position:relative;overflow:hidden}
-.plan-card.featured{border-color:var(--accent)}
-.plan-card.featured::before{content:'BEST';position:absolute;top:12px;right:-18px;background:var(--accent);color:#000;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:2px;padding:4px 24px;transform:rotate(45deg)}
-.plan-name{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--white);margin-bottom:4px}
-.plan-price{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--accent);line-height:1}
-.plan-price span{font-size:1rem;color:var(--muted2);font-family:'Outfit',sans-serif}
-.plan-features{margin:16px 0;list-style:none}
-.plan-features li{font-size:.83rem;color:var(--muted2);padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:8px}
+/* billing plans */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.plan{
+  background:linear-gradient(180deg,#070015,#00111a);
+  border:1px solid rgba(0,231,255,.15);border-radius:12px;padding:1.5rem;
+  position:relative;overflow:hidden;
+}
+.plan.featured{border-color:var(--n-cyan);box-shadow:0 0 30px rgba(0,231,255,.1)}
+.plan.featured::before{
+  content:'BEST';position:absolute;top:10px;right:-18px;
+  background:var(--n-cyan);color:#000;font-size:.55rem;letter-spacing:2px;
+  padding:3px 22px;transform:rotate(45deg);font-weight:900;
+}
+.plan-name{font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+.plan-price{font-size:2.4rem;font-weight:900;color:var(--n-cyan);line-height:1}
+.plan-price span{font-size:.9rem;color:rgba(207,230,255,.4);font-weight:400}
+.plan-features{list-style:none;margin:1rem 0}
+.plan-features li{
+  font-size:.82rem;color:rgba(207,230,255,.55);padding:.5rem 0;
+  border-bottom:1px solid rgba(0,231,255,.08);display:flex;gap:8px;
+}
 .plan-features li:last-child{border-bottom:none}
-.plan-features li::before{content:'→';color:var(--accent);flex-shrink:0}
+.plan-features li::before{content:'→';color:var(--n-cyan);flex-shrink:0}
 
-/* NOTIF */
-.notif{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);padding:14px 20px;font-size:.85rem;color:var(--text);z-index:999;transform:translateX(120%);transition:transform .3s ease;max-width:340px;line-height:1.5}
+/* notification */
+.notif{
+  position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+  background:#0b0017;border:1px solid rgba(0,231,255,.3);border-left:3px solid var(--n-cyan);
+  border-radius:10px;padding:1rem 1.25rem;font-size:.85rem;color:var(--txt);
+  max-width:340px;line-height:1.5;
+  transform:translateX(120%);transition:transform .3s ease;
+  box-shadow:0 10px 30px var(--glow-purp);
+}
 .notif.show{transform:translateX(0)}
-.notif.err{border-left-color:var(--red)}
-.notif.warn{border-left-color:var(--accent2)}
+.notif.err{border-left-color:#ff4560}
+.notif.warn{border-left-color:var(--n-rose)}
+.notif.ok{border-left-color:var(--n-green)}
 
-/* MISC */
-.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
-.empty-icon{font-size:2.5rem;margin-bottom:12px;opacity:.4}
-.empty-text{font-size:.88rem;line-height:1.7}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--text)}
-.sec-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
-.row-item{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--card2);border:1px solid var(--border);margin-bottom:8px;font-size:.84rem}
-.row-item-label{color:var(--text);font-weight:500;flex:1}
-.row-item-val{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-left:auto}
-.mt16{margin-top:16px}
-.mt24{margin-top:24px}
-.gap8{display:flex;gap:8px;flex-wrap:wrap}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:var(--border2)}
-@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr)}.plans-grid,.two-col{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+/* free trial banner */
+.trial-bar{
+  background:rgba(0,255,133,.05);border:1px solid rgba(0,255,133,.2);
+  border-radius:10px;padding:.75rem 1.25rem;margin-bottom:1.25rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;
+}
+.trial-bar.out{background:rgba(255,47,209,.05);border-color:rgba(255,47,209,.2)}
+.trial-info{font-size:.82rem;color:rgba(207,230,255,.6);line-height:1.5}
+.trial-info strong{color:#fff}
+.trial-count{font-size:1.4rem;font-weight:900;color:var(--n-green);font-family:monospace}
+.trial-bar.out .trial-count{color:var(--n-pink)}
+
+/* empty state */
+.empty{text-align:center;padding:3rem 1rem;color:rgba(207,230,255,.3)}
+.empty-icon{font-size:2rem;margin-bottom:.75rem;opacity:.4}
+.empty-txt{font-size:.85rem;line-height:1.7}
+
+/* misc */
+.gap8{display:flex;gap:.5rem;flex-wrap:wrap}
+.mt12{margin-top:.75rem}
+.mt16{margin-top:1rem}
+.mt24{margin-top:1.5rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.sec-title{font-size:1rem;font-weight:900;color:#fff;letter-spacing:1px}
+.mono-tag{font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:rgba(207,230,255,.3);font-family:monospace}
+.holo-ring{
+  position:relative;border:1px solid transparent;border-radius:14px;
+  background:
+    linear-gradient(#070015,#070015) padding-box,
+    conic-gradient(from 0deg,var(--n-purple),var(--n-cyan),var(--n-rose),var(--n-green),var(--n-blue),var(--n-pink),var(--n-purple)) border-box;
+  animation:neonShift 12s ease-in-out infinite;
+}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .plans{grid-template-columns:1fr}
+  .two-col,.form-2col{grid-template-columns:1fr}
+  header{grid-template-columns:auto 1fr}
+  .header-right{display:none}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  main,header,nav{margin:.4rem}
+  .card-body,.plan{padding:1rem}
+}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <span class="logo-text">ZETSU ROUTER</span>
-    <span class="logo-sub">Skool → Article Engine</span>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-sec">Engine</div>
-    <div class="nav-item active" onclick="nav('generate',this)"><span class="nav-icon">⚡</span>Generate</div>
-    <div class="nav-item" onclick="nav('articles',this)"><span class="nav-icon">📄</span>Articles<span class="nav-badge" id="art-count">0</span></div>
-    <div class="nav-sec">Monetize</div>
-    <div class="nav-item" onclick="nav('affiliate',this)"><span class="nav-icon">🔗</span>Affiliate</div>
-    <div class="nav-item" onclick="nav('publish',this)"><span class="nav-icon">🚀</span>Publish</div>
-    <div class="nav-sec">Account</div>
-    <div class="nav-item" onclick="nav('billing',this)"><span class="nav-icon">💳</span>Billing</div>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="plan-pill">Free Plan</div>
-    <div class="zc-display">ZC: <span id="zc-bal">250</span> tokens</div>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="topbar">
-    <div class="topbar-title">Skool → SEO Article Engine</div>
-    <div class="topbar-right">
-      <div class="topbar-stat">Articles: <span id="top-count">0</span></div>
-      <div class="status-dot"></div>
+  <!-- HEADER -->
+  <header>
+    <div class="header-logo">
+      <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExanhzZzZnM2VrdnY2b3Z4Zmt2ZWNxOGEzZWIxdTV3Zmp1YXc1dDFzOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DCqjTqTnUBOSAK1WfH/giphy.gif" alt="Spore">
     </div>
-  </div>
+    <h1 class="header-title">
+      <span class="txt-neon">Zetsu Router</span>
+      <span style="color:rgba(207,230,255,.3);font-size:1rem;font-weight:400;margin-left:.5rem">// Content Engine</span>
+    </h1>
+    <div class="header-right">
+      <span class="trial-badge" id="header-trial-badge">FREE — 3 trials left</span>
+      <a href="https://sporez.netlify.app/" target="_blank" class="btn-neon blk r10" style="padding:.5rem 1rem;font-size:.82rem;display:inline-block">← Spore'z</a>
+    </div>
+  </header>
 
-  <div class="content">
+  <!-- NAV -->
+  <nav>
+    <button class="nav-btn btn-neon blk r10 active" onclick="goTab('generate',this)">⚡ Generate</button>
+    <button class="nav-btn btn-neon blk r10" onclick="goTab('articles',this)">📄 Articles <span id="art-count-badge" style="opacity:.6;font-size:.75rem">(0)</span></button>
+    <button class="nav-btn btn-neon blk r10" onclick="goTab('affiliate',this)">🔗 Affiliate</button>
+    <button class="nav-btn btn-neon blk r10" onclick="goTab('billing',this)">💳 Plans</button>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
 
     <!-- ══ GENERATE ══ -->
     <div class="view active" id="view-generate">
+
+      <!-- Free trial bar -->
+      <div class="trial-bar" id="trial-bar">
+        <div class="trial-info">
+          <strong>Free Trial</strong> — Generate up to 3 articles free. No account needed.<br>
+          Upgrade for unlimited generation + auto-publish to Spore'z.
+        </div>
+        <div class="trial-count" id="trial-count">3</div>
+      </div>
+
+      <!-- Stats -->
       <div class="stats-row">
-        <div class="stat-card green"><div class="stat-label">Articles Made</div><div class="stat-value" id="s-art">0</div><div class="stat-change">From Skool posts</div></div>
-        <div class="stat-card orange"><div class="stat-label">Affiliate Links</div><div class="stat-value" id="s-aff">0</div><div class="stat-change">Injected</div></div>
-        <div class="stat-card blue"><div class="stat-label">Published</div><div class="stat-value" id="s-pub">0</div><div class="stat-change">To WordPress</div></div>
-        <div class="stat-card gold"><div class="stat-label">ZC Earned</div><div class="stat-value" id="s-zc">0</div><div class="stat-change">Tokens</div></div>
+        <div class="stat c1"><div class="stat-lbl">Generated</div><div class="stat-val" id="s-gen">0</div><div class="stat-sub">Articles</div></div>
+        <div class="stat c2"><div class="stat-lbl">Affiliate Links</div><div class="stat-val" id="s-aff">0</div><div class="stat-sub">Injected</div></div>
+        <div class="stat c3"><div class="stat-lbl">Published</div><div class="stat-val" id="s-pub">0</div><div class="stat-sub">To Spore'z</div></div>
+        <div class="stat c4"><div class="stat-lbl">ZC Earned</div><div class="stat-val" id="s-zc">0</div><div class="stat-sub">Tokens</div></div>
       </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">// Skool Post → SEO Article</span>
-          <span class="sec-tag" id="step-tag">STEP 1 — PASTE URL</span>
-        </div>
-        <div class="panel-body">
-
-          <!-- URL INPUT -->
-          <label>Skool Post URL</label>
-          <div class="url-wrap">
-            <span class="url-icon">🔗</span>
-            <input type="url" id="inp-url" placeholder="https://www.skool.com/your-community/post-slug" />
-            <button class="url-btn" id="btn-fetch" onclick="fetchPost()">LOAD →</button>
+      <!-- Input card -->
+      <div class="holo-ring" style="margin-bottom:1rem">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">// Step 1 — Source</span>
+            <span class="mono-tag" id="step-tag">Paste a URL or write a topic</span>
           </div>
-          <div style="font-size:.78rem;color:var(--muted);line-height:1.7;margin-bottom:16px">
-            Paste any Skool post URL. The engine reads the topic from the post, then generates a full SEO article ready to publish.
-          </div>
+          <div class="card-body">
 
-          <!-- PREVIEW -->
-          <div class="skool-preview" id="skool-preview">
-            <div class="sp-label">✓ Post Detected</div>
-            <div class="sp-title" id="sp-title"></div>
-            <div class="sp-meta" id="sp-meta"></div>
-            <div class="sp-body" id="sp-body"></div>
-          </div>
+            <!-- Mode toggle -->
+            <div style="display:flex;gap:.5rem;margin-bottom:1rem">
+              <button class="btn btn-outline" id="mode-url-btn" onclick="setMode('url')" style="flex:1;justify-content:center;border-color:var(--n-cyan);color:var(--n-cyan)">🔗 From URL</button>
+              <button class="btn btn-ghost" id="mode-text-btn" onclick="setMode('text')" style="flex:1;justify-content:center">✏️ Free Write</button>
+            </div>
 
-          <!-- CONFIG (shown after fetch) -->
-          <div id="config-section" style="display:none;border-top:1px solid var(--border);padding-top:20px;margin-top:4px">
-            <div class="form-grid2">
-              <div>
-                <label>Article Type</label>
-                <select id="inp-type">
-                  <option value="guide">In-Depth Guide</option>
-                  <option value="listicle">Listicle (Top N...)</option>
-                  <option value="howto">How-To Tutorial</option>
-                  <option value="opinion">Opinion / Take</option>
-                  <option value="explainer">Explainer</option>
-                  <option value="casestudy">Case Study</option>
-                </select>
+            <!-- URL mode -->
+            <div id="mode-url">
+              <label>Paste any URL — Skool post, article, blog, YouTube, Reddit, anything</label>
+              <div class="url-hero">
+                <span class="url-hero-icon">🔗</span>
+                <input type="url" id="inp-url" placeholder="https://www.skool.com/your-community/post-slug" />
+                <button class="btn-neon blk r10 url-hero-btn" id="btn-scrape" onclick="scrapeUrl()">LOAD →</button>
               </div>
-              <div>
-                <label>Target Length</label>
-                <select id="inp-length">
-                  <option value="800">~800 words</option>
-                  <option value="1200" selected>~1,200 words</option>
-                  <option value="1800">~1,800 words</option>
-                </select>
+              <div style="font-size:.75rem;color:rgba(207,230,255,.3);line-height:1.6">
+                Works with: Skool · Reddit · Medium · YouTube · Any public page
+              </div>
+
+              <!-- Scraped preview -->
+              <div class="skool-preview" id="scrape-preview">
+                <div class="sp-tag">✓ Content Detected</div>
+                <div class="sp-title" id="sp-title"></div>
+                <div class="sp-meta" id="sp-meta"></div>
+                <div class="sp-body" id="sp-body"></div>
               </div>
             </div>
-            <div class="form-row">
-              <label>Amazon Affiliate Tag</label>
-              <input type="text" id="inp-tag" placeholder="yourtag-20" />
-            </div>
-            <div style="margin-bottom:16px">
-              <div class="toggle-row">
-                <div><div class="toggle-label">Inject Amazon Affiliate Links</div><div class="toggle-sub">Auto-insert monetized product recommendations</div></div>
-                <label class="toggle"><input type="checkbox" id="tog-aff" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div><div class="toggle-label">Generate SEO Meta Tags</div><div class="toggle-sub">Title tag, meta description, keywords</div></div>
-                <label class="toggle"><input type="checkbox" id="tog-seo" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="toggle-row">
-                <div><div class="toggle-label">Auto-Publish to WordPress</div><div class="toggle-sub">Push immediately after generation</div></div>
-                <label class="toggle"><input type="checkbox" id="tog-wp"><span class="toggle-slider"></span></label>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-full" id="btn-gen" onclick="generateArticle()">⚡ Generate Article</button>
-            <div class="progress-wrap" id="prog-wrap">
-              <div class="progress-label">
-                <span id="prog-status">Reading post...</span>
-                <div class="loader-dots"><span></span><span></span><span></span></div>
-              </div>
-              <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-            </div>
-          </div>
 
+            <!-- Free text mode -->
+            <div id="mode-text" style="display:none">
+              <div class="form-row">
+                <label>Topic / Headline</label>
+                <input type="text" id="inp-topic" placeholder="e.g. How to build a passive income stream with AI tools in 2025" />
+              </div>
+              <div class="form-row">
+                <label>Key Points / Notes (optional)</label>
+                <textarea id="inp-notes" rows="4" placeholder="Add any bullet points, facts, or ideas you want included..."></textarea>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
-      <!-- OUTPUT -->
-      <div class="article-output" id="article-output">
-        <div class="out-topbar">
-          <div class="out-meta">
-            <span class="chip green">✓ GENERATED</span>
+      <!-- Config card (shown after source is set) -->
+      <div class="card" id="config-card" style="display:none;margin-bottom:1rem;animation:fadeUp .3s ease">
+        <div class="card-header">
+          <span class="card-title">// Step 2 — Configure</span>
+        </div>
+        <div class="card-body">
+          <div class="form-2col">
+            <div>
+              <label>Article Type</label>
+              <select id="inp-type">
+                <option value="guide">In-Depth Guide</option>
+                <option value="listicle">Listicle (Top N...)</option>
+                <option value="howto">How-To / Tutorial</option>
+                <option value="opinion">Opinion / Take</option>
+                <option value="explainer">Explainer</option>
+                <option value="casestudy">Case Study</option>
+                <option value="roundup">Roundup</option>
+              </select>
+            </div>
+            <div>
+              <label>Target Length</label>
+              <select id="inp-length">
+                <option value="800">~800 words (quick)</option>
+                <option value="1200" selected>~1,200 words (standard)</option>
+                <option value="1800">~1,800 words (deep dive)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Amazon Affiliate Tag <span style="color:rgba(207,230,255,.3);font-size:.6rem;text-transform:none;letter-spacing:0">(optional — leave blank to skip)</span></label>
+            <input type="text" id="inp-aff-tag" placeholder="yourtag-20" />
+          </div>
+          <div style="margin-bottom:1rem">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Inject Amazon Affiliate Links</div>
+                <div class="toggle-sub">Auto-insert monetized product recommendations</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="tog-aff" checked><span class="toggle-track"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Generate SEO Meta Tags</div>
+                <div class="toggle-sub">Title tag, meta description, focus keyword</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="tog-seo" checked><span class="toggle-track"></span></label>
+            </div>
+            <div class="toggle-row" id="autopub-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Auto-Publish to Spore'z</div>
+                <div class="toggle-sub">Push to sporez.netlify.app/articles on generate</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="tog-pub"><span class="toggle-track"></span></label>
+            </div>
+          </div>
+
+          <button class="btn-neon blk-thick r10 btn btn-full" id="btn-gen" onclick="generateArticle()" style="font-size:1rem;padding:.9rem">
+            ⚡ Generate Article
+          </button>
+
+          <!-- Progress -->
+          <div class="prog-wrap" id="prog-wrap">
+            <div class="prog-label">
+              <span id="prog-status">Analyzing source...</span>
+              <div class="loader"><span></span><span></span><span></span></div>
+            </div>
+            <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="output" id="output">
+        <div class="output-bar">
+          <div class="chips">
+            <span class="chip ok">✓ GENERATED</span>
             <span class="chip" id="out-type">GUIDE</span>
             <span class="chip" id="out-words">— words</span>
-            <span class="chip" id="out-aff" style="display:none">🔗 0 aff. links</span>
+            <span class="chip aff" id="out-aff" style="display:none">🔗 0 links</span>
           </div>
-          <div class="out-actions">
-            <button class="btn btn-outline" onclick="copyArticle()">📋 Copy</button>
+          <div class="output-actions">
+            <button class="btn btn-outline" onclick="copyRaw()">📋 Copy</button>
             <button class="btn btn-outline" onclick="saveDraft()">💾 Draft</button>
-            <button class="btn btn-orange" id="btn-pub" onclick="publishNow()">🚀 Publish to Spore'z</button>
+            <button class="btn-neon blk r10 btn" id="btn-pub" onclick="publishNow()" style="padding:.6rem 1.2rem;font-size:.85rem">🚀 Publish to Spore'z</button>
           </div>
         </div>
         <div class="article-body" id="article-body"></div>
@@ -375,19 +655,18 @@ select option{background:var(--card2)}
 
     <!-- ══ ARTICLES ══ -->
     <div class="view" id="view-articles">
-      <div class="sec-header">
+      <div class="sec-hdr">
         <div class="sec-title">All Articles</div>
-        <button class="btn btn-outline" onclick="nav('generate',document.querySelector('.nav-item'))">+ New</button>
+        <button class="btn btn-outline" onclick="goTab('generate',document.querySelector('.nav-btn'))">+ New</button>
       </div>
-      <div class="panel">
-        <div class="panel-body" style="padding:0">
-          <table class="tbl">
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="art-table">
             <thead><tr>
-              <th>Title / Source</th><th>Type</th><th>Status</th>
-              <th>Aff.</th><th>Words</th><th>Date</th><th>Actions</th>
+              <th>Title / Source</th><th>Type</th><th>Status</th><th>Aff.</th><th>Words</th><th>Date</th><th></th>
             </tr></thead>
             <tbody id="art-tbody">
-              <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">No articles yet.</div></div></td></tr>
+              <tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-txt">No articles yet. Generate one first.</div></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -396,11 +675,11 @@ select option{background:var(--card2)}
 
     <!-- ══ AFFILIATE ══ -->
     <div class="view" id="view-affiliate">
-      <div class="sec-header"><div class="sec-title">Affiliate Settings</div></div>
+      <div class="sec-hdr"><div class="sec-title">Affiliate & Monetization</div></div>
       <div class="two-col">
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">// Amazon Config</span></div>
-          <div class="panel-body">
+        <div class="card">
+          <div class="card-header"><span class="card-title">// Amazon Settings</span></div>
+          <div class="card-body">
             <div class="form-row"><label>Global Associate Tag</label><input type="text" id="aff-tag-global" placeholder="yourtag-20" /></div>
             <div class="form-row"><label>Link Density</label>
               <select><option>2-3 links per article</option><option>1 link per article</option><option>Product mentions only</option></select>
@@ -414,18 +693,15 @@ select option{background:var(--card2)}
                 <option value="custom">Custom...</option>
               </select>
             </div>
-            <div id="custom-cta-row" class="form-row" style="display:none"><label>Custom CTA</label><input type="text" placeholder="e.g. Brand Kit — $199" /></div>
-            <button class="btn btn-primary btn-full mt16" onclick="notify('✓ Saved')">Save Settings</button>
+            <div id="custom-cta" class="form-row" style="display:none"><label>Custom CTA</label><input type="text" placeholder="Brand Kit — $199" /></div>
+            <button class="btn-neon blk r10 btn btn-full mt16" onclick="notify('✓ Saved','ok')">Save Settings</button>
           </div>
         </div>
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">// Auto-Inject Keywords</span></div>
-          <div class="panel-body">
-            <div id="kw-list">
-              <div class="row-item"><span class="row-item-label">wireless earbuds</span><span class="row-item-val">~4%</span></div>
-              <div class="row-item"><span class="row-item-label">standing desk</span><span class="row-item-val">~3%</span></div>
-              <div class="row-item"><span class="row-item-label">protein powder</span><span class="row-item-val">~4%</span></div>
-            </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">// Auto-Inject Keywords</span></div>
+          <div class="card-body">
+            <div style="font-size:.75rem;color:rgba(207,230,255,.35);margin-bottom:.75rem;line-height:1.6">When these appear in an article, affiliate links are injected automatically.</div>
+            <div id="kw-list"></div>
             <div class="form-row mt16"><label>Add Keyword</label><input type="text" id="new-kw" placeholder="e.g. yoga mat" /></div>
             <button class="btn btn-outline btn-full" onclick="addKw()">+ Add</button>
           </div>
@@ -433,141 +709,191 @@ select option{background:var(--card2)}
       </div>
     </div>
 
-    <!-- ══ PUBLISH ══ -->
-    <div class="view" id="view-publish">
-      <div class="sec-header"><div class="sec-title">WordPress Publish</div><span class="sec-tag">REST API</span></div>
-      <div class="two-col">
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">// Connection Settings</span></div>
-          <div class="panel-body">
-            <div class="wp-status-bar">
-              <div class="wp-dot off" id="wp-dot"></div>
-              <div class="wp-info">
-                <div class="wp-url-text" id="wp-url-display">Not connected</div>
-                <div class="wp-sub">WordPress site</div>
-              </div>
-              <span class="badge draft" id="wp-badge">DISCONNECTED</span>
-            </div>
-
-            <div class="form-row"><label>Site URL</label><input type="url" id="wp-url" placeholder="https://yoursite.com" /></div>
-            <div class="form-row"><label>Username</label><input type="text" id="wp-user" placeholder="admin" /></div>
-            <div class="form-row">
-              <label>Application Password
-                <span style="color:var(--muted);font-size:.6rem;letter-spacing:1px;text-transform:none;margin-left:8px">
-                  WP Admin → Users → Profile → Application Passwords
-                </span>
-              </label>
-              <input type="text" id="wp-pass" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" />
-            </div>
-            <div class="form-row"><label>Default Post Status</label>
-              <select id="wp-post-status">
-                <option value="draft">Draft (review first)</option>
-                <option value="publish">Published immediately</option>
-                <option value="pending">Pending review</option>
-              </select>
-            </div>
-            <div class="gap8 mt16">
-              <button class="btn btn-primary" onclick="testWP()">Test Connection</button>
-              <button class="btn btn-outline" onclick="notify('✓ Saved')">Save</button>
-            </div>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">// How to Connect</span></div>
-          <div class="panel-body" style="font-size:.84rem;color:var(--muted2);line-height:2">
-            <div style="margin-bottom:16px;color:var(--text);font-weight:600;font-size:.9rem">3 steps to connect WordPress:</div>
-            <div style="display:flex;flex-direction:column;gap:12px">
-              <div><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.72rem">01</span> &nbsp;Log into your WordPress admin panel</div>
-              <div><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.72rem">02</span> &nbsp;Go to <strong style="color:var(--text)">Users → Profile</strong> → scroll to <strong style="color:var(--text)">Application Passwords</strong></div>
-              <div><span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.72rem">03</span> &nbsp;Enter any name, click <strong style="color:var(--text)">Add New</strong>, copy the password here</div>
-            </div>
-            <div style="margin-top:20px;padding:12px 16px;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-left:3px solid var(--gold)">
-              <div style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">CORS Note</div>
-              If you get a CORS error, install the free <strong style="color:var(--text)">WP CORS</strong> plugin on your WordPress site, or add this to functions.php:<br><br>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent)">add_action('rest_api_init', fn() => header('Access-Control-Allow-Origin: *'));</span>
-            </div>
-            <div style="margin-top:16px">
-              <div style="color:var(--muted);font-size:.78rem">Other platforms coming in v2.1:</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-                <span style="font-size:.75rem;color:var(--muted);border:1px solid var(--border2);padding:3px 10px">Webflow</span>
-                <span style="font-size:.75rem;color:var(--muted);border:1px solid var(--border2);padding:3px 10px">Ghost</span>
-                <span style="font-size:.75rem;color:var(--muted);border:1px solid var(--border2);padding:3px 10px">Shopify</span>
-                <span style="font-size:.75rem;color:var(--muted);border:1px solid var(--border2);padding:3px 10px">Webhook</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ══ BILLING ══ -->
     <div class="view" id="view-billing">
-      <div class="sec-header"><div class="sec-title">Plans & Billing</div><span class="sec-tag">Cancel Anytime</span></div>
-      <div class="plans-grid">
-        <div class="plan-card">
+      <div class="sec-hdr"><div class="sec-title">Plans & Billing</div><span class="mono-tag">Cancel Anytime</span></div>
+      <div class="plans">
+        <div class="plan">
           <div class="plan-name">Starter</div>
           <div class="plan-price">$0<span>/mo</span></div>
           <ul class="plan-features">
-            <li>5 articles/month</li><li>Manual publish only</li>
-            <li>Basic affiliate injection</li><li>1 site</li><li>250 ZC/month</li>
+            <li>3 free trial articles</li>
+            <li>Manual copy/paste publish</li>
+            <li>Basic affiliate injection</li>
+            <li>URL + free-text mode</li>
+            <li>250 ZC tokens</li>
           </ul>
-          <button class="btn btn-outline btn-full">Current Plan</button>
+          <button class="btn btn-outline btn-full mt12">Current Plan</button>
         </div>
-        <div class="plan-card featured">
+        <div class="plan featured">
           <div class="plan-name">Growth</div>
           <div class="plan-price">$49<span>/mo</span></div>
           <ul class="plan-features">
-            <li>30 articles/month</li><li>WordPress auto-publish</li>
-            <li>Advanced affiliate injection</li><li>3 sites</li>
-            <li>Paid service CTAs</li><li>1,000 ZC/month</li>
+            <li>30 articles/month</li>
+            <li>Auto-publish to Spore'z</li>
+            <li>Advanced affiliate injection</li>
+            <li>Scraper for all URL types</li>
+            <li>SEO meta tags</li>
+            <li>1,000 ZC tokens/month</li>
           </ul>
-          <button class="btn btn-primary btn-full" onclick="notify('Stripe coming soon','warn')">Upgrade →</button>
+          <button class="btn-neon blk r10 btn btn-full mt12" onclick="notify('Stripe coming soon — stay tuned','warn')">Upgrade →</button>
         </div>
-        <div class="plan-card">
+        <div class="plan">
           <div class="plan-name">Agency</div>
           <div class="plan-price">$99<span>/mo</span></div>
           <ul class="plan-features">
-            <li>Unlimited articles</li><li>All platforms</li>
-            <li>Backlink exchange</li><li>Unlimited sites</li>
-            <li>White-label</li><li>5,000 ZC/month</li>
+            <li>Unlimited articles</li>
+            <li>Auto-publish to Spore'z</li>
+            <li>Backlink exchange network</li>
+            <li>White-label output</li>
+            <li>Multi-site</li>
+            <li>5,000 ZC tokens/month</li>
           </ul>
-          <button class="btn btn-primary btn-full" onclick="notify('Stripe coming soon','warn')">Upgrade →</button>
+          <button class="btn-neon blk r10 btn btn-full mt12" onclick="notify('Stripe coming soon — stay tuned','warn')">Upgrade →</button>
+        </div>
+      </div>
+      <div class="card mt24">
+        <div class="card-header"><span class="card-title">// ZC Token Economy</span></div>
+        <div class="card-body" style="font-size:.85rem;color:rgba(207,230,255,.55);line-height:1.8">
+          Earn <span style="color:var(--n-green)">25 ZC</span> per article generated. Tokens unlock extra credits, affiliate boosts, and future Zetsumetsu ecosystem rewards. Published to Spore'z earns bonus ZC as your content gets traffic.
         </div>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /app -->
+  </main>
+</div>
 
 <div class="notif" id="notif"></div>
 
 <script>
-// ── STATE ──
+// ══ CONFIG ══
+const SUPABASE_URL  = 'https://jtrdxlqtxjffzqtansqj.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cmR4bHF0eGpmZnpxdGFuc3FqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxMDg5NTQsImV4cCI6MjA2OTY4NDk1NH0.KI7ysK-gHu_Qkke1mD6Cj_N1cmqbKi0dB2d2yls9Vm4';
+const TRIAL_MAX     = 3;
+
+// ══ STATE ══
 const S = {
-  articles:[], wpConnected:false, wpUrl:'', wpUser:'', wpPass:'', wpStatus:'draft',
-  cur:null, skoolPost:null, zcBal:250,
-  cnt:{ art:0, aff:0, pub:0, zc:0 }
+  mode: 'url',            // 'url' | 'text'
+  source: null,           // scraped/inferred content
+  cur: null,              // current article
+  articles: [],
+  trialsLeft: parseInt(localStorage.getItem('zr_trials') ?? String(TRIAL_MAX)),
+  isPro: false,
+  cnt: { gen:0, aff:0, pub:0, zc:0 },
+  keywords: ['wireless earbuds','standing desk','protein powder','gaming chair'],
 };
 
-// ── NAV ──
-function nav(id, el) {
+// ══ NAV ══
+function goTab(id, el) {
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const v = document.getElementById('view-'+id);
-  if(v) v.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
   if(el) el.classList.add('active');
 }
 
-// ── NOTIFY ──
+// ══ NOTIFY ══
 function notify(msg, type='') {
   const el = document.getElementById('notif');
   el.textContent = msg;
   el.className = 'notif '+type+' show';
-  setTimeout(()=>el.classList.remove('show'), 4000);
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 4500);
 }
 
-// ── PROGRESS ──
+// ══ MODE ══
+function setMode(m) {
+  S.mode = m;
+  document.getElementById('mode-url').style.display   = m==='url'  ? 'block' : 'none';
+  document.getElementById('mode-text').style.display  = m==='text' ? 'block' : 'none';
+  document.getElementById('mode-url-btn').className   = m==='url'  ? 'btn btn-outline' : 'btn btn-ghost';
+  document.getElementById('mode-url-btn').style.cssText = m==='url' ? 'flex:1;justify-content:center;border-color:var(--n-cyan);color:var(--n-cyan)' : 'flex:1;justify-content:center';
+  document.getElementById('mode-text-btn').className  = m==='text' ? 'btn btn-outline' : 'btn btn-ghost';
+  document.getElementById('mode-text-btn').style.cssText = m==='text' ? 'flex:1;justify-content:center;border-color:var(--n-cyan);color:var(--n-cyan)' : 'flex:1;justify-content:center';
+  document.getElementById('config-card').style.display = 'block';
+  document.getElementById('step-tag').textContent = m==='url' ? 'Paste URL then configure' : 'Enter topic then configure';
+  if(m==='text') {
+    S.source = null;
+    document.getElementById('scrape-preview').classList.remove('visible');
+  }
+}
+
+// ══ SCRAPER (via Claude AI — reads URL slug + infers content) ══
+async function scrapeUrl() {
+  const url = document.getElementById('inp-url').value.trim();
+  if(!url){ notify('Paste a URL first','err'); return; }
+
+  const btn = document.getElementById('btn-scrape');
+  btn.disabled = true; btn.textContent = 'READING...';
+
+  try {
+    // Detect platform from URL
+    const platform =
+      url.includes('skool.com')   ? 'Skool community post' :
+      url.includes('reddit.com')  ? 'Reddit thread' :
+      url.includes('youtube.com') || url.includes('youtu.be') ? 'YouTube video' :
+      url.includes('medium.com')  ? 'Medium article' :
+      url.includes('twitter.com') || url.includes('x.com') ? 'Twitter/X post' :
+      'web article/blog post';
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:`You are a content scraper assistant for a content generation engine.
+
+A user has submitted this URL: ${url}
+Platform detected: ${platform}
+
+Since you cannot browse URLs, extract as much meaning as possible from:
+1. The URL slug and path structure
+2. Any readable words in the URL
+3. The platform type (${platform})
+4. Common content patterns for this platform
+
+Return ONLY valid JSON, no markdown, no backticks:
+{
+  "title": "inferred title from URL slug (make it readable, title case)",
+  "platform": "${platform}",
+  "topic": "main topic in 4-7 words",
+  "summary": "2-3 sentences describing what this content is likely about based on the URL",
+  "keywords": ["keyword1","keyword2","keyword3","keyword4"],
+  "niche": "one of: business, marketing, fitness, finance, tech, education, lifestyle, ecommerce, gaming, health",
+  "tone": "one of: informative, casual, professional, motivational, technical"
+}`}]
+      })
+    });
+
+    const d = await res.json();
+    let src;
+    try {
+      src = JSON.parse(d.content?.[0]?.text || '{}');
+    } catch {
+      const slug = url.split('/').filter(Boolean).pop()?.replace(/[-_]/g,' ') || 'content';
+      src = { title: slug, platform, topic: slug, summary: `Content from ${platform}: ${url}`, keywords:[slug], niche:'general', tone:'informative' };
+    }
+
+    S.source = { ...src, url };
+
+    document.getElementById('sp-title').textContent = src.title || 'Detected Content';
+    document.getElementById('sp-meta').innerHTML  = `<span>📍 ${src.platform}</span><span>🏷️ ${src.niche}</span><span>🎯 ${src.tone}</span>`;
+    document.getElementById('sp-body').textContent = src.summary || '';
+    document.getElementById('scrape-preview').classList.add('visible');
+    document.getElementById('config-card').style.display = 'block';
+    document.getElementById('step-tag').textContent = 'Content loaded — configure below';
+    notify('✓ Content detected — configure & generate');
+
+  } catch(e) {
+    notify('Could not read URL — try Free Write mode','err');
+    console.error(e);
+    document.getElementById('config-card').style.display = 'block';
+  }
+
+  btn.disabled = false; btn.textContent = 'RE-LOAD →';
+}
+
+// ══ PROGRESS ══
 function runProg(steps, cb) {
   const fill = document.getElementById('prog-fill');
   const stat = document.getElementById('prog-status');
@@ -577,7 +903,7 @@ function runProg(steps, cb) {
     if(i>=steps.length){ cb(); return; }
     stat.textContent = steps[i].label;
     fill.style.width = steps[i].pct+'%';
-    setTimeout(next, steps[i++].ms||700);
+    setTimeout(next, steps[i++].ms || 700);
   }
   next();
 }
@@ -586,153 +912,162 @@ function clearProg() {
   document.getElementById('prog-fill').style.width = '0%';
 }
 
-// ── FETCH SKOOL POST ──
-async function fetchPost() {
-  const url = document.getElementById('inp-url').value.trim();
-  if(!url || !url.includes('skool.com')) { notify('Paste a valid skool.com URL','err'); return; }
-  const btn = document.getElementById('btn-fetch');
-  btn.disabled = true; btn.textContent = 'READING...';
-  document.getElementById('step-tag').textContent = 'STEP 1 — READING POST';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:`You are processing a Skool community post URL for a content engine.
-
-URL: ${url}
-
-Extract meaning from the URL slug and structure. Return ONLY valid JSON (no markdown, no backticks, no explanation):
-{"title":"post title inferred from slug","author":"Community Member","community":"community name from URL","topic":"main topic 3-6 words","summary":"2-3 sentences about what this post likely covers","keywords":["kw1","kw2","kw3"],"niche":"one of: business, marketing, fitness, finance, tech, education, lifestyle, ecommerce"}`}]
-      })
-    });
-    const d = await res.json();
-    let post;
-    try { post = JSON.parse(d.content?.[0]?.text||'{}'); }
-    catch(e) {
-      const slug = url.split('/').pop().replace(/-/g,' ');
-      post = { title:slug, author:'Member', community:'Community', topic:slug, summary:'Skool community post about '+slug, keywords:[slug], niche:'business' };
-    }
-    S.skoolPost = {...post, url};
-    document.getElementById('sp-title').textContent = post.title||'Skool Post';
-    document.getElementById('sp-meta').innerHTML = `<span>👤 ${post.author||'Member'}</span><span>🏠 ${post.community||'Community'}</span><span>🏷️ ${post.niche||'general'}</span>`;
-    document.getElementById('sp-body').textContent = post.summary||'';
-    document.getElementById('skool-preview').classList.add('visible');
-    document.getElementById('config-section').style.display = 'block';
-    document.getElementById('step-tag').textContent = 'STEP 2 — CONFIGURE';
-    notify('✓ Post loaded — configure below');
-  } catch(e) {
-    notify('Could not read post URL','err');
-    console.error(e);
-  }
-  btn.disabled = false; btn.textContent = 'RE-LOAD →';
-}
-
-// ── GENERATE ARTICLE ──
+// ══ GENERATE ══
 async function generateArticle() {
-  if(!S.skoolPost){ notify('Load a Skool post first','err'); return; }
+  // Trial check
+  if(!S.isPro && S.trialsLeft <= 0) {
+    notify('Free trials used up — upgrade to keep generating','warn');
+    goTab('billing', document.querySelectorAll('.nav-btn')[3]);
+    return;
+  }
+
+  // Source check
+  const isFreeText = S.mode === 'text';
+  const topic = document.getElementById('inp-topic').value.trim();
+  const notes = document.getElementById('inp-notes').value.trim();
+
+  if(isFreeText && !topic) { notify('Enter a topic first','err'); return; }
+  if(!isFreeText && !S.source && !document.getElementById('inp-url').value.trim()) {
+    notify('Load a URL or switch to Free Write mode','err'); return;
+  }
+
   const btn = document.getElementById('btn-gen');
   btn.disabled = true;
-  document.getElementById('article-output').classList.remove('visible');
-  document.getElementById('step-tag').textContent = 'STEP 3 — GENERATING';
+  document.getElementById('output').classList.remove('visible');
 
   const type    = document.getElementById('inp-type').value;
   const length  = document.getElementById('inp-length').value;
-  const affTag  = document.getElementById('inp-tag').value || document.getElementById('aff-tag-global').value || 'zetsustore-20';
+  const affTag  = document.getElementById('inp-aff-tag').value.trim() || document.getElementById('aff-tag-global').value.trim() || 'zetsustore-20';
   const useAff  = document.getElementById('tog-aff').checked;
   const useSEO  = document.getElementById('tog-seo').checked;
-  const autoWP  = document.getElementById('tog-wp').checked;
-  const post    = S.skoolPost;
+  const autoPub = document.getElementById('tog-pub').checked;
 
   const steps = [
-    {label:'Reading post content...',          pct:15, ms:500},
-    {label:'Extracting key insights...',       pct:30, ms:600},
-    {label:'Researching SEO keywords...',      pct:50, ms:700},
-    {label:'Writing article structure...',     pct:65, ms:600},
-    {label:'Generating full content...',       pct:82, ms:1000},
-    {label:useAff?'Injecting affiliate links...':'Finalizing...', pct:92, ms:500},
-    {label:'Packaging output...',              pct:98, ms:300},
+    { label:'Reading source content...',        pct:12, ms:500 },
+    { label:'Extracting key insights...',        pct:28, ms:600 },
+    { label:'Researching SEO angles...',         pct:45, ms:700 },
+    { label:'Writing article structure...',      pct:60, ms:600 },
+    { label:'Generating full content...',        pct:78, ms:1200 },
+    { label: useAff ? 'Injecting affiliate links...' : 'Polishing content...', pct:90, ms:500 },
+    { label:'Finalizing output...',              pct:98, ms:300 },
   ];
 
   runProg(steps, async () => {
     try {
-      const prompt = `You are a professional SEO content writer. Expand this Skool community post into a full, publish-ready SEO article.
+      // Build source context
+      let sourceContext = '';
+      if(isFreeText) {
+        sourceContext = `
+TOPIC: ${topic}
+${notes ? 'KEY POINTS / NOTES:\n'+notes : ''}
+NICHE: general
+TONE: informative`;
+      } else if(S.source) {
+        sourceContext = `
+SOURCE URL: ${S.source.url}
+PLATFORM: ${S.source.platform}
+TITLE/TOPIC: ${S.source.title}
+SUMMARY: ${S.source.summary}
+KEYWORDS: ${(S.source.keywords||[]).join(', ')}
+NICHE: ${S.source.niche}
+TONE: ${S.source.tone}`;
+      } else {
+        const url = document.getElementById('inp-url').value.trim();
+        sourceContext = `SOURCE URL: ${url}\nTOPIC: Infer from URL`;
+      }
 
-SKOOL POST:
-- Title/Topic: ${post.title}
-- Community: ${post.community}
-- Niche: ${post.niche}
-- Summary: ${post.summary}
-- Keywords: ${(post.keywords||[]).join(', ')}
+      const prompt = `You are an expert SEO content writer. Write a complete, publish-ready ${type} article.
+
+${sourceContext}
 
 REQUIREMENTS:
 - Article type: ${type}
 - Target length: ~${length} words
-- Write an H1 title that includes the main keyword naturally
-- Use H2 and H3 subheadings throughout
-- Expand the post's core idea into a full valuable article with context, examples, and takeaways
-- Write naturally — no robotic AI phrasing, no generic filler
-- ${useAff?`Include 2-3 product callouts formatted EXACTLY as: [AFFILIATE: amazon search query|display text] — these get replaced with real Amazon links using tag "${affTag}"`:'No affiliate links'}
-- ${useSEO?`After the article add exactly this block:
+- Start directly with an H1 title (include main keyword naturally)
+- Use H2 and H3 subheadings throughout to structure content
+- Write in a human, engaging tone — no robotic AI phrasing
+- Add specific examples, data points, and actionable takeaways
+- Every section should deliver real value
+- ${useAff
+    ? `Include 2-3 product recommendation callouts formatted EXACTLY as: [AFFILIATE: amazon search query|display text]
+  Example: [AFFILIATE: wireless noise cancelling headphones|top noise-cancelling headphones]
+  These get replaced with real Amazon affiliate links using tag "${affTag}"`
+    : 'No affiliate links needed'}
+- ${useSEO
+    ? `After the article content, add this block EXACTLY:
 --- SEO META ---
-TITLE TAG: (under 60 chars, include keyword)
-META DESCRIPTION: (under 155 chars, compelling)
-FOCUS KEYWORD: (main keyword)
-SECONDARY KEYWORDS: (3-4 comma-separated)`:''}
+TITLE TAG: (under 60 chars with keyword)
+META DESCRIPTION: (under 155 chars, compelling click-worthy)
+FOCUS KEYWORD: (primary keyword)
+SECONDARY KEYWORDS: (3-4 comma separated)`
+    : ''}
 
-Start directly with the H1. No preamble or explanation.`;
+Write the complete article now. Start with the H1. No preamble, no explanation.`;
 
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
+        body:JSON.stringify({
           model:'claude-sonnet-4-20250514',
           max_tokens:1000,
           messages:[{role:'user', content:prompt}]
         })
       });
+
       const d = await res.json();
-      const raw = d.content?.[0]?.text||'';
-      renderArticle(raw, post.title, type, useAff, affTag, autoWP);
+      const raw = d.content?.[0]?.text || '';
+      if(!raw) throw new Error('Empty response from AI');
+
+      // Decrement trial
+      if(!S.isPro) {
+        S.trialsLeft = Math.max(0, S.trialsLeft - 1);
+        localStorage.setItem('zr_trials', String(S.trialsLeft));
+        updateTrialUI();
+      }
+
+      renderArticle(raw, isFreeText ? topic : (S.source?.title || 'Article'), type, useAff, affTag, autoPub);
+
     } catch(e) {
-      notify('Generation failed — check console','err');
+      notify('Generation failed: '+e.message,'err');
       console.error(e);
     }
+
     btn.disabled = false;
     clearProg();
-    document.getElementById('step-tag').textContent = 'DONE ✓';
   });
 }
 
-// ── RENDER ──
-function renderArticle(raw, keyword, type, useAff, affTag, autoWP) {
+// ══ RENDER ══
+function renderArticle(raw, title, type, useAff, affTag, autoPub) {
+  // Split SEO meta
   let text = raw, seoRaw = '';
-  const split = raw.split(/---\s*SEO META\s*---/i);
-  if(split.length>1){ text=split[0]; seoRaw=split[1]; }
+  const seoSplit = raw.split(/---\s*SEO META\s*---/i);
+  if(seoSplit.length > 1){ text = seoSplit[0]; seoRaw = seoSplit[1]; }
 
+  // Markdown → HTML
   let html = text
-    .replace(/^#{1} (.+)$/gm,'<h1>$1</h1>')
-    .replace(/^#{2} (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^#{3,4} (.+)$/gm,'<h3>$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/^> (.+)$/gm,'<blockquote>$1</blockquote>')
+    .replace(/^#{1} (.+)$/gm,   '<h1>$1</h1>')
+    .replace(/^#{2} (.+)$/gm,   '<h2>$1</h2>')
+    .replace(/^#{3,4} (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,  '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,      '<em>$1</em>')
+    .replace(/^> (.+)$/gm,      '<blockquote>$1</blockquote>')
     .replace(/^[\-\*\•] (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>[\s\S]*?<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
-    .replace(/\n{2,}/g,'</p><p>');
+    .replace(/(<li>[\s\S]*?<\/li>\n?)+/g, m=>'<ul>'+m+'</ul>')
+    .replace(/\n{2,}/g, '</p><p>');
 
-  if(!html.trimStart().startsWith('<')) html='<p>'+html+'</p>';
+  if(!html.trimStart().startsWith('<')) html = '<p>'+html+'</p>';
 
+  // Affiliate injection
   let affCount = 0;
   if(useAff) {
-    html = html.replace(/\[AFFILIATE:\s*(.+?)\|(.+?)\]/g, (_,q,label)=>{
+    html = html.replace(/\[AFFILIATE:\s*(.+?)\|(.+?)\]/g, (_, q, label) => {
       affCount++;
       return `<a href="https://www.amazon.com/s?k=${encodeURIComponent(q)}&tag=${affTag}" class="aff-link" target="_blank" rel="noopener">🛒 ${label}</a>`;
     });
   }
 
+  // SEO block
   if(seoRaw.trim()) html += buildSEOBlock(seoRaw);
 
   document.getElementById('article-body').innerHTML = html;
@@ -740,20 +1075,29 @@ function renderArticle(raw, keyword, type, useAff, affTag, autoWP) {
   const wc = raw.replace(/<[^>]+>/g,'').split(/\s+/).filter(Boolean).length;
   document.getElementById('out-type').textContent = type.toUpperCase();
   document.getElementById('out-words').textContent = wc+' words';
-  if(affCount>0){ document.getElementById('out-aff').textContent='🔗 '+affCount+' aff. links'; document.getElementById('out-aff').style.display=''; }
-  document.getElementById('article-output').classList.add('visible');
-  setTimeout(()=>document.getElementById('article-output').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  if(affCount > 0){
+    document.getElementById('out-aff').textContent = '🔗 '+affCount+' links';
+    document.getElementById('out-aff').style.display = '';
+  }
+  document.getElementById('output').classList.add('visible');
+  setTimeout(()=>document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'}), 100);
 
-  S.cnt.art++; S.cnt.aff+=affCount; S.cnt.zc+=25; S.zcBal+=25;
-  refreshStats();
+  // Update state
+  S.cnt.gen++; S.cnt.aff+=affCount; S.cnt.zc+=25;
+  updateStats();
 
-  const art = { id:Date.now(), keyword, type, html, raw, wc, affCount, status:'draft', date:new Date().toLocaleDateString(), wpLink:'' };
+  const art = {
+    id: Date.now(), title, type, html, raw, wc, affCount,
+    niche: S.source?.niche||'general',
+    sourceUrl: S.source?.url||'',
+    status:'draft', date:new Date().toLocaleDateString()
+  };
   S.articles.unshift(art);
   S.cur = art;
   refreshTable();
 
-  if(autoWP && S.wpConnected) publishNow();
-  else notify('✓ Article ready — '+wc+' words');
+  if(autoPub && S.isPro) publishNow();
+  else notify('✓ Article ready — '+wc+' words','ok');
 }
 
 function buildSEOBlock(raw) {
@@ -764,21 +1108,17 @@ function buildSEOBlock(raw) {
   return `<div class="seo-block"><div class="seo-block-title">// SEO Meta</div>${rows}</div>`;
 }
 
-// ── COPY / DRAFT ──
-function copyArticle() {
+// ══ COPY / DRAFT ══
+function copyRaw() {
   if(!S.cur) return;
-  navigator.clipboard.writeText(S.cur.raw).then(()=>notify('✓ Copied to clipboard'));
+  navigator.clipboard.writeText(S.cur.raw).then(()=>notify('✓ Copied to clipboard','ok'));
 }
 function saveDraft() {
   if(!S.cur){ notify('Nothing to save','err'); return; }
-  S.cur.status = 'draft'; refreshTable(); notify('✓ Saved as draft');
+  S.cur.status='draft'; refreshTable(); notify('✓ Saved as draft','ok');
 }
 
-// ── SUPABASE CONFIG ──
-const SUPABASE_URL  = 'https://jtrdxlqtxjffzqtansqj.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cmR4bHF0eGpmZnpxdGFuc3FqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxMDg5NTQsImV4cCI6MjA2OTY4NDk1NH0.KI7ysK-gHu_Qkke1mD6Cj_N1cmqbKi0dB2d2yls9Vm4';
-
-// ── PUBLISH TO SPORE'Z via SUPABASE ──
+// ══ PUBLISH TO SUPABASE / SPORE'Z ══
 async function publishNow() {
   if(!S.cur){ notify('No article to publish','err'); return; }
 
@@ -787,116 +1127,98 @@ async function publishNow() {
   notify('Publishing to Spore\'z...','warn');
 
   try {
-    // Build a slug from the keyword
-    const slug = S.cur.keyword
+    const slug = S.cur.title
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g,'')
+      .replace(/[^a-z0-9\s]/g,'')
       .trim()
       .replace(/\s+/g,'-')
       .slice(0,80)
       + '-' + Date.now();
 
-    const payload = {
-      title:        S.cur.keyword,
-      slug:         slug,
-      html:         S.cur.html,
-      raw:          S.cur.raw,
-      niche:        S.skoolPost?.niche  || 'general',
-      type:         S.cur.type,
-      word_count:   S.cur.wc,
-      aff_count:    S.cur.affCount,
-      source_url:   S.skoolPost?.url   || '',
-    };
-
-    const res = await fetch(SUPABASE_URL + '/rest/v1/zr_articles', {
-      method: 'POST',
-      headers: {
+    const res = await fetch(SUPABASE_URL+'/rest/v1/zr_articles', {
+      method:'POST',
+      headers:{
         'Content-Type':  'application/json',
         'apikey':        SUPABASE_ANON,
-        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Authorization': 'Bearer '+SUPABASE_ANON,
         'Prefer':        'return=representation',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        title:       S.cur.title,
+        slug,
+        html:        S.cur.html,
+        raw:         S.cur.raw,
+        niche:       S.cur.niche || S.source?.niche || 'general',
+        type:        S.cur.type,
+        word_count:  S.cur.wc,
+        aff_count:   S.cur.affCount,
+        source_url:  S.cur.sourceUrl || '',
+      })
     });
 
     if(!res.ok) {
-      const errText = await res.text();
-      // Table doesn't exist yet — give clear instructions
-      if(errText.includes('does not exist') || errText.includes('42P01')) {
-        throw new Error('Table missing. Run the SQL setup in your Supabase dashboard first.');
+      const err = await res.text();
+      if(err.includes('does not exist') || err.includes('42P01')) {
+        throw new Error('Run the SQL setup in Supabase first — check the instructions.');
       }
-      throw new Error('Supabase error ' + res.status + ': ' + errText);
+      throw new Error('Supabase '+res.status+': '+err.slice(0,120));
     }
 
-    S.cnt.pub++;
+    S.cnt.pub++; S.cnt.zc+=50;
     S.cur.status = 'published';
-    refreshStats();
-    refreshTable();
-    notify('✓ Published to Spore\'z — visible in ZR Articles tab');
+    updateStats(); refreshTable();
+    notify('✓ Live on Spore\'z — ZR Articles tab','ok');
 
   } catch(e) {
     S.cur.status = 'failed';
     refreshTable();
-    notify('Publish failed: ' + e.message, 'err');
-    console.error('Supabase publish error:', e);
+    notify('Publish failed: '+e.message,'err');
+    console.error(e);
   }
 
   btn.disabled = false; btn.textContent = '🚀 Publish to Spore\'z';
 }
 
-// ── TEST WP CONNECTION ──
-async function testWP() {
-  const url  = document.getElementById('wp-url').value.trim();
-  const user = document.getElementById('wp-user').value.trim();
-  const pass = document.getElementById('wp-pass').value.trim();
-  const stat = document.getElementById('wp-post-status').value;
-  if(!url||!user||!pass){ notify('Fill all three fields','err'); return; }
+// ══ STATS ══
+function updateStats() {
+  document.getElementById('s-gen').textContent = S.cnt.gen;
+  document.getElementById('s-aff').textContent = S.cnt.aff;
+  document.getElementById('s-pub').textContent = S.cnt.pub;
+  document.getElementById('s-zc').textContent  = S.cnt.zc;
+}
 
-  notify('Testing connection...');
-  try {
-    const creds = btoa(user+':'+pass);
-    const res = await fetch(url.replace(/\/+$/,'')+'/wp-json/wp/v2/users/me', {
-      headers:{ 'Authorization':'Basic '+creds }
-    });
-    if(!res.ok) throw new Error('Auth failed — check username & application password (HTTP '+res.status+')');
-    const d = await res.json();
-    S.wpConnected=true; S.wpUrl=url; S.wpUser=user; S.wpPass=pass; S.wpStatus=stat;
-    document.getElementById('wp-dot').className='wp-dot on';
-    document.getElementById('wp-url-display').textContent=url;
-    document.getElementById('wp-badge').textContent='CONNECTED';
-    document.getElementById('wp-badge').className='badge published';
-    notify('✓ Connected as '+( d.name||d.slug||user));
-  } catch(e) {
-    document.getElementById('wp-dot').className='wp-dot off';
-    notify(e.message,'err');
-    console.error(e);
+// ══ TRIAL UI ══
+function updateTrialUI() {
+  const bar   = document.getElementById('trial-bar');
+  const count = document.getElementById('trial-count');
+  const badge = document.getElementById('header-trial-badge');
+  const n = S.trialsLeft;
+  count.textContent = n;
+  badge.textContent = n > 0 ? `FREE — ${n} trial${n===1?'':'s'} left` : 'TRIALS USED UP';
+  if(n <= 0){
+    bar.classList.add('out');
+    bar.querySelector('.trial-info').innerHTML = '<strong>Free trials used up.</strong> Upgrade to Growth or Agency to keep generating unlimited articles and auto-publish to Spore\'z.';
+    badge.classList.add('pro');
   }
 }
 
-// ── STATS ──
-function refreshStats() {
-  document.getElementById('s-art').textContent  = S.cnt.art;
-  document.getElementById('s-aff').textContent  = S.cnt.aff;
-  document.getElementById('s-pub').textContent  = S.cnt.pub;
-  document.getElementById('s-zc').textContent   = S.cnt.zc;
-  document.getElementById('top-count').textContent = S.cnt.art;
-  document.getElementById('zc-bal').textContent  = S.zcBal;
-  document.getElementById('art-count').textContent = S.articles.length;
-}
-
-// ── TABLE ──
+// ══ TABLE ══
 function refreshTable() {
   const tb = document.getElementById('art-tbody');
-  if(!S.articles.length){ tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">No articles yet.</div></div></td></tr>'; return; }
+  document.getElementById('art-count-badge').textContent = '('+S.articles.length+')';
+  if(!S.articles.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-txt">No articles yet.</div></div></td></tr>';
+    return;
+  }
   tb.innerHTML = S.articles.map(a=>`
     <tr>
-      <td class="td-title">${a.keyword}<small>skool.com → article</small></td>
+      <td class="td-title">${a.title}<small>${a.sourceUrl||'free write'}</small></td>
       <td>${a.type}</td>
-      <td><span class="badge ${a.status}">${a.status.toUpperCase()}</span>${a.wpLink?` <a href="${a.wpLink}" target="_blank" style="color:var(--blue);font-size:.72rem">↗</a>`:''}</td>
+      <td><span class="badge ${a.status}">${a.status.toUpperCase()}</span></td>
       <td>${a.affCount}</td><td>${a.wc}</td><td>${a.date}</td>
       <td><div class="gap8">
-        <button class="btn btn-outline" style="padding:6px 12px;font-size:.75rem" onclick="loadArt(${a.id})">View</button>
-        <button class="btn btn-orange"  style="padding:6px 12px;font-size:.75rem" onclick="pubArt(${a.id})">Publish</button>
+        <button class="btn btn-outline" style="padding:5px 10px;font-size:.75rem" onclick="loadArt(${a.id})">View</button>
+        <button class="btn-neon blk r10 btn" style="padding:5px 10px;font-size:.75rem" onclick="pubArt(${a.id})">Publish</button>
       </div></td>
     </tr>`).join('');
 }
@@ -907,27 +1229,41 @@ function loadArt(id) {
   document.getElementById('article-body').innerHTML = a.html;
   document.getElementById('out-type').textContent = a.type.toUpperCase();
   document.getElementById('out-words').textContent = a.wc+' words';
-  document.getElementById('article-output').classList.add('visible');
-  nav('generate', document.querySelector('.nav-item'));
-  setTimeout(()=>document.getElementById('article-output').scrollIntoView({behavior:'smooth'}),100);
+  document.getElementById('output').classList.add('visible');
+  goTab('generate', document.querySelector('.nav-btn'));
+  setTimeout(()=>document.getElementById('output').scrollIntoView({behavior:'smooth'}), 100);
 }
 function pubArt(id) {
   const a = S.articles.find(x=>x.id===id); if(!a) return;
   S.cur = a; publishNow();
 }
 
-// ── AFFILIATE ──
-document.getElementById('paid-svc').addEventListener('change',function(){
-  document.getElementById('custom-cta-row').style.display = this.value==='custom'?'block':'none';
-});
+// ══ AFFILIATE KEYWORDS ══
+function renderKws() {
+  document.getElementById('kw-list').innerHTML = S.keywords.map(k=>`
+    <div style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:rgba(0,231,255,.03);border:1px solid rgba(0,231,255,.1);border-radius:8px;margin-bottom:.4rem;font-size:.82rem">
+      <span style="flex:1;color:var(--txt);font-weight:600">${k}</span>
+      <span style="color:rgba(207,230,255,.35);font-family:monospace;font-size:.7rem">~4% comm.</span>
+    </div>`).join('');
+}
+
 function addKw() {
   const v = document.getElementById('new-kw').value.trim(); if(!v) return;
-  const r = document.createElement('div'); r.className='row-item';
-  r.innerHTML=`<span class="row-item-label">${v}</span><span class="row-item-val">~4%</span>`;
-  document.getElementById('kw-list').appendChild(r);
+  S.keywords.push(v);
+  renderKws();
   document.getElementById('new-kw').value='';
-  notify('✓ Keyword added');
+  notify('✓ Keyword added','ok');
 }
+
+document.getElementById('paid-svc').addEventListener('change', function(){
+  document.getElementById('custom-cta').style.display = this.value==='custom'?'block':'none';
+});
+
+// ══ INIT ══
+updateTrialUI();
+renderKws();
+// Show config card in free-text mode by default so users can also just write
+document.getElementById('config-card').style.display = 'block';
 </script>
 </body>
 </html>
