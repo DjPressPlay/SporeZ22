@@ -32,8 +32,10 @@ header{position:relative;z-index:10;display:grid;grid-template-columns:auto 1fr 
 .header-logo img{width:100%;height:100%;object-fit:cover}
 .header-title{font-size:1.5rem;font-weight:900;margin:0}
 .header-right{display:flex;align-items:center;gap:.75rem}
-.trial-badge{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:6px;font-weight:800;border:1px solid rgba(0,255,133,.35);color:var(--n-green);background:rgba(0,255,133,.07);}
-.trial-badge.pro{border-color:rgba(255,47,209,.35);color:var(--n-pink);background:rgba(255,47,209,.07);}
+.plan-badge{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:6px;font-weight:800;}
+.plan-badge.free{border:1px solid rgba(0,255,133,.35);color:var(--n-green);background:rgba(0,255,133,.07);}
+.plan-badge.growth{border:1px solid rgba(0,231,255,.35);color:var(--n-cyan);background:rgba(0,231,255,.07);}
+.plan-badge.agency{border:1px solid rgba(255,47,209,.35);color:var(--n-pink);background:rgba(255,47,209,.07);}
 nav{position:relative;z-index:10;display:flex;justify-content:center;flex-wrap:wrap;gap:.75rem;padding:.9rem;margin:0 .75rem;background:#06101a;border:1px solid #000;border-radius:10px;box-shadow:0 8px 20px var(--glow-cyan);border-bottom:1px solid rgba(0,231,255,.35);}
 .nav-btn{font-size:.9rem;font-weight:800;padding:.55rem 1.1rem;border-radius:10px;cursor:pointer;transition:all .18s ease;border:1px solid #000;}
 .nav-btn.active{box-shadow:0 0 24px var(--glow-pink);transform:translateY(-1px)}.nav-btn:not(.active){opacity:.88}
@@ -97,7 +99,6 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
 .chip{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;font-family:monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(0,231,255,.2);color:rgba(207,230,255,.5);}
 .chip.ok{border-color:rgba(0,255,133,.35);color:var(--n-green);background:rgba(0,255,133,.07)}
 .chip.aff{border-color:rgba(255,47,209,.3);color:var(--n-pink)}
-.chip.gem{border-color:rgba(0,162,255,.4);color:var(--n-blue);background:rgba(0,162,255,.07)}
 .output-actions{display:flex;gap:.5rem;flex-wrap:wrap}
 .article-body{background:linear-gradient(180deg,#070015,#00111a);border:1px solid rgba(0,231,255,.15);border-top:none;border-radius:0 0 12px 12px;padding:1.75rem;font-size:.92rem;line-height:1.85;max-height:520px;overflow-y:auto;}
 .article-body h1{font-size:1.7rem;font-weight:900;color:#fff;margin-bottom:1rem;line-height:1.15}
@@ -116,6 +117,18 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
 .seo-row{display:flex;gap:8px;margin-bottom:5px;font-size:.8rem}
 .seo-key{color:rgba(207,230,255,.35);min-width:140px;font-family:monospace;font-size:.7rem;flex-shrink:0}
 .seo-val{color:rgba(207,230,255,.8)}
+/* trial / upgrade wall */
+.trial-bar{background:rgba(0,255,133,.05);border:1px solid rgba(0,255,133,.2);border-radius:10px;padding:.75rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.trial-bar.out{background:rgba(255,47,209,.05);border-color:rgba(255,47,209,.2)}
+.trial-info{font-size:.82rem;color:rgba(207,230,255,.6);line-height:1.5}.trial-info strong{color:#fff}
+.trial-count{font-size:1.4rem;font-weight:900;color:var(--n-green);font-family:monospace}
+.trial-bar.out .trial-count{color:var(--n-pink)}
+/* upgrade wall overlay */
+.upgrade-wall{display:none;position:absolute;inset:0;background:rgba(2,1,9,.85);backdrop-filter:blur(6px);z-index:20;border-radius:14px;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem;gap:1rem;}
+.upgrade-wall.show{display:flex}
+.upgrade-wall h3{font-size:1.4rem;font-weight:900}
+.upgrade-wall p{font-size:.88rem;color:rgba(207,230,255,.6);max-width:380px;line-height:1.7}
+/* article table */
 .art-table{width:100%;border-collapse:collapse}
 .art-table th{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;font-family:monospace;color:rgba(207,230,255,.35);text-align:left;padding:.75rem 1rem;border-bottom:1px solid rgba(0,231,255,.1);white-space:nowrap;}
 .art-table td{padding:.85rem 1rem;border-bottom:1px solid rgba(0,231,255,.07);font-size:.83rem;color:rgba(207,230,255,.5);vertical-align:middle;}
@@ -126,6 +139,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
 .badge.draft{background:rgba(255,209,102,.08);color:#ffd166;border:1px solid rgba(255,209,102,.2)}
 .badge.published{background:rgba(0,255,133,.08);color:var(--n-green);border:1px solid rgba(0,255,133,.2)}
 .badge.failed{background:rgba(255,60,95,.08);color:#ff4560;border:1px solid rgba(255,60,95,.2)}
+/* plans */
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
 .plan{background:linear-gradient(180deg,#070015,#00111a);border:1px solid rgba(0,231,255,.15);border-radius:12px;padding:1.5rem;position:relative;overflow:hidden;}
 .plan.featured{border-color:var(--n-cyan);box-shadow:0 0 30px rgba(0,231,255,.1)}
@@ -137,15 +151,10 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
 .plan-features li{font-size:.82rem;color:rgba(207,230,255,.55);padding:.5rem 0;border-bottom:1px solid rgba(0,231,255,.08);display:flex;gap:8px;}
 .plan-features li:last-child{border-bottom:none}
 .plan-features li::before{content:'→';color:var(--n-cyan);flex-shrink:0}
+/* notif */
 .notif{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:#0b0017;border:1px solid rgba(0,231,255,.3);border-left:3px solid var(--n-cyan);border-radius:10px;padding:1rem 1.25rem;font-size:.85rem;color:var(--txt);max-width:340px;line-height:1.5;transform:translateX(120%);transition:transform .3s ease;box-shadow:0 10px 30px var(--glow-purp);}
 .notif.show{transform:translateX(0)}.notif.err{border-left-color:#ff4560}.notif.warn{border-left-color:var(--n-rose)}.notif.ok{border-left-color:var(--n-green)}
-.trial-bar{background:rgba(0,255,133,.05);border:1px solid rgba(0,255,133,.2);border-radius:10px;padding:.75rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
-.trial-bar.out{background:rgba(255,47,209,.05);border-color:rgba(255,47,209,.2)}
-.trial-info{font-size:.82rem;color:rgba(207,230,255,.6);line-height:1.5}.trial-info strong{color:#fff}
-.trial-count{font-size:1.4rem;font-weight:900;color:var(--n-green);font-family:monospace}
-.trial-bar.out .trial-count{color:var(--n-pink)}
-.key-wrap{background:rgba(0,162,255,.05);border:1px solid rgba(0,162,255,.2);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;}
-.key-wrap label{color:var(--n-blue)}
+/* misc */
 .empty{text-align:center;padding:3rem 1rem;color:rgba(207,230,255,.3)}
 .empty-icon{font-size:2rem;margin-bottom:.75rem;opacity:.4}.empty-txt{font-size:.85rem;line-height:1.7}
 .gap8{display:flex;gap:.5rem;flex-wrap:wrap}.mt12{margin-top:.75rem}.mt16{margin-top:1rem}.mt24{margin-top:1.5rem}
@@ -172,7 +181,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
       <span style="color:rgba(207,230,255,.3);font-size:1rem;font-weight:400;margin-left:.5rem">// Content Engine</span>
     </h1>
     <div class="header-right">
-      <span class="trial-badge" id="header-trial-badge">FREE — 3 trials left</span>
+      <span class="plan-badge free" id="plan-badge">FREE TRIAL</span>
       <a href="https://sporez.netlify.app/" target="_blank" class="btn-neon blk r10" style="padding:.5rem 1rem;font-size:.82rem;display:inline-block">← Spore'z</a>
     </div>
   </header>
@@ -189,18 +198,13 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
     <!-- ══ GENERATE ══ -->
     <div class="view active" id="view-generate">
 
+      <!-- Trial bar -->
       <div class="trial-bar" id="trial-bar">
         <div class="trial-info">
-          <strong>Free Trial</strong> — Generate up to 3 articles free. No account needed.<br>
-          Upgrade for unlimited generation + auto-publish to Spore'z.
+          <strong>Free Trial</strong> — <span id="trial-left">3</span> generations remaining.<br>
+          Upgrade for unlimited articles + auto-publish to Spore'z.
         </div>
         <div class="trial-count" id="trial-count">3</div>
-      </div>
-
-      <!-- Gemini key -->
-      <div class="key-wrap">
-        <label>Gemini API Key <span style="color:rgba(207,230,255,.3);text-transform:none;letter-spacing:0;font-size:.65rem">— free at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--n-blue)">aistudio.google.com</a></span></label>
-        <input type="password" id="gemini-key" placeholder="AIzaSy..." autocomplete="off" />
       </div>
 
       <div class="stats-row">
@@ -210,7 +214,8 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
         <div class="stat c4"><div class="stat-lbl">ZC Earned</div><div class="stat-val" id="s-zc">0</div><div class="stat-sub">Tokens</div></div>
       </div>
 
-      <div class="holo-ring" style="margin-bottom:1rem">
+      <!-- Source card -->
+      <div class="holo-ring" style="margin-bottom:1rem;position:relative">
         <div class="card">
           <div class="card-header">
             <span class="card-title">// Step 1 — Source</span>
@@ -223,7 +228,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
             </div>
 
             <div id="mode-url">
-              <label>Paste any URL — Skool post, article, blog, YouTube, Reddit, anything</label>
+              <label>Paste any URL — Skool, Reddit, Medium, YouTube, any public page</label>
               <div class="url-hero">
                 <span class="url-hero-icon">🔗</span>
                 <input type="url" id="inp-url" placeholder="https://www.skool.com/your-community/post-slug" />
@@ -241,18 +246,27 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
             <div id="mode-text" style="display:none">
               <div class="form-row">
                 <label>Topic / Headline</label>
-                <input type="text" id="inp-topic" placeholder="e.g. How to build a passive income stream with AI tools in 2025" />
+                <input type="text" id="inp-topic" placeholder="e.g. How to build passive income with AI tools in 2025" />
               </div>
               <div class="form-row">
                 <label>Key Points / Notes (optional)</label>
-                <textarea id="inp-notes" rows="4" placeholder="Add any bullet points, facts, or ideas you want included..."></textarea>
+                <textarea id="inp-notes" rows="4" placeholder="Add bullet points, facts, or ideas to include..."></textarea>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="card" id="config-card" style="margin-bottom:1rem">
+      <!-- Config card -->
+      <div class="card" id="config-card" style="margin-bottom:1rem;position:relative">
+
+        <!-- Upgrade wall — shown when trials gone -->
+        <div class="upgrade-wall" id="upgrade-wall">
+          <h3 class="txt-neon">Trials Used Up</h3>
+          <p>Upgrade to Growth or Agency to keep generating unlimited SEO articles and auto-publish to Spore'z.</p>
+          <button class="btn-neon blk-thick r10 btn" onclick="goTab('billing',document.querySelectorAll('.nav-btn')[3])" style="font-size:1rem;padding:.9rem 2rem">View Plans →</button>
+        </div>
+
         <div class="card-header"><span class="card-title">// Step 2 — Configure</span></div>
         <div class="card-body">
           <div class="form-2col">
@@ -291,7 +305,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
               <label class="toggle"><input type="checkbox" id="tog-seo" checked><span class="toggle-track"></span></label>
             </div>
             <div class="toggle-row">
-              <div><div class="toggle-label">Auto-Publish to Spore'z</div><div class="toggle-sub">Push to sporez.netlify.app/articles on generate</div></div>
+              <div><div class="toggle-label">Auto-Publish to Spore'z</div><div class="toggle-sub">Push live to sporez.netlify.app/articles instantly</div></div>
               <label class="toggle"><input type="checkbox" id="tog-pub"><span class="toggle-track"></span></label>
             </div>
           </div>
@@ -303,11 +317,11 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
         </div>
       </div>
 
+      <!-- Output -->
       <div class="output" id="output">
         <div class="output-bar">
           <div class="chips">
             <span class="chip ok">✓ GENERATED</span>
-            <span class="chip gem">✦ GEMINI</span>
             <span class="chip" id="out-type">GUIDE</span>
             <span class="chip" id="out-words">— words</span>
             <span class="chip aff" id="out-aff" style="display:none">🔗 0 links</span>
@@ -332,7 +346,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
         <div class="card-body" style="padding:0">
           <table class="art-table">
             <thead><tr><th>Title / Source</th><th>Type</th><th>Status</th><th>Aff.</th><th>Words</th><th>Date</th><th></th></tr></thead>
-            <tbody id="art-tbody"><tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-txt">No articles yet.</div></div></td></tr></tbody>
+            <tbody id="art-tbody"><tr><td colspan="7"><div class="empty"><div class="empty-icon">📄</div><div class="empty-txt">No articles yet. Generate one first.</div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -357,7 +371,7 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
         <div class="card">
           <div class="card-header"><span class="card-title">// Auto-Inject Keywords</span></div>
           <div class="card-body">
-            <div style="font-size:.75rem;color:rgba(207,230,255,.35);margin-bottom:.75rem;line-height:1.6">When these appear in an article, affiliate links are injected automatically.</div>
+            <div style="font-size:.75rem;color:rgba(207,230,255,.35);margin-bottom:.75rem;line-height:1.6">When these appear, affiliate links are injected automatically.</div>
             <div id="kw-list"></div>
             <div class="form-row mt16"><label>Add Keyword</label><input type="text" id="new-kw" placeholder="e.g. yoga mat" /></div>
             <button class="btn btn-outline btn-full" onclick="addKw()">+ Add</button>
@@ -370,29 +384,47 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
     <div class="view" id="view-billing">
       <div class="sec-hdr"><div class="sec-title">Plans & Billing</div><span class="mono-tag">Cancel Anytime</span></div>
       <div class="plans">
-        <div class="plan"><div class="plan-name">Starter</div><div class="plan-price">$0<span>/mo</span></div>
-          <ul class="plan-features"><li>3 free trial articles</li><li>Manual publish</li><li>Basic affiliate injection</li><li>URL + free-text mode</li><li>250 ZC tokens</li></ul>
-          <button class="btn btn-outline btn-full mt12">Current Plan</button>
+        <div class="plan">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$0<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>3 free generations</li><li>Manual copy/publish</li>
+            <li>Basic affiliate injection</li><li>URL + free-text mode</li><li>250 ZC tokens</li>
+          </ul>
+          <button class="btn btn-outline btn-full mt12" id="current-plan-btn">Current Plan</button>
         </div>
-        <div class="plan featured"><div class="plan-name">Growth</div><div class="plan-price">$49<span>/mo</span></div>
-          <ul class="plan-features"><li>30 articles/month</li><li>Auto-publish to Spore'z</li><li>Advanced affiliate injection</li><li>Full URL scraper</li><li>SEO meta tags</li><li>1,000 ZC/month</li></ul>
-          <button class="btn-neon blk r10 btn btn-full mt12" onclick="notify('Stripe coming soon','warn')">Upgrade →</button>
+        <div class="plan featured">
+          <div class="plan-name">Growth</div>
+          <div class="plan-price">$49<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>30 articles/month</li><li>Auto-publish to Spore'z</li>
+            <li>Advanced affiliate injection</li><li>URL scraper — all platforms</li>
+            <li>SEO meta tags</li><li>1,000 ZC tokens/month</li>
+          </ul>
+          <button class="btn-neon blk r10 btn btn-full mt12" onclick="handleUpgrade('growth')">Upgrade — $49/mo →</button>
         </div>
-        <div class="plan"><div class="plan-name">Agency</div><div class="plan-price">$99<span>/mo</span></div>
-          <ul class="plan-features"><li>Unlimited articles</li><li>Auto-publish to Spore'z</li><li>Backlink exchange</li><li>White-label output</li><li>Multi-site</li><li>5,000 ZC/month</li></ul>
-          <button class="btn-neon blk r10 btn btn-full mt12" onclick="notify('Stripe coming soon','warn')">Upgrade →</button>
+        <div class="plan">
+          <div class="plan-name">Agency</div>
+          <div class="plan-price">$99<span>/mo</span></div>
+          <ul class="plan-features">
+            <li>Unlimited articles</li><li>Auto-publish to Spore'z</li>
+            <li>Backlink exchange network</li><li>White-label output</li>
+            <li>Unlimited sites</li><li>5,000 ZC tokens/month</li>
+          </ul>
+          <button class="btn-neon blk r10 btn btn-full mt12" onclick="handleUpgrade('agency')">Upgrade — $99/mo →</button>
         </div>
       </div>
       <div class="card mt24">
         <div class="card-header"><span class="card-title">// ZC Token Economy</span></div>
         <div class="card-body" style="font-size:.85rem;color:rgba(207,230,255,.55);line-height:1.8">
-          Earn <span style="color:var(--n-green)">25 ZC</span> per article generated. Published to Spore'z earns bonus <span style="color:var(--n-green)">50 ZC</span>.
+          Earn <span style="color:var(--n-green)">25 ZC</span> per article generated. Publishing to Spore'z earns <span style="color:var(--n-green)">50 ZC</span> bonus per post. Tokens unlock extra credits and future Zetsumetsu ecosystem rewards.
         </div>
       </div>
     </div>
 
   </main>
 </div>
+
 <div class="notif" id="notif"></div>
 
 <script>
@@ -400,12 +432,13 @@ textarea{resize:vertical;min-height:80px}select{cursor:pointer}select option{bac
 const SUPABASE_URL  = 'https://jtrdxlqtxjffzqtansqj.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cmR4bHF0eGpmZnpxdGFuc3FqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQxMDg5NTQsImV4cCI6MjA2OTY4NDk1NH0.KI7ysK-gHu_Qkke1mD6Cj_N1cmqbKi0dB2d2yls9Vm4';
 const TRIAL_MAX = 3;
+const API = '/api/generate'; // Netlify function — key lives server-side
 
 // ══ STATE ══
 const S = {
   mode:'url', source:null, cur:null, articles:[],
   trialsLeft: parseInt(localStorage.getItem('zr_trials') ?? String(TRIAL_MAX)),
-  isPro:false,
+  plan: localStorage.getItem('zr_plan') || 'free', // 'free' | 'growth' | 'agency'
   cnt:{ gen:0, aff:0, pub:0, zc:0 },
   keywords:['wireless earbuds','standing desk','protein powder','gaming chair'],
 };
@@ -422,52 +455,39 @@ function notify(msg,type=''){
   el.textContent=msg; el.className='notif '+type+' show';
   clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),4500);
 }
-function getKey(){
-  const k=document.getElementById('gemini-key').value.trim();
-  if(!k){ notify('Enter your Gemini API key first','err'); return null; }
-  return k;
-}
+const isPro=()=>S.plan==='growth'||S.plan==='agency';
 
-// ══ GEMINI API — used for both scraping and article writing ══
-async function gemini(prompt){
-  const key=getKey(); if(!key) throw new Error('No API key');
-  const res=await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-    {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{maxOutputTokens:8192,temperature:0.7}
-      })
-    }
-  );
-  const d=await res.json();
-  if(d.error) throw new Error('Gemini: '+d.error.message);
-  const text=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  if(!text) throw new Error('Gemini returned empty response');
-  return text;
+// ══ CALL NETLIFY FUNCTION ══
+async function callAI(prompt, mode='article'){
+  const res = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ prompt, mode })
+  });
+  const d = await res.json();
+  if(!res.ok) throw new Error(d.error || 'Server error');
+  if(!d.text) throw new Error('Empty AI response');
+  return d.text;
 }
 
 // ══ MODE ══
 function setMode(m){
   S.mode=m;
-  document.getElementById('mode-url').style.display  =m==='url' ?'block':'none';
-  document.getElementById('mode-text').style.display =m==='text'?'block':'none';
+  document.getElementById('mode-url').style.display =m==='url' ?'block':'none';
+  document.getElementById('mode-text').style.display=m==='text'?'block':'none';
   const ub=document.getElementById('mode-url-btn'),tb=document.getElementById('mode-text-btn');
   ub.className =m==='url' ?'btn btn-outline':'btn btn-ghost';
   tb.className =m==='text'?'btn btn-outline':'btn btn-ghost';
-  ub.style.cssText=`flex:1;justify-content:center;${m==='url' ?'border-color:var(--n-cyan);color:var(--n-cyan)':''}`;
+  ub.style.cssText=`flex:1;justify-content:center;${m==='url'?'border-color:var(--n-cyan);color:var(--n-cyan)':''}`;
   tb.style.cssText=`flex:1;justify-content:center;${m==='text'?'border-color:var(--n-cyan);color:var(--n-cyan)':''}`;
   document.getElementById('step-tag').textContent=m==='url'?'Paste URL then configure':'Enter topic then configure';
   if(m==='text'){S.source=null;document.getElementById('scrape-preview').classList.remove('visible');}
 }
 
-// ══ SCRAPER — Gemini reads URL slug ══
+// ══ SCRAPER ══
 async function scrapeUrl(){
   const url=document.getElementById('inp-url').value.trim();
   if(!url){notify('Paste a URL first','err');return;}
-  if(!getKey()) return;
   const btn=document.getElementById('btn-scrape');
   btn.disabled=true; btn.textContent='READING...';
   try{
@@ -479,14 +499,14 @@ async function scrapeUrl(){
       url.includes('twitter.com')||url.includes('x.com')?'Twitter/X post':
       'web article or blog post';
 
-    const raw=await gemini(
+    const raw = await callAI(
 `You are a content scraper for a content generation engine.
 URL: ${url}
 Platform: ${platform}
 
-Extract meaning from the URL slug, path, and platform type.
-Return ONLY valid JSON — no markdown, no backticks, no explanation:
-{"title":"readable Title Case title from URL slug","platform":"${platform}","topic":"main topic 4-7 words","summary":"2-3 sentences about what this content likely covers","keywords":["kw1","kw2","kw3","kw4"],"niche":"one of: business, marketing, fitness, finance, tech, education, lifestyle, ecommerce, gaming, health","tone":"one of: informative, casual, professional, motivational, technical"}`
+Extract meaning from the URL slug and platform. Return ONLY valid JSON, no markdown, no backticks:
+{"title":"readable Title Case title from URL slug","platform":"${platform}","topic":"main topic 4-7 words","summary":"2-3 sentences about what this content likely covers","keywords":["kw1","kw2","kw3","kw4"],"niche":"one of: business, marketing, fitness, finance, tech, education, lifestyle, ecommerce, gaming, health","tone":"one of: informative, casual, professional, motivational, technical"}`,
+      'scrape'
     );
 
     let src;
@@ -504,7 +524,7 @@ Return ONLY valid JSON — no markdown, no backticks, no explanation:
     document.getElementById('step-tag').textContent='Content loaded — configure below';
     notify('✓ Content detected — configure & generate','ok');
   }catch(e){
-    notify('Read failed: '+e.message,'err');
+    notify('Could not read URL: '+e.message,'err');
     console.error(e);
   }
   btn.disabled=false; btn.textContent='RE-LOAD →';
@@ -515,37 +535,35 @@ function runProg(steps,cb){
   const fill=document.getElementById('prog-fill'),stat=document.getElementById('prog-status');
   document.getElementById('prog-wrap').style.display='block';
   let i=0;
-  function next(){
-    if(i>=steps.length){cb();return;}
-    stat.textContent=steps[i].label; fill.style.width=steps[i].pct+'%';
-    setTimeout(next,steps[i++].ms||700);
-  }
+  function next(){if(i>=steps.length){cb();return;}stat.textContent=steps[i].label;fill.style.width=steps[i].pct+'%';setTimeout(next,steps[i++].ms||700);}
   next();
 }
-function clearProg(){
-  document.getElementById('prog-wrap').style.display='none';
-  document.getElementById('prog-fill').style.width='0%';
-}
+function clearProg(){document.getElementById('prog-wrap').style.display='none';document.getElementById('prog-fill').style.width='0%';}
 
-// ══ GENERATE — Gemini writes the full article ══
+// ══ GENERATE ══
 async function generateArticle(){
-  if(!S.isPro&&S.trialsLeft<=0){notify('Free trials used up — upgrade','warn');goTab('billing',document.querySelectorAll('.nav-btn')[3]);return;}
+  // Trial / plan gate
+  if(!isPro() && S.trialsLeft<=0){
+    notify('Free trials used up — upgrade to keep generating','warn');
+    goTab('billing',document.querySelectorAll('.nav-btn')[3]);
+    return;
+  }
+
   const isFT=S.mode==='text';
   const topic=document.getElementById('inp-topic').value.trim();
   const notes=document.getElementById('inp-notes').value.trim();
   if(isFT&&!topic){notify('Enter a topic first','err');return;}
   if(!isFT&&!S.source&&!document.getElementById('inp-url').value.trim()){notify('Load a URL or switch to Free Write','err');return;}
-  if(!getKey()) return;
 
   const btn=document.getElementById('btn-gen');
   btn.disabled=true;
   document.getElementById('output').classList.remove('visible');
 
-  const type  =document.getElementById('inp-type').value;
-  const length=document.getElementById('inp-length').value;
-  const affTag=document.getElementById('inp-aff-tag').value.trim()||document.getElementById('aff-tag-global').value.trim()||'zetsustore-20';
-  const useAff=document.getElementById('tog-aff').checked;
-  const useSEO=document.getElementById('tog-seo').checked;
+  const type   =document.getElementById('inp-type').value;
+  const length =document.getElementById('inp-length').value;
+  const affTag =document.getElementById('inp-aff-tag').value.trim()||document.getElementById('aff-tag-global').value.trim()||'zetsustore-20';
+  const useAff =document.getElementById('tog-aff').checked;
+  const useSEO =document.getElementById('tog-seo').checked;
   const autoPub=document.getElementById('tog-pub').checked;
 
   const steps=[
@@ -553,12 +571,12 @@ async function generateArticle(){
     {label:'Extracting key insights...',  pct:28,ms:600},
     {label:'Researching SEO angles...',   pct:45,ms:700},
     {label:'Building article outline...', pct:60,ms:600},
-    {label:'Writing with Gemini AI...',   pct:78,ms:1200},
+    {label:'Generating with Gemini AI...',pct:78,ms:1200},
     {label:useAff?'Injecting affiliate links...':'Polishing...',pct:90,ms:500},
     {label:'Finalizing output...',        pct:98,ms:300},
   ];
 
-  runProg(steps,async()=>{
+  runProg(steps, async()=>{
     try{
       let ctx='';
       if(isFT){
@@ -587,7 +605,7 @@ Example: [AFFILIATE: noise cancelling headphones|best noise-cancelling headphone
 These become real Amazon links with tag "${affTag}"`
   :'No affiliate links needed'}
 - ${useSEO
-  ?`After the article, add EXACTLY:
+  ?`After the article add EXACTLY:
 --- SEO META ---
 TITLE TAG: (under 60 chars with keyword)
 META DESCRIPTION: (under 155 chars, compelling)
@@ -595,11 +613,12 @@ FOCUS KEYWORD: (main keyword)
 SECONDARY KEYWORDS: (3-4 comma separated)`
   :''}
 
-Start directly with the H1. No preamble or explanation.`;
+Start directly with the H1. No preamble.`;
 
-      const raw=await gemini(prompt);
+      const raw = await callAI(prompt, 'article');
 
-      if(!S.isPro){
+      // Decrement trial for free users
+      if(!isPro()){
         S.trialsLeft=Math.max(0,S.trialsLeft-1);
         localStorage.setItem('zr_trials',String(S.trialsLeft));
         updateTrialUI();
@@ -655,10 +674,10 @@ function renderArticle(raw,title,type,useAff,affTag,autoPub){
   updateStats();
 
   const art={id:Date.now(),title,type,html,raw,wc,affCount,niche:S.source?.niche||'general',sourceUrl:S.source?.url||'',status:'draft',date:new Date().toLocaleDateString()};
-  S.articles.unshift(art); S.cur=art;
+  S.articles.unshift(art);S.cur=art;
   refreshTable();
 
-  if(autoPub&&S.isPro) publishNow();
+  if(autoPub&&isPro()) publishNow();
   else notify('✓ Article ready — '+wc+' words','ok');
 }
 
@@ -710,16 +729,30 @@ function updateStats(){
   document.getElementById('s-zc').textContent =S.cnt.zc;
 }
 
-// ══ TRIAL ══
+// ══ TRIAL / PLAN UI ══
 function updateTrialUI(){
   const n=S.trialsLeft;
   document.getElementById('trial-count').textContent=n;
-  document.getElementById('header-trial-badge').textContent=n>0?`FREE — ${n} trial${n===1?'':'s'} left`:'TRIALS USED UP';
-  if(n<=0){
+  document.getElementById('trial-left').textContent=n;
+
+  if(isPro()){
+    document.getElementById('trial-bar').style.display='none';
+    document.getElementById('upgrade-wall').classList.remove('show');
+    const badge=document.getElementById('plan-badge');
+    badge.textContent=S.plan==='agency'?'AGENCY':'GROWTH';
+    badge.className='plan-badge '+(S.plan==='agency'?'agency':'growth');
+  } else if(n<=0){
     document.getElementById('trial-bar').classList.add('out');
-    document.getElementById('trial-bar').querySelector('.trial-info').innerHTML='<strong>Free trials used up.</strong> Upgrade to keep generating.';
-    document.getElementById('header-trial-badge').classList.add('pro');
+    document.getElementById('trial-bar').querySelector('.trial-info').innerHTML='<strong>Trials used up.</strong> Upgrade to keep generating.';
+    document.getElementById('trial-count').style.color='var(--n-pink)';
+    document.getElementById('upgrade-wall').classList.add('show');
   }
+}
+
+// ══ UPGRADE (hook Stripe here later) ══
+function handleUpgrade(plan){
+  // TODO: replace with Stripe checkout link
+  notify('Stripe checkout coming soon — contact us to upgrade early','warn');
 }
 
 // ══ TABLE ══
@@ -730,8 +763,7 @@ function refreshTable(){
   tb.innerHTML=S.articles.map(a=>`
     <tr>
       <td class="td-title">${a.title}<small>${a.sourceUrl||'free write'}</small></td>
-      <td>${a.type}</td>
-      <td><span class="badge ${a.status}">${a.status.toUpperCase()}</span></td>
+      <td>${a.type}</td><td><span class="badge ${a.status}">${a.status.toUpperCase()}</span></td>
       <td>${a.affCount}</td><td>${a.wc}</td><td>${a.date}</td>
       <td><div class="gap8">
         <button class="btn btn-outline" style="padding:5px 10px;font-size:.75rem" onclick="loadArt(${a.id})">View</button>
