@@ -1,9 +1,10 @@
 // src/App.tsx
 import React, { useEffect, useState } from "react";
 import SporeOverlay from "./SporeOverlay";
+import ZRArticles from "./ZRArticles";
 
 type Spore = { slug: string; url: string; stats?: any; ts: number };
-type Tab = "Home" | "Saved Sporez";
+type Tab = "Home" | "Saved Sporez" | "ZR Articles";
 
 /** Global font & resets */
 function FontStyles() {
@@ -272,6 +273,7 @@ export default function App() {
   const NAV: Array<{ kind: "tab" | "link"; label: string; href?: string }> = [
     { kind: "tab", label: "Home" },
     { kind: "tab", label: "Saved Sporez" },
+    { kind: "tab", label: "ZR Articles" },
     { kind: "link", label: "Spore Fusion", href: "https://jessicaspz.netlify.app/" },
   ];
 
@@ -488,6 +490,7 @@ export default function App() {
         )}
 
         {activeTab === "Saved Sporez" && <SavedSporez />}
+        {activeTab === "ZR Articles" && <ZRArticles />}
       </main>
 
       {showSporeOverlay && <SporeOverlay />}
