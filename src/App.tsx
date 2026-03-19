@@ -274,6 +274,7 @@ export default function App() {
     { kind: "tab", label: "Home" },
     { kind: "tab", label: "Saved Sporez" },
     { kind: "tab", label: "ZR Articles" },
+    { kind: "link", label: "Zetsu Router", href: "/zetsu-router-final.html" },
     { kind: "link", label: "Spore Fusion", href: "https://jessicaspz.netlify.app/" },
   ];
 
