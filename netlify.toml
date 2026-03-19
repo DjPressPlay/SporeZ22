@@ -15,6 +15,12 @@
   to   = "/.netlify/functions/:splat"
   status = 200
 
+# Serve zetsu-router page directly (before short link catch-all)
+[[redirects]]
+  from = "/zetsu-router-final.html"
+  to   = "/zetsu-router-final.html"
+  status = 200
+
 # Short links must resolve via the redirect function
 [[redirects]]
   from = "/:slug"
